@@ -1151,103 +1151,94 @@
     }
 
 /* INICIO ESTILOS DJ */
-    /* DJ IA SECTION STYLES */
-    .dj-ai-container {
-      width: 1000px;
-      max-width: 95%;
-      margin: 20px auto;
-      z-index: var(--z-content);
-    }
+.dj-integration-root {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 25px;
+            max-width: 900px;
+            margin: 20px auto;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            color: white;
+            min-height: 120px;
+        }
 
-    .dj-ai-section {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.5s ease;
-      opacity: 0;
-      transform: translateY(10px);
-    }
+        .dj-avatar-frame {
+            position: relative;
+            width: 115px;
+            height: 115px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .dj-ai-section.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+        .dj-avatar-frame::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #ff00ff, #00ffff, #ffff00);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
 
-    .dj-avatar-wrapper {
-      position: relative;
-      flex-shrink: 0;
-    }
+        .dj-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #111;
+            border: 2px solid #000;
+        }
 
-    .dj-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid var(--color-accent-pink);
-      object-fit: cover;
-      box-shadow: 0 0 15px rgba(255, 0, 222, 0.3);
-    }
+        .dj-data-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    .dj-pulse {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      width: 12px;
-      height: 12px;
-      background: #39ff14;
-      border-radius: 50%;
-      border: 2px solid var(--color-bg);
-      animation: pulse-green 2s infinite;
-    }
+        .dj-status-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(57, 255, 20, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
-    }
+        .badge-en-cabina {
+            background-color: #ff0000;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
 
-    .dj-text-container {
-      flex: 1;
-    }
+        .dj-name-text {
+            color: #f1c40f;
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+        }
 
-    .dj-status {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--color-accent-pink);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      display: block;
-      margin-bottom: 4px;
-    }
+        .dj-ai-script-box {
+            font-size: 1.1rem;
+            line-height: 1.4;
+            margin: 0;
+            font-weight: 500;
+            color: rgba(255,255,255,0.95);
+        }
 
-    .dj-name {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.2rem;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-
-    .dj-comment {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: #ccc;
-      font-style: italic;
-    }
-
-    .now-playing-mini {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      gap: 15px;
-      font-size: 0.8rem;
-    }
-
-    .np-label { color: var(--color-accent-blue); font-weight: 700; }
+        .typing-effect {
+            opacity: 0.7;
+            font-style: italic;
+        }
 /* FIN ESTILOS DJ */
 </style>
 </head>
@@ -1335,25 +1326,20 @@
     </section>
 
 <!-- INICIO HTML DJ-->
-  <!-- SECCIÓN DJ IA CORREGIDA -->
-  <div class="dj-ai-container">
-    <section id="dj-ai-section" class="dj-ai-section">
-      <div class="dj-avatar-wrapper">
-        <img id="djAvatar" class="dj-avatar" src="https://via.placeholder.com/80" alt="DJ IA">
-        <div class="dj-pulse"></div>
-      </div>
-      <div class="dj-text-container">
-        <span id="djStatus" class="dj-status">EN CABINA</span>
-        <h3 id="djName" class="dj-name">DJ IA</h3>
-        <p id="djComment" class="dj-comment">Sintonizando la mejor música para ti...</p>
-        
-        <div class="now-playing-mini">
-          <div><span class="np-label">ARTISTA:</span> <span id="npArtist">---</span></div>
-          <div><span class="np-label">CANCIÓN:</span> <span id="npSong">---</span></div>
+<div id="radiochar-ai-dj" class="dj-integration-root">
+        <div class="dj-avatar-frame">
+            <img id="ai-dj-avatar" src="https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg" alt="DJ" class="dj-avatar-img">
         </div>
-      </div>
-    </section>
-  </div>
+        <div class="dj-data-panel">
+            <div class="dj-status-header">
+                <span class="badge-en-cabina">En Cabina</span>
+                <h2 id="ai-dj-name" class="dj-name-text">DJ RADIOCHAR</h2>
+            </div>
+            <p id="ai-dj-comment" class="dj-ai-script-box">
+                <span class="typing-effect">Escaneando sintonía en vivo...</span>
+            </p>
+        </div>
+    </div>
 <!-- FIN HTML DJ -->
 
     <section class="content-section schedule-section">
@@ -2612,77 +2598,110 @@
   })();
 </script>
 <!-- INICIO SCRIPT DJ -->
-  <script>
-    /**
-     * CONFIGURACIÓN DEL DJ IA
-     * Asegúrate de que tu Cloudflare Worker permita CORS para tu dominio.
-     */
-    const IA_CONFIG = {
-      WORKER_URL: "https://bitter-river-7a49.robinsoncharjuelan.workers.dev/",
-      REFRESH_INTERVAL: 15000, // 15 segundos
-      DEFAULT_AVATAR: "https://via.placeholder.com/80?text=DJ"
-    };
+<script>
+        const RADIOCHAR_AI = {
+            WORKER_URL: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
+            DJS_DATA: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/PERSONALIDAD_DJS.JSON',
+            // Selectores redundantes para asegurar que encuentre la canción en tu index.HTML local
+            SONG_SELECTORS: ['.now-playing-title', '#cc_strinfo_track_radiochar', '.play-title', '#title'],
+            CHECK_INTERVAL: 4000
+        };
 
-    let lastTrackId = null;
-    let isFetchingIA = false;
+        let state = { djs: [], currentDJ: null, lastSong: "" };
 
-    async function updateDJContent( ) {
-      if (isFetchingIA) return;
-      isFetchingIA = true;
+        async function init() {
+            console.log("🛠️ Radiochar AI: Iniciando motor...");
+            try {
+                const resp = await fetch(RADIOCHAR_AI.DJS_DATA);
+                const data = await resp.json();
+                
+                // Aseguramos que data sea un array (manejo de estructura JSON)
+                state.djs = Array.isArray(data) ? data : (data.djs || []);
+                console.log("✅ Datos de DJs procesados:", state.djs.length);
 
-      const djSection = document.getElementById("dj-ai-section");
+                updateDJ();
+                
+                // Monitoreo constante
+                setInterval(checkStatus, RADIOCHAR_AI.CHECK_INTERVAL);
+                checkStatus();
 
-      try {
-        console.log("Consultando DJ IA...");
-        // Añadimos un timestamp para evitar cache agresivo del navegador
-        const response = await fetch(`${IA_CONFIG.WORKER_URL}?t=${Date.now()}`, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          mode: 'cors' // Importante para Cloudflare Workers
-        });
-
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-        const data = await response.json();
-        console.log("Datos recibidos del DJ:", data);
-
-        // Validamos que la respuesta tenga los campos necesarios
-        if (data && data.ok) {
-          
-          // Solo actualizamos si la canción ha cambiado o es la primera carga
-          if (data.track_id !== lastTrackId) {
-            lastTrackId = data.track_id;
-
-            // Actualización de la UI con efectos suaves
-            djSection.classList.remove("visible");
-            
-            setTimeout(() => {
-              document.getElementById("npArtist").textContent = data.artist || "Desconocido";
-              document.getElementById("npSong").textContent = data.song || "Sin título";
-              document.getElementById("djName").textContent = data.dj || "DJ Radiochar";
-              document.getElementById("djComment").textContent = data.text || "¡Disfruta de la música!";
-              
-              const avatarImg = document.getElementById("djAvatar");
-              avatarImg.src = data.avatar || IA_CONFIG.DEFAULT_AVATAR;
-              
-              djSection.classList.add("visible");
-            }, 500);
-          }
+            } catch (e) {
+                console.error("❌ Error inicial:", e);
+                document.getElementById('ai-dj-comment').innerText = "Sintonía automática activada.";
+            }
         }
-      } catch (error) {
-        console.error("Error al conectar con el DJ IA:", error);
-        // No ocultamos la sección para no romper el diseño, pero informamos en consola
-      } finally {
-        isFetchingIA = false;
-      }
-    }
 
-    // Iniciar el ciclo del DJ
-    document.addEventListener("DOMContentLoaded", () => {
-      updateDJContent();
-      setInterval(updateDJContent, IA_CONFIG.REFRESH_INTERVAL);
-    });
-  </script>
+        function updateDJ() {
+            const hour = new Date().getHours();
+            
+            // Intentar encontrar DJ por hora
+            let found = state.djs.find(dj => {
+                if (!dj.franja_horaria) return false;
+                const [s, e] = dj.franja_horaria.split('-').map(h => parseInt(h));
+                return hour >= s && hour < e;
+            });
+
+            // Si no hay coincidencia (tu error de UNDEFINED), forzar el primero
+            state.currentDJ = found || state.djs[0];
+
+            if (state.currentDJ) {
+                console.log("🎙️ DJ Seleccionado:", state.currentDJ.nombre);
+                document.getElementById('ai-dj-name').innerText = `DJ ${state.currentDJ.nombre || 'RADIOCHAR'}`;
+                if (state.currentDJ.imagen) {
+                    document.getElementById('ai-dj-avatar').src = state.currentDJ.imagen;
+                }
+            }
+        }
+
+        function checkStatus() {
+            let songName = "";
+            for (let s of RADIOCHAR_AI.SONG_SELECTORS) {
+                const el = document.querySelector(s);
+                if (el && el.innerText.trim().length > 2) {
+                    songName = el.innerText.trim();
+                    break;
+                }
+            }
+
+            if (songName && songName !== state.lastSong && songName !== "Radiochar") {
+                console.log("🎵 Cambio de canción detectado:", songName);
+                state.lastSong = songName;
+                getAIComment(songName);
+            }
+        }
+
+        async function getAIComment(song) {
+            const box = document.getElementById('ai-dj-comment');
+            box.innerHTML = `<span class="typing-effect">DJ ${state.currentDJ.nombre} está conectando...</span>`;
+
+            try {
+                const prompt = `Actúa como ${state.currentDJ.nombre}. Personalidad: ${state.currentDJ.personalidad}. Comenta brevemente (máx 18 palabras) la canción "${song}" en Radiochar. Sé muy natural y creativo.`;
+
+                console.log("📡 Enviando petición al Worker...");
+                const res = await fetch(RADIOCHAR_AI.WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                if (!res.ok) throw new Error("Worker inalcanzable");
+
+                const data = await res.json();
+                const comment = data.text || data.result || `¡Qué gran tema es ${song}!`;
+                
+                box.innerHTML = comment.replace(song, `<b>${song}</b>`);
+                console.log("✨ Comentario inyectado.");
+
+            } catch (err) {
+                console.warn("⚠️ Fallo de conexión IA:", err.message);
+                box.innerText = `Disfrutando de ${song} con la mejor energía de Radiochar.`;
+            }
+        }
+
+        // Ejecución inmediata y segura
+        if (document.readyState === 'complete') init();
+        else window.addEventListener('load', init);
+    </script>
 <!-- FIN SCRIT DJ -->
 </body>
 </html>
