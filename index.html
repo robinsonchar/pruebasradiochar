@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* --- ARQUITECTURA VISUAL RADIOCHAR V14 (CENTOVA API NATIVE) --- */
+        /* --- ARQUITECTURA VISUAL RADIOCHAR V18 --- */
         #radiochar-ai-dj-container {
             display: flex;
             align-items: center;
@@ -19,8 +18,8 @@
             color: #ffffff;
             min-height: 150px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.9);
-            position: relative;
-            z-index: 99999;
+            opacity: 0;
+            transition: opacity 1s ease-in;
         }
 
         .dj-avatar-frame {
@@ -37,7 +36,7 @@
             position: absolute;
             inset: -4px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
             background-size: 300% 300%;
             animation: border-rotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -59,6 +58,8 @@
             object-fit: cover;
             border: 2px solid #000;
             display: block;
+            z-index: 2;
+            position: relative;
         }
 
         .dj-data-panel {
@@ -74,7 +75,7 @@
             gap: 15px;
         }
 
-        .badge-en-cabina {
+        .badge-live {
             background: #ff0000;
             color: #fff;
             font-size: 10px;
@@ -83,7 +84,6 @@
             border-radius: 6px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(255,0,0,0.6);
         }
 
         .dj-name-text {
@@ -95,16 +95,14 @@
         }
 
         .dj-ai-script-box {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             line-height: 1.5;
             margin: 0;
             font-weight: 500;
-            color: rgba(255,255,255,0.95);
+            color: rgba(255,255,255,0.9);
         }
 
-        .dj-ai-script-box b { color: #fff; font-weight: 800; border-bottom: 1px solid #f1c40f; }
-
-        .typing-box {
+        .typing-indicator {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -113,14 +111,10 @@
             font-size: 0.9rem;
         }
 
-        .dot-ani {
-            width: 4px; height: 4px; background: currentColor;
-            border-radius: 50%; animation: blink 1.2s infinite;
-        }
-        .dot-ani:nth-child(2) { animation-delay: 0.2s; }
-        .dot-ani:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes blink { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
+        .dot { width: 4px; height: 4px; background: currentColor; border-radius: 50%; animation: blink 1s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
         @media (max-width: 650px) {
             #radiochar-ai-dj-container { flex-direction: column; text-align: center; }
@@ -132,157 +126,143 @@
 
     <div id="radiochar-ai-dj-container">
         <div class="dj-avatar-frame">
-            <img id="ai-dj-avatar" src="https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg" alt="DJ" class="dj-avatar-img">
+            <img id="ai-dj-avatar" src="" alt="DJ" class="dj-avatar-img" onerror="this.src='https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg'">
         </div>
         <div class="dj-data-panel">
             <div class="dj-status-header">
-                <span class="badge-en-cabina">En Cabina</span>
-                <h2 id="ai-dj-name" class="dj-name-text">DJ RADIOCHAR</h2>
+                <span class="badge-live">En Cabina</span>
+                <h2 id="ai-dj-name" class="dj-name-text">Identificando...</h2>
             </div>
             <div id="ai-dj-comment" class="dj-ai-script-box">
-                Conectando con el servidor de audio...
+                Sincronizando feed oficial de Radiochar...
             </div>
         </div>
     </div>
 
     <script>
         /**
-         * RADIOCHAR AI CORE - VERSION 14.0 (CENTOVA FEED INTEGRATION)
+         * RADIOCHAR AI ENGINE V18 - SISTEMA DE PROXY ABSOLUTO
          */
         const CONFIG = {
-            WORKER: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
-            CENTOVA_FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/', 
-            DJS_DATA: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/PERSONALIDAD_DJS.JSON',
-            // Respaldo visual si el feed falla
-            SELECTORS: ['#cc_strinfo_track_radiochar', '.now-playing-title', '#title'],
-            POLLING_INTERVAL: 10000 // 10 segundos para monitoreo de API
+            WORKER_URL: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
+            INTERVAL: 15000,
+            FALLBACK_IMAGE: 'https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg'
         };
 
-        let state = { 
-            djs: [], 
-            currentDJ: null, 
-            lastSong: "", 
-            isBusy: false 
+        let state = {
+            djs: [],
+            currentDJ: null,
+            lastSong: "",
+            isProcessing: false
         };
 
         async function bootstrap() {
-            console.log("🛠️ Radiochar AI: Modo Centova API habilitado.");
+            console.log("🛠️ Radiochar AI V18: Iniciando modo Proxy...");
+            
+            // 1. Mostrar contenedor con suavidad
+            const container = document.getElementById('radiochar-ai-dj-container');
+            container.style.opacity = "1";
+
             try {
-                // 1. Cargar base de datos de DJs
-                const res = await fetch(CONFIG.DJS_DATA);
-                const data = await res.json();
-                state.djs = Array.isArray(data) ? data : (Object.values(data).find(v => Array.isArray(v)) || []);
-                
-                // 2. Asignar DJ inicial según horario
-                assignDJByTime();
-                
-                // 3. Iniciar bucle de monitoreo
-                setInterval(pollMetadata, CONFIG.POLLING_INTERVAL);
-                pollMetadata();
+                // 2. Cargar DJs vía Worker (Evita CORS)
+                const res = await fetch(`${CONFIG.WORKER_URL}?action=djs`);
+                if (!res.ok) throw new Error("Worker DJ Error");
+                state.djs = await res.json();
+                console.log("✅ DJs sincronizados vía Worker.");
             } catch (e) {
-                console.warn("⚠️ Error inicial. Usando configuración básica de emergencia.");
-                document.getElementById('ai-dj-comment').innerText = "Sincronizando señal...";
+                console.warn("⚠️ Usando DJ de emergencia local.");
+                state.djs = [{ 
+                    nombre: "Danna Cifuentes", 
+                    personalidad: "Elegante y nocturna", 
+                    tono: "Sugerente", 
+                    imagen: CONFIG.FALLBACK_IMAGE,
+                    franja_horaria: "0-24"
+                }];
             }
+
+            updateDJProfile();
+            
+            // 3. Iniciar bucle de monitoreo
+            setInterval(syncMetadata, CONFIG.INTERVAL);
+            syncMetadata();
         }
 
-        function assignDJByTime() {
+        function updateDJProfile() {
             const hour = new Date().getHours();
+            
             const found = state.djs.find(dj => {
-                const f = dj.franja_horaria || "";
-                const m = f.match(/\d+/g);
-                if (!m || m.length < 2) return false;
-                const start = parseInt(m[0]);
-                const end = (m.length >= 4 ? parseInt(m[2]) : parseInt(m[1]));
-                return hour >= start && hour <= end;
-            });
+                const franja = dj.franja_horaria || "0-24";
+                const [start, end] = franja.split('-').map(h => parseInt(h));
+                return hour >= start && hour < end;
+            }) || state.djs[0];
 
-            const dj = found || state.djs[0];
-            state.currentDJ = dj;
-            document.getElementById('ai-dj-name').innerText = `DJ ${dj.nombre.toUpperCase()}`;
-            document.getElementById('ai-dj-avatar').src = dj.imagen || "https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg";
+            state.currentDJ = found;
+            
+            document.getElementById('ai-dj-name').innerText = `DJ ${found.nombre.toUpperCase()}`;
+            document.getElementById('ai-dj-avatar').src = found.imagen || CONFIG.FALLBACK_IMAGE;
+            console.log("🎙️ Locutor asignado:", found.nombre);
         }
 
-        async function pollMetadata() {
-            if (state.isBusy) return;
-
-            let songDetected = "";
-
-            // ESTRATEGIA A: Intentar leer el FEED JSON de Centova Cast
+        async function syncMetadata() {
+            if (state.isProcessing) return;
+            
             try {
-                const feedRes = await fetch(CONFIG.CENTOVA_FEED_URL);
-                if (feedRes.ok) {
-                    const tracks = await feedRes.json();
-                    if (tracks && tracks.length > 0) {
-                        const current = tracks[0];
-                        // Centova suele entregar artist y title
-                        songDetected = `${current.artist} - ${current.title}`;
+                // Obtenemos la canción directamente del servidor de radio vía Worker
+                const res = await fetch(`${CONFIG.WORKER_URL}?action=metadata`);
+                const tracks = await res.json();
+                
+                if (tracks && tracks.length > 0) {
+                    const current = tracks[0];
+                    const songDetected = `${current.artist} - ${current.title}`.trim();
+                    
+                    if (songDetected !== state.lastSong && songDetected.length > 4) {
+                        console.log("🎵 Nueva canción detectada:", songDetected);
+                        state.lastSong = songDetected;
+                        generateAIComment(songDetected);
                     }
                 }
-            } catch (err) {
-                console.warn("🔍 Feed API inaccesible (posible CORS). Intentando escaneo visual.");
-            }
-
-            // ESTRATEGIA B: Si la API falló, escaneamos el HTML (Redundancia)
-            if (!songDetected) {
-                for (let s of CONFIG.SELECTORS) {
-                    const el = document.querySelector(s);
-                    if (el && el.innerText.trim().length > 5) {
-                        const txt = el.innerText.trim();
-                        if (!txt.includes("DJ") && !txt.includes("Radiochar") && !txt.includes("Cargando")) {
-                            songDetected = txt;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Procesar cambio si se detecta nueva música
-            if (songDetected && songDetected !== state.lastSong) {
-                console.log(`🎵 Nueva pista detectada via Feed: ${songDetected}`);
-                state.lastSong = songDetected;
-                generateAI(songDetected);
+            } catch (e) {
+                console.error("🔍 Fallo al sincronizar metadata.");
             }
         }
 
-        async function generateAI(song) {
-            state.isBusy = true;
+        async function generateAIComment(song) {
+            state.isProcessing = true;
             const box = document.getElementById('ai-dj-comment');
             const dj = state.currentDJ;
 
             box.innerHTML = `
-                <div class="typing-box">
-                    <div class="dot-ani"></div><div class="dot-ani"></div><div class="dot-ani"></div>
+                <div class="typing-indicator">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                     <span>DJ ${dj.nombre} preparando comentario...</span>
                 </div>`;
 
             try {
-                const prompt = `Actúa como ${dj.nombre}. Personalidad: ${dj.personalidad}. Tono: ${dj.tono}. Comenta de forma muy breve (máximo 14 palabras), natural y muy creativa la canción "${song}" para la audiencia de Radiochar. No saludes.`;
+                const prompt = `Actúa como ${dj.nombre}. Personalidad: ${dj.personalidad}. Tono: ${dj.tono}. Comenta de forma muy breve (máx 14 palabras) y creativa la canción "${song}" para Radiochar. No saludes.`;
 
-                const res = await fetch(CONFIG.WORKER, {
+                const res = await fetch(CONFIG.WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: prompt })
                 });
 
                 const data = await res.json();
-                const aiResponse = data.text || data.result || `¡Qué gran canción es ${song}! Disfrútala en Radiochar.`;
+                const aiText = data.result || `Siente la energía de ${song} con Radiochar.`;
 
-                box.style.opacity = 0;
+                box.style.opacity = "0";
                 setTimeout(() => {
-                    box.innerHTML = aiResponse.replace(new RegExp(song, 'gi'), `<b>${song}</b>`);
+                    box.innerHTML = `<strong>${aiText}</strong>`;
                     box.style.transition = "opacity 0.6s";
-                    box.style.opacity = 1;
-                    state.isBusy = false;
+                    box.style.opacity = "1";
+                    state.isProcessing = false;
                 }, 400);
 
             } catch (err) {
-                console.error("❌ Error de IA:", err);
-                box.innerHTML = `Disfrutando de <b>${song}</b> con la mejor energía.`;
-                state.isBusy = false;
+                box.innerHTML = `Disfrutando de la mejor música con <b>${song}</b>.`;
+                state.isProcessing = false;
             }
         }
 
-        // Ejecutar motor
         window.addEventListener('load', bootstrap);
     </script>
 </body>
