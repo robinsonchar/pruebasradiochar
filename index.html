@@ -141,129 +141,97 @@
 
     <script>
         /**
-         * RADIOCHAR AI ENGINE V18 - SISTEMA DE PROXY ABSOLUTO
-         */
-        const CONFIG = {
-            WORKER_URL: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
-            INTERVAL: 15000,
-            FALLBACK_IMAGE: 'https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg'
-        };
+ * RADIOCHAR AI INTEGRATION V6.0 - CLIENTE DE INGENIERÍA NIVEL 5
+ * Este script reemplaza la lógica anterior y se conecta al Worker de Cloudflare.
+ */
+(function() {
+    'use strict';
 
-        let state = {
-            djs: [],
-            currentDJ: null,
-            lastSong: "",
-            isProcessing: false
-        };
-
-        async function bootstrap() {
-            console.log("🛠️ Radiochar AI V18: Iniciando modo Proxy...");
-            
-            // 1. Mostrar contenedor con suavidad
-            const container = document.getElementById('radiochar-ai-dj-container');
-            container.style.opacity = "1";
-
-            try {
-                // 2. Cargar DJs vía Worker (Evita CORS)
-                const res = await fetch(`${CONFIG.WORKER_URL}?action=djs`);
-                if (!res.ok) throw new Error("Worker DJ Error");
-                state.djs = await res.json();
-                console.log("✅ DJs sincronizados vía Worker.");
-            } catch (e) {
-                console.warn("⚠️ Usando DJ de emergencia local.");
-                state.djs = [{ 
-                    nombre: "Danna Cifuentes", 
-                    personalidad: "Elegante y nocturna", 
-                    tono: "Sugerente", 
-                    imagen: CONFIG.FALLBACK_IMAGE,
-                    franja_horaria: "0-24"
-                }];
-            }
-
-            updateDJProfile();
-            
-            // 3. Iniciar bucle de monitoreo
-            setInterval(syncMetadata, CONFIG.INTERVAL);
-            syncMetadata();
+    const AI_CONFIG = {
+        // REEMPLAZA ESTA URL CON LA URL DE TU WORKER DE CLOUDFLARE
+        workerUrl: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev/', 
+        feed: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
+        djs: {
+            'KAROL': { start: 0, end: 5, img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDzoq_pTmC45CLGbrYWwHAjVegHcJ6h0adHxybVEBXOjp0tzRwesUhAHieyNfA6tAijA1wW79b0NpUwItTgzGEX-_ybsMic9WsSYAshhLu8kT9YxjR8cwNZ_BlsLphXR4wmE7jVmL4yIUJ85VhCzB5EBn0HnXVTJT47DgvcHcA5ouhvOQQgwu5W8iVTpKW/s200/KarolDJ%20  (1).png' },
+            'TITO': { start: 6, end: 11, img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s200/TitoDJ.png' },
+            'SALMA': { start: 12, end: 14, img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s200/SalmaDJ.png' },
+            'JHON': { start: 15, end: 19, img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s200/JhonDJ.png' },
+            'DANNA': { start: 20, end: 23, img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s200/DannaDJ.png' }
         }
+    };
 
-        function updateDJProfile() {
-            const hour = new Date().getHours();
-            
-            const found = state.djs.find(dj => {
-                const franja = dj.franja_horaria || "0-24";
-                const [start, end] = franja.split('-').map(h => parseInt(h));
-                return hour >= start && hour < end;
-            }) || state.djs[0];
+    let state = { song: '', dj: '', busy: false };
 
-            state.currentDJ = found;
-            
-            document.getElementById('ai-dj-name').innerText = `DJ ${found.nombre.toUpperCase()}`;
-            document.getElementById('ai-dj-avatar').src = found.imagen || CONFIG.FALLBACK_IMAGE;
-            console.log("🎙️ Locutor asignado:", found.nombre);
+    const getDJ = () => {
+        const h = new Date().getHours();
+        for (const id in AI_CONFIG.djs) {
+            if (h >= AI_CONFIG.djs[id].start && h <= AI_CONFIG.djs[id].end) return id;
         }
+        return 'KAROL';
+    };
 
-        async function syncMetadata() {
-            if (state.isProcessing) return;
-            
-            try {
-                // Obtenemos la canción directamente del servidor de radio vía Worker
-                const res = await fetch(`${CONFIG.WORKER_URL}?action=metadata`);
-                const tracks = await res.json();
+    const updateUI = (djId, text) => {
+        const img = document.getElementById('dj-photo');
+        const name = document.getElementById('dj-name');
+        const box = document.getElementById('dj-comment');
+        
+        if (img) img.src = AI_CONFIG.djs[djId].img;
+        if (name) name.textContent = `DJ ${djId}`;
+        if (box) {
+            box.style.opacity = '0';
+            setTimeout(() => {
+                // Aplicar formato: comillas y cursiva según pedido anterior
+                box.innerHTML = `<i>"${text}"</i>`;
+                box.style.opacity = '1';
+            }, 400);
+        }
+    };
+
+    const fetchAIComment = async (song, djId) => {
+        try {
+            const response = await fetch(`${AI_CONFIG.workerUrl}?song=${encodeURIComponent(song)}&dj=${djId}`);
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            return data.text;
+        } catch (e) {
+            console.error("[AI-ERROR]", e);
+            return "¡Disfrutando de la mejor música aquí en Radiochar!";
+        }
+    };
+
+    const Engine = async () => {
+        if (state.busy) return;
+        state.busy = true;
+
+        try {
+            const r = await fetch(`${AI_CONFIG.feed}?t=${Date.now()}`);
+            const feed = await r.json();
+            const track = feed.items[0].title;
+            const djId = getDJ();
+
+            if (track !== state.song || djId !== state.dj) {
+                state.song = track;
+                state.dj = djId;
                 
-                if (tracks && tracks.length > 0) {
-                    const current = tracks[0];
-                    const songDetected = `${current.artist} - ${current.title}`.trim();
-                    
-                    if (songDetected !== state.lastSong && songDetected.length > 4) {
-                        console.log("🎵 Nueva canción detectada:", songDetected);
-                        state.lastSong = songDetected;
-                        generateAIComment(songDetected);
-                    }
-                }
-            } catch (e) {
-                console.error("🔍 Fallo al sincronizar metadata.");
+                console.log(`[AI-DJ] Nueva canción detectada: ${track}. Solicitando comentario a la IA...`);
+                const comment = await fetchAIComment(track, djId);
+                updateUI(djId, comment);
             }
+        } catch (e) {
+            console.error("[AI-ENGINE-ERROR]", e);
+        } finally {
+            state.busy = false;
         }
+    };
 
-        async function generateAIComment(song) {
-            state.isProcessing = true;
-            const box = document.getElementById('ai-dj-comment');
-            const dj = state.currentDJ;
+    // Inicio
+    window.addEventListener('load', () => {
+        Engine();
+        setInterval(Engine, 20000); // Verificar cada 20 segundos
+    });
 
-            box.innerHTML = `
-                <div class="typing-indicator">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                    <span>DJ ${dj.nombre} preparando comentario...</span>
-                </div>`;
-
-            try {
-                const prompt = `Actúa como ${dj.nombre}. Personalidad: ${dj.personalidad}. Tono: ${dj.tono}. Comenta de forma muy breve (máx 14 palabras) y creativa la canción "${song}" para Radiochar. No saludes.`;
-
-                const res = await fetch(CONFIG.WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
-
-                const data = await res.json();
-                const aiText = data.result || `Siente la energía de ${song} con Radiochar.`;
-
-                box.style.opacity = "0";
-                setTimeout(() => {
-                    box.innerHTML = `<strong>${aiText}</strong>`;
-                    box.style.transition = "opacity 0.6s";
-                    box.style.opacity = "1";
-                    state.isProcessing = false;
-                }, 400);
-
-            } catch (err) {
-                box.innerHTML = `Disfrutando de la mejor música con <b>${song}</b>.`;
-                state.isProcessing = false;
-            }
-        }
-
-        window.addEventListener('load', bootstrap);
+})();
     </script>
 </body>
 </html>
+
