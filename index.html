@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* --- ARQUITECTURA VISUAL RADIOCHAR V7 (NIVEL MASTER) --- */
+        /* --- ARQUITECTURA VISUAL RADIOCHAR V9 (EDICIÓN REPOSITORIO) --- */
         #radiochar-ai-dj-container {
             display: flex;
             align-items: center;
@@ -12,16 +12,13 @@
             gap: 28px;
             max-width: 900px;
             margin: 20px auto;
-            background: linear-gradient(145deg, rgba(20,20,25,0.95), rgba(10,10,15,1));
+            background: linear-gradient(145deg, #141419, #0a0a0f);
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.08);
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-family: 'Inter', system-ui, sans-serif;
             color: #ffffff;
             min-height: 150px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-            /* Asegurar visibilidad en cualquier entorno */
-            opacity: 1 !important;
-            visibility: visible !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
             position: relative;
             z-index: 9999;
         }
@@ -31,6 +28,8 @@
             width: 120px;
             height: 120px;
             flex-shrink: 0;
+            background: #222;
+            border-radius: 50%;
         }
 
         .dj-avatar-frame::after {
@@ -40,14 +39,14 @@
             border-radius: 50%;
             background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
             background-size: 300% 300%;
-            animation: gradient-rotate 4s linear infinite;
+            animation: border-rotate 4s linear infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
         }
 
-        @keyframes gradient-rotate {
+        @keyframes border-rotate {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -58,8 +57,8 @@
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            background: #111;
-            border: 3px solid #000;
+            border: 2px solid #000;
+            display: block;
         }
 
         .dj-data-panel {
@@ -83,8 +82,8 @@
             padding: 5px 12px;
             border-radius: 6px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            box-shadow: 0 0 15px rgba(255,0,0,0.6);
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
         }
 
         .dj-name-text {
@@ -93,7 +92,6 @@
             font-weight: 900;
             margin: 0;
             text-transform: uppercase;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .dj-ai-script-box {
@@ -104,25 +102,25 @@
             color: rgba(255,255,255,0.9);
         }
 
-        .dj-ai-script-box b { color: #fff; font-weight: 700; }
+        .dj-ai-script-box b { color: #fff; font-weight: 800; border-bottom: 1px solid #f1c40f; }
 
-        .typing-indicator {
+        .typing-box {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            gap: 6px;
             color: #4facfe;
             font-style: italic;
             font-size: 0.9rem;
-            align-items: center;
         }
 
-        .dot {
-            width: 5px; height: 5px; background: currentColor;
-            border-radius: 50%; animation: blink 1s infinite;
+        .dot-ani {
+            width: 4px; height: 4px; background: currentColor;
+            border-radius: 50%; animation: blink 1.2s infinite;
         }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot-ani:nth-child(2) { animation-delay: 0.2s; }
+        .dot-ani:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
 
         @media (max-width: 650px) {
             #radiochar-ai-dj-container { flex-direction: column; text-align: center; }
@@ -134,32 +132,28 @@
 
     <div id="radiochar-ai-dj-container">
         <div class="dj-avatar-frame">
-            <img id="ai-dj-avatar" src="" alt="DJ" class="dj-avatar-img">
+            <img id="ai-dj-avatar" src="https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/danna_cifuentes.jpg" alt="DJ" class="dj-avatar-img">
         </div>
         <div class="dj-data-panel">
             <div class="dj-status-header">
                 <span class="badge-en-cabina">En Cabina</span>
-                <h2 id="ai-dj-name" class="dj-name-text">DJ RADIOCHAR</h2>
+                <h2 id="ai-dj-name" class="dj-name-text">DJ DANNA CIFUENTES</h2>
             </div>
             <div id="ai-dj-comment" class="dj-ai-script-box">
-                Escaneando señal de audio...
+                Sincronizando con Radiochar...
             </div>
         </div>
     </div>
 
     <script>
         /**
-         * RADIOCHAR AI CORE - MASTER AUDIT V7
+         * RADIOCHAR AI CORE - VERSION 9.0 (AGNOSTICA Y BLINDADA)
          */
         const CONFIG = {
             WORKER: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
             DATA_URL: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/PERSONALIDAD_DJS.JSON',
-            SELECTORS: [
-                '.now-playing-title', '#cc_strinfo_track_radiochar', 
-                '.play-title', '#title', '.current-song', 
-                '.titulo-cancion', '.track-info b', 'h2.song-title'
-            ],
-            // DJ DE RESPALDO (Previene el error UNDEFINED instantáneamente)
+            SELECTORS: ['#cc_strinfo_track_radiochar', '.now-playing-title', '.play-title', '#title', '.current-song-name'],
+            // DJ DE RESPALDO TOTALMENTE DEFINIDO
             DEFAULT_DJ: {
                 nombre: "Danna Cifuentes",
                 personalidad: "Elegante, sofisticada, nocturna. Ambiente de club exclusivo.",
@@ -168,72 +162,79 @@
             }
         };
 
-        let state = {
-            djs: [CONFIG.DEFAULT_DJ],
-            currentDJ: CONFIG.DEFAULT_DJ,
-            lastSong: "",
-            isWorking: false
-        };
+        let state = { djs: [], currentDJ: CONFIG.DEFAULT_DJ, lastSong: "", isBusy: false };
 
-        // 1. Inicialización de UI inmediata (Evita que el usuario vea "undefined")
-        function syncUI() {
-            document.getElementById('ai-dj-name').innerText = `DJ ${state.currentDJ.nombre}`;
-            document.getElementById('ai-dj-avatar').src = state.currentDJ.imagen;
+        // 1. Normalización de objeto DJ (Previene errores de 'undefined' si el JSON cambia nombres de llaves)
+        function normalizeDJ(rawDJ) {
+            if (!rawDJ) return CONFIG.DEFAULT_DJ;
+            return {
+                nombre: rawDJ.nombre || rawDJ.NOMBRE || rawDJ.dj_name || CONFIG.DEFAULT_DJ.nombre,
+                personalidad: rawDJ.personalidad || rawDJ.PERSONALIDAD || rawDJ.bio || CONFIG.DEFAULT_DJ.personalidad,
+                tono: rawDJ.tono || rawDJ.TONO || rawDJ.style || CONFIG.DEFAULT_DJ.tono,
+                imagen: rawDJ.imagen || rawDJ.IMAGEN || rawDJ.img_url || CONFIG.DEFAULT_DJ.imagen,
+                franja: rawDJ.franja_horaria || rawDJ.FRANJA_HORARIA || ""
+            };
+        }
+
+        function updateUI(dj) {
+            state.currentDJ = dj;
+            const nameEl = document.getElementById('ai-dj-name');
+            const imgEl = document.getElementById('ai-dj-avatar');
+            
+            if (nameEl) nameEl.innerText = `DJ ${dj.nombre.toUpperCase()}`;
+            if (imgEl && dj.imagen) {
+                // Prevenir el error 404 cargando solo si el URL parece válido
+                if (dj.imagen.startsWith('http')) {
+                    imgEl.src = dj.imagen;
+                }
+            }
         }
 
         async function bootstrap() {
-            console.log("🛡️ Master Audit: Motor iniciado.");
-            syncUI();
+            console.log("🛠️ Iniciando Radiochar AI V9...");
+            updateUI(CONFIG.DEFAULT_DJ); // UI inmediata
 
             try {
-                // Intentar cargar DJs, si falla (CORS local), seguimos con el default
                 const res = await fetch(CONFIG.DATA_URL);
-                const data = await res.json();
-                state.djs = Array.isArray(data) ? data : (Object.values(data)[0] || [CONFIG.DEFAULT_DJ]);
-                console.log("✅ DJs externos sincronizados.");
+                const raw = await res.json();
+                const list = Array.isArray(raw) ? raw : (Object.values(raw)[0] || []);
+                
+                // Mapear y normalizar toda la lista
+                state.djs = list.map(item => normalizeDJ(item));
+                console.log("✅ JSON normalizado con", state.djs.length, "DJs");
+                
+                assignDJByTime();
             } catch (e) {
-                console.warn("⚠️ Ejecución en local o error de red detectado. Usando DJ de respaldo.");
+                console.warn("⚠️ Error de sincronización externa. Modo Respaldo activo.");
             }
 
-            updateDJByHour();
-            startMonitoring();
-        }
-
-        function updateDJByHour() {
-            const hour = new Date().getHours();
-            const found = state.djs.find(dj => {
-                if (!dj.franja_horaria) return false;
-                const hours = dj.franja_horaria.match(/\d+/g);
-                return hours && hour >= parseInt(hours[0]) && hour <= parseInt(hours[1]);
-            });
-
-            state.currentDJ = found || state.djs[0] || CONFIG.DEFAULT_DJ;
-            syncUI();
-        }
-
-        function startMonitoring() {
-            // Monitor de alta frecuencia (Cada 3 seg) para asegurar captura
-            setInterval(scan, 3000);
-            
-            // Observador de cambios en el DOM
-            const observer = new MutationObserver(() => scan());
-            observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-            
+            setInterval(scan, 5000);
             scan();
         }
 
+        function assignDJByTime() {
+            const hour = new Date().getHours();
+            const found = state.djs.find(dj => {
+                if (!dj.franja) return false;
+                const matches = dj.franja.match(/\d+/g);
+                if (!matches || matches.length < 2) return false;
+                return hour >= parseInt(matches[0]) && hour <= parseInt(matches[1]);
+            });
+
+            if (found) updateUI(found);
+        }
+
         function scan() {
-            if (state.isWorking) return;
+            if (state.isBusy) return;
             
             let song = "";
-            const self = document.getElementById('radiochar-ai-dj-container');
+            const container = document.getElementById('radiochar-ai-dj-container');
 
             for (let s of CONFIG.SELECTORS) {
                 const el = document.querySelector(s);
-                // No leerse a sí mismo
-                if (el && !self.contains(el)) {
+                if (el && !container.contains(el)) {
                     const text = el.innerText.trim();
-                    if (isValid(text)) {
+                    if (text.length > 5 && !text.toUpperCase().includes("UNDEFINED") && !text.toUpperCase().includes("DJ")) {
                         song = text;
                         break;
                     }
@@ -241,30 +242,19 @@
             }
 
             if (song && song !== state.lastSong) {
-                console.log(`🎵 Metadata detectada: ${song}`);
+                console.log("🎵 Nueva Canción:", song);
                 state.lastSong = song;
-                askAI(song);
+                requestAI(song);
             }
         }
 
-        function isValid(t) {
-            if (!t || t.length < 4) return false;
-            const blacklist = ["Radiochar", "Sincronizando", "Escaneando", "undefined", "Desconocido", "DJ "];
-            return !blacklist.some(b => t.toLowerCase().includes(b.toLowerCase()));
-        }
-
-        async function askAI(song) {
-            state.isWorking = true;
+        async function requestAI(song) {
+            state.isBusy = true;
             const box = document.getElementById('ai-dj-comment');
-            
-            box.innerHTML = `
-                <div class="typing-indicator">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                    <span>DJ ${state.currentDJ.nombre} está redactando...</span>
-                </div>`;
+            box.innerHTML = `<div class="typing-box"><div class="dot-ani"></div><div class="dot-ani"></div><div class="dot-ani"></div><span>${state.currentDJ.nombre} escribiendo...</span></div>`;
 
             try {
-                const prompt = `Actúa como ${state.currentDJ.nombre}. Personalidad: ${state.currentDJ.personalidad}. Tono: ${state.currentDJ.tono}. Comenta de forma breve (máx 15 palabras), muy natural y creativa la canción "${song}" para Radiochar. No saludes.`;
+                const prompt = `Actúa como ${state.currentDJ.nombre}. Personalidad: ${state.currentDJ.personalidad}. Tono: ${state.currentDJ.tono}. Comenta muy breve (12 palabras) y natural la canción "${song}" para Radiochar. No saludes.`;
 
                 const res = await fetch(CONFIG.WORKER, {
                     method: 'POST',
@@ -273,25 +263,23 @@
                 });
 
                 const data = await res.json();
-                const comment = data.text || data.result || `Siente la armonía de este éxito: ${song}.`;
+                const comment = data.text || data.result || `Disfrutando de ${song} en Radiochar.`;
 
                 box.style.opacity = 0;
                 setTimeout(() => {
                     box.innerHTML = comment.replace(new RegExp(song, 'gi'), `<b>${song}</b>`);
                     box.style.transition = "opacity 0.6s";
                     box.style.opacity = 1;
-                    state.isWorking = false;
+                    state.isBusy = false;
                 }, 400);
 
             } catch (err) {
-                console.error("❌ Worker Error:", err);
-                box.innerHTML = `Disfruta de <b>${song}</b> con la mejor energía de Radiochar.`;
-                state.isWorking = false;
+                box.innerHTML = `Siente la energía de <b>${song}</b> con Radiochar.`;
+                state.isBusy = false;
             }
         }
 
-        // Arranque forzado
-        window.onload = bootstrap;
+        window.addEventListener('load', () => setTimeout(bootstrap, 2000));
     </script>
 </body>
 </html>
