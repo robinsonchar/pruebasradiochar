@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* --- ARQUITECTURA VISUAL RADIOCHAR V10 (MASTER SUPREMO) --- */
+        /* --- ARQUITECTURA VISUAL RADIOCHAR V11 (MASTER SUPREMO - GITHUB EDITION) --- */
         #radiochar-ai-dj-container {
             display: flex;
             align-items: center;
@@ -30,6 +30,7 @@
             flex-shrink: 0;
             background: #222;
             border-radius: 50%;
+            overflow: visible;
         }
 
         .dj-avatar-frame::after {
@@ -59,6 +60,7 @@
             object-fit: cover;
             border: 2px solid #000;
             display: block;
+            background-color: #333; /* Color de fondo si la imagen falla */
         }
 
         .dj-data-panel {
@@ -147,12 +149,22 @@
 
     <script>
         /**
-         * RADIOCHAR AI CORE - VERSION 10.0 (AUDITORÍA SENIOR FINAL)
+         * RADIOCHAR AI CORE - VERSION 11.0 (REVISIÓN SENIOR FINAL)
          */
         const CONFIG = {
             WORKER: 'https://bitter-river-7a49.robinsoncharjuelan.workers.dev',
             DATA_URL: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/PERSONALIDAD_DJS.JSON',
-            SELECTORS: ['#cc_strinfo_track_radiochar', '.now-playing-title', '.play-title', '#title', '.current-song-name', 'h2.song-title'],
+            // Selectores ampliados para garantizar detección en cualquier reproductor
+            SELECTORS: [
+                '#cc_strinfo_track_radiochar', 
+                '.now-playing-title', 
+                '.play-title', 
+                '#title', 
+                '.current-song-name', 
+                'h2.song-title',
+                '.track-title',
+                '.playing-now b'
+            ],
             DEFAULT_DJ: {
                 nombre: "Danna Cifuentes",
                 personalidad: "Elegante, sofisticada, nocturna. Ambiente de club exclusivo.",
@@ -169,14 +181,21 @@
             isBusy: false 
         };
 
-        // Normalización Ultra-Segura para evitar 'undefined' en el DOM
         function normalizeDJ(raw) {
             if (!raw) return CONFIG.DEFAULT_DJ;
+            
+            // Corrector de rutas de imagen para GitHub Pages
+            let imgPath = (raw.imagen || raw.IMAGEN || raw.img_url || CONFIG.DEFAULT_DJ.imagen).toString();
+            if (imgPath.length > 3 && !imgPath.startsWith('http')) {
+                // Si la ruta es relativa, intentamos construir la absoluta del repo
+                imgPath = `https://raw.githubusercontent.com/robinsonchar/radiochar/main/${imgPath}`;
+            }
+
             return {
                 nombre: (raw.nombre || raw.NOMBRE || raw.dj_name || "Locutor").toString(),
                 personalidad: (raw.personalidad || raw.PERSONALIDAD || raw.bio || "Profesional").toString(),
                 tono: (raw.tono || raw.TONO || raw.style || "Natural").toString(),
-                imagen: (raw.imagen || raw.IMAGEN || raw.img_url || CONFIG.DEFAULT_DJ.imagen).toString(),
+                imagen: imgPath,
                 franja: (raw.franja_horaria || raw.FRANJA_HORARIA || "").toString()
             };
         }
@@ -190,34 +209,34 @@
             
             if (nameEl) nameEl.innerText = `DJ ${dj.nombre.toUpperCase()}`;
             
-            // Protección contra el error 404: solo asignar si es un string válido y no está vacío
-            if (imgEl && dj.imagen && dj.imagen.length > 5 && dj.imagen !== "undefined") {
-                imgEl.src = dj.imagen;
-            } else if (imgEl) {
-                imgEl.src = CONFIG.DEFAULT_DJ.imagen;
+            if (imgEl) {
+                // Validación de imagen y fallback
+                const testImg = new Image();
+                testImg.onload = () => { imgEl.src = dj.imagen; };
+                testImg.onerror = () => { imgEl.src = CONFIG.DEFAULT_DJ.imagen; };
+                testImg.src = dj.imagen;
             }
         }
 
         async function bootstrap() {
-            console.log("🛠️ Master Audit V10: Iniciando...");
-            updateUI(CONFIG.DEFAULT_DJ); // UI inicial de seguridad
+            console.log("🛠️ Master Audit V11: Iniciando motor...");
+            updateUI(CONFIG.DEFAULT_DJ);
 
             try {
                 const res = await fetch(CONFIG.DATA_URL);
                 const raw = await res.json();
                 
-                // Extraer lista sin importar la profundidad del objeto
                 const list = Array.isArray(raw) ? raw : (raw.djs || raw.locutores || Object.values(raw).find(v => Array.isArray(v)) || []);
                 
                 state.djs = list.map(item => normalizeDJ(item));
-                console.log(`✅ ${state.djs.length} DJs sincronizados.`);
+                console.log(`✅ ${state.djs.length} locutores sincronizados.`);
                 
                 assignDJByTime();
             } catch (e) {
-                console.warn("⚠️ Error de red. Utilizando perfiles locales.");
+                console.warn("⚠️ Usando configuración de seguridad local.");
             }
 
-            // Escaneo constante
+            // Escaneo dinámico
             setInterval(scan, 4000);
             scan();
         }
@@ -230,18 +249,19 @@
                 const m = dj.franja.match(/\d+/g);
                 if (!m || m.length < 2) return false;
                 
-                // Si la franja es "20:00 - 23:59", m = ["20", "00", "23", "59"]
-                // Queremos m[0] (20) y m[2] (23). Si m solo tiene 2, m[0] y m[1].
                 const start = parseInt(m[0]);
                 const end = (m.length >= 4) ? parseInt(m[2]) : parseInt(m[1]);
                 
                 return hour >= start && hour <= end;
             });
 
-            if (found) {
-                console.log(`🎙️ DJ del horario: ${found.nombre}`);
-                updateUI(found);
-            }
+            if (found) updateUI(found);
+        }
+
+        function isValidSong(text) {
+            if (!text || text.length < 5) return false;
+            const forbidden = ["UNDEFINED", "SINCRONIZANDO", "DJ ", "RADIOCHAR", "CARGANDO"];
+            return !forbidden.some(word => text.toUpperCase().includes(word));
         }
 
         function scan() {
@@ -250,17 +270,31 @@
             let song = "";
             const container = document.getElementById('radiochar-ai-dj-container');
 
+            // 1. Escaneo por selectores configurados
             for (let s of CONFIG.SELECTORS) {
-                const el = document.querySelector(s);
-                // No leerse a sí mismo para evitar el error "DJ UNDEFINED"
-                if (el && !container.contains(el)) {
-                    const text = el.innerText.trim();
-                    if (text.length > 4 && 
-                        !text.toUpperCase().includes("UNDEFINED") && 
-                        !text.toUpperCase().includes("SINCRONIZANDO") &&
-                        !text.toUpperCase().includes("DJ ")) {
-                        song = text;
-                        break;
+                const els = document.querySelectorAll(s);
+                for (let el of els) {
+                    if (el && !container.contains(el)) {
+                        const text = el.innerText.trim();
+                        if (isValidSong(text)) {
+                            song = text;
+                            break;
+                        }
+                    }
+                }
+                if (song) break;
+            }
+
+            // 2. Escaneo de emergencia (Cualquier encabezado h1/h2 con texto largo fuera del contenedor)
+            if (!song) {
+                const heads = document.querySelectorAll('h1, h2, h3, .title, .song');
+                for (let h of heads) {
+                    if (!container.contains(h)) {
+                        const text = h.innerText.trim();
+                        if (isValidSong(text)) {
+                            song = text;
+                            break;
+                        }
                     }
                 }
             }
@@ -291,7 +325,7 @@
                 if (!res.ok) throw new Error("Worker Offline");
                 
                 const data = await res.json();
-                const comment = data.text || data.result || `Disfrutando de ${song} en Radiochar.`;
+                const comment = data.text || data.result || `Siente la energía de ${song} con Radiochar.`;
 
                 if (box) {
                     box.style.opacity = 0;
@@ -304,18 +338,14 @@
                 }
 
             } catch (err) {
-                console.error("❌ Error IA:", err);
-                if (box) box.innerHTML = `Siente la energía de <b>${song}</b> con Radiochar.`;
+                console.error("❌ Error en conexión IA:", err);
+                if (box) box.innerHTML = `Disfrutando de <b>${song}</b> en la mejor sintonía.`;
                 state.isBusy = false;
             }
         }
 
-        // Ejecutar bootstrap cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => setTimeout(bootstrap, 2000));
-        } else {
-            setTimeout(bootstrap, 2000);
-        }
+        // Arranque forzado
+        window.addEventListener('load', () => setTimeout(bootstrap, 2000));
     </script>
 </body>
 </html>
