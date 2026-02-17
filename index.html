@@ -2670,9 +2670,7 @@ async function generarTextoDJ(prompt) {
       body: JSON.stringify({ prompt })
     });
 
-    if (!response.ok) {
-      throw new Error(`Error en el worker: ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`Error en el worker: ${response.statusText}`);
 
     const data = await response.json();
     return data.texto || "[El DJ está teniendo problemas técnicos. Volverá en un momento.]";
