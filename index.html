@@ -2638,17 +2638,28 @@ async function obtenerCancionActual() {
 
     const data = await response.json();
 
-    // Verificar que el feed tenga la estructura esperada
     if (!data || !data[0] || !data[0].items || data[0].items.length === 0) {
       throw new Error("Estructura de datos inesperada");
     }
 
-    // Obtener la primera canción de la lista (la que está sonando actualmente)
     const primeraCancion = data[0].items[0];
 
+    let titulo = primeraCancion.title || "Canción desconocida";
+    let artista = "Artista desconocido";
+
+    if (titulo.includes(" - ")) {
+      const partes = titulo.split(" - ");
+      if (partes.length >= 2) {
+        artista = partes[0];
+        titulo = partes.slice(1).join(" - ");
+      }
+    } else if (primeraCancion.description) {
+      artista = primeraCancion.description;
+    }
+
     return {
-      titulo: primeraCancion.title || "Canción desconocida",
-      artista: primeraCancion.description || "Artista desconocido"
+      titulo: titulo,
+      artista: artista
     };
   } catch (error) {
     console.error("Error al obtener la canción:", error);
@@ -2701,14 +2712,11 @@ async function actualizarEstado() {
   contexto.horaActual = obtenerHoraActual();
   contexto.djActivo = seleccionarDJ(contexto.horaActual);
 
-  // Obtener la canción actual
   const cancion = await obtenerCancionActual();
   contexto.cancionActual = cancion;
 
-  // Actualizar la interfaz de usuario
   actualizarUI();
 
-  // Generar el texto del DJ
   const prompt = construirPrompt(contexto.djActivo, cancion);
   const textoDJ = await generarTextoDJ(prompt);
   document.getElementById("dj-texto").textContent = textoDJ;
@@ -2723,7 +2731,6 @@ async function init() {
 
 // Ejecutar al cargar la página
 document.addEventListener("DOMContentLoaded", init);
-
 </script>
 <!-- FIN SCRIT DJ -->
 </body>
