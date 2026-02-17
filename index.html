@@ -2571,7 +2571,7 @@
 </script>
 <!-- INICIO SCRIPT DJ -->
 <script>
-// Datos de los DJs (cargados desde el JSON)
+// Datos de los DJs
 let djs = [];
 let contexto = {
   cancionActual: null,
@@ -2632,15 +2632,27 @@ function construirPrompt(dj, cancion) {
 async function obtenerCancionActual() {
   try {
     const response = await fetch("https://cast2.my-control-panel.com/recentfeed/robinson/json/");
-    if (!response.ok) throw new Error("Feed no disponible");
+    if (!response.ok) {
+      throw new Error("Feed no disponible");
+    }
+
     const data = await response.json();
+
+    // Validar la estructura de los datos
+    if (!data || !data.now_playing || !data.now_playing.song) {
+      throw new Error("Estructura de datos inesperada");
+    }
+
     return {
-      titulo: data.now_playing.song.title,
-      artista: data.now_playing.song.artist
+      titulo: data.now_playing.song.title || "Canción desconocida",
+      artista: data.now_playing.song.artist || "Artista desconocido"
     };
   } catch (error) {
     console.error("Error al obtener la canción:", error);
-    return null;
+    return {
+      titulo: "Canción desconocida",
+      artista: "Artista desconocido"
+    };
   }
 }
 
@@ -2685,15 +2697,16 @@ function actualizarUI() {
 async function actualizarEstado() {
   contexto.horaActual = obtenerHoraActual();
   contexto.djActivo = seleccionarDJ(contexto.horaActual);
-  contexto.cancionActual = await obtenerCancionActual();
 
-  if (!contexto.cancionActual) {
-    document.getElementById("dj-texto").textContent = "[Técnico trabajando en el feed de música...]";
-    return;
-  }
+  // Obtener la canción actual
+  const cancion = await obtenerCancionActual();
+  contexto.cancionActual = cancion;
 
+  // Actualizar la interfaz de usuario
   actualizarUI();
-  const prompt = construirPrompt(contexto.djActivo, contexto.cancionActual);
+
+  // Generar el texto del DJ
+  const prompt = construirPrompt(contexto.djActivo, cancion);
   const textoDJ = await generarTextoDJ(prompt);
   document.getElementById("dj-texto").textContent = textoDJ;
 }
@@ -2707,6 +2720,7 @@ async function init() {
 
 // Ejecutar al cargar la página
 document.addEventListener("DOMContentLoaded", init);
+
 </script>
 <!-- FIN SCRIT DJ -->
 </body>
