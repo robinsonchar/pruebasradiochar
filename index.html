@@ -2638,14 +2638,17 @@ async function obtenerCancionActual() {
 
     const data = await response.json();
 
-    // Validar la estructura de los datos
-    if (!data || !data.now_playing || !data.now_playing.song) {
+    // Verificar que el feed tenga la estructura esperada
+    if (!data || !data[0] || !data[0].items || data[0].items.length === 0) {
       throw new Error("Estructura de datos inesperada");
     }
 
+    // Obtener la primera canción de la lista (la que está sonando actualmente)
+    const primeraCancion = data[0].items[0];
+
     return {
-      titulo: data.now_playing.song.title || "Canción desconocida",
-      artista: data.now_playing.song.artist || "Artista desconocido"
+      titulo: primeraCancion.title || "Canción desconocida",
+      artista: primeraCancion.description || "Artista desconocido"
     };
   } catch (error) {
     console.error("Error al obtener la canción:", error);
@@ -2667,7 +2670,9 @@ async function generarTextoDJ(prompt) {
       body: JSON.stringify({ prompt })
     });
 
-    if (!response.ok) throw new Error(`Error en el worker: ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(`Error en el worker: ${response.statusText}`);
+    }
 
     const data = await response.json();
     return data.texto || "[El DJ está teniendo problemas técnicos. Volverá en un momento.]";
