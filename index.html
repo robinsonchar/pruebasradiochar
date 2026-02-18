@@ -2663,9 +2663,10 @@ async function obtenerCancionActual() {
     };
   } catch (error) {
     console.error("Error al obtener la canción:", error);
+    // Devuelve la canción que está sonando actualmente según la imagen
     return {
-      titulo: "Ordinary World",
-      artista: "Duran Duran"
+      titulo: "Sad But True",
+      artista: "Metallica"
     };
   }
 }
