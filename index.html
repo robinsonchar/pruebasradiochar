@@ -2638,19 +2638,15 @@ async function obtenerCancionActual() {
 
     const data = await response.json();
 
-    // Verificar que el feed tenga la estructura esperada
     if (!data || !data[0] || !data[0].items || data[0].items.length === 0) {
       throw new Error("Estructura de datos inesperada");
     }
 
-    // Obtener la primera canción de la lista (la que está sonando actualmente)
     const primeraCancion = data[0].items[0];
 
-    // Extraer el artista y el título
     let titulo = primeraCancion.title || "Canción desconocida";
     let artista = "Artista desconocido";
 
-    // Intentar extraer el artista del título si es necesario
     if (titulo.includes(" - ")) {
       const partes = titulo.split(" - ");
       if (partes.length >= 2) {
@@ -2668,8 +2664,8 @@ async function obtenerCancionActual() {
   } catch (error) {
     console.error("Error al obtener la canción:", error);
     return {
-      titulo: "Canción desconocida",
-      artista: "Artista desconocido"
+      titulo: "Ordinary World",
+      artista: "Duran Duran"
     };
   }
 }
@@ -2735,6 +2731,7 @@ async function init() {
 
 // Ejecutar al cargar la página
 document.addEventListener("DOMContentLoaded", init);
+
 </script>
 <!-- FIN SCRIT DJ -->
 </body>
