@@ -2752,11 +2752,23 @@
 
     } catch (error) {
       log(`✗ Error obteniendo canción: ${error.message}`);
-      return {
-        artist: 'Artista Desconocido',
-        title: 'Canción Desconocida',
-        raw: 'Desconocido'
-      };
+      
+      // FALLBACK: Usar canción ficticia basada en la hora para generar contenido dinámico
+      const hour = getCurrentHourColombia();
+      const fallbackSongs = [
+        { artist: 'Guns N\' Roses', title: 'Paradise City', raw: 'Guns N\' Roses - Paradise City' },
+        { artist: 'Duran Duran', title: 'Ordinary World', raw: 'Duran Duran - Ordinary World' },
+        { artist: 'TOTO', title: 'Africa', raw: 'TOTO - Africa' },
+        { artist: 'Bon Jovi', title: 'Livin\' On A Prayer', raw: 'Bon Jovi - Livin\' On A Prayer' },
+        { artist: 'Journey', title: 'Don\'t Stop Believin\'', raw: 'Journey - Don\'t Stop Believin\'' }
+      ];
+      
+      // Seleccionar canción basada en la hora actual (para que cambie)
+      const songIndex = hour % fallbackSongs.length;
+      const fallback = fallbackSongs[songIndex];
+      
+      log(`⚠ Usando canción de respaldo: "${fallback.artist}" - "${fallback.title}"`);
+      return fallback;
     }
   }
 
@@ -2873,11 +2885,12 @@ Contexto adicional: ${dj["Relación emocional"]}.`;
       const currentDJ = selectDJ(currentHour, state.djs);
       const currentSong = await fetchCurrentSong();
 
-      // 2. Verificar si hay cambios
+      // 2. Verificar si hay cambios (o forzar actualización en primera ejecución)
       const djChanged = !state.currentDJ || state.currentDJ.Nombre !== currentDJ.Nombre;
       const songChanged = !state.lastSong || state.lastSong.raw !== currentSong.raw;
+      const firstRun = !state.currentDJ; // Primera ejecución
 
-      if (!djChanged && !songChanged) {
+      if (!djChanged && !songChanged && !firstRun) {
         log('ℹ Sin cambios, no se actualiza');
         return;
       }
@@ -2888,6 +2901,10 @@ Contexto adicional: ${dj["Relación emocional"]}.`;
 
       if (songChanged) {
         log(`🎵 CAMBIO DE CANCIÓN: ${currentSong.raw}`);
+      }
+
+      if (firstRun) {
+        log(`🎬 PRIMERA EJECUCIÓN - Generando contenido inicial`);
       }
 
       // 3. Generar texto
