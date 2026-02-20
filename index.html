@@ -1151,104 +1151,152 @@
     }
 
 /* INICIO ESTILOS DJ */
-.dj-section {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 20px 15px;
-  background: transparent;
+:root {
+    --dj-accent: #ff0055;
+    --dj-glass: rgba(255, 255, 255, 0.05);
+    --dj-text: #ffffff;
+    --dj-transition: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dj-card {
-  width: 100%;
-  max-width: 700px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.dj-badge {
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(90deg, #ff0066, #6600ff);
-  padding: 4px 10px;
-  border-radius: 20px;
-  align-self: flex-start;
-  margin-bottom: 10px;
+.dj-section-wrapper {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background: transparent;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--dj-text);
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dj-content {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+    will-change: opacity, transform;
+    animation: fadeInSlide var(--dj-transition);
 }
 
-.dj-image-wrapper {
-  position: relative;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  padding: 3px;
-  background: linear-gradient(45deg, #ff0066, #6600ff, #00e0ff);
-  background-size: 300% 300%;
-  animation: borderShift 6s ease infinite;
+.hidden { display: none; }
+
+/* Badge Superior */
+.dj-badge {
+    background: var(--dj-accent);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(255, 0, 85, 0.3);
 }
 
-.dj-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+/* Imagen Circular con Borde Animado */
+.dj-visual {
+    position: relative;
+    margin-bottom: 15px;
 }
 
-@keyframes borderShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.dj-image-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(45deg, var(--dj-accent), #00d4ff, var(--dj-accent));
+    background-size: 200% 200%;
+    animation: gradientRotate 5s linear infinite;
 }
 
-.dj-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+#dj-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #222;
+    border: 3px solid #000;
 }
 
-.dj-name {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
+/* Info de Texto */
+#dj-name {
+    font-size: 1.2rem;
+    margin: 5px 0;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.track-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.music-icon { color: var(--dj-accent); }
+
+.phrase-container {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dj-phrase {
-  font-size: 14px;
-  font-style: italic;
-  margin: 5px 0 0 0;
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  will-change: opacity, transform;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: #ddd;
+    max-width: 350px;
+    margin: 0;
+    position: relative;
 }
 
-.dj-phrase.fade-out {
-  opacity: 0;
-  transform: translateY(6px);
+.dj-phrase::before, .dj-phrase::after { content: '"'; color: var(--dj-accent); }
+
+/* Animaciones */
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.dj-phrase.fade-in {
-  opacity: 1;
-  transform: translateY(0);
+@keyframes gradientRotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .dj-content {
+/* Skeleton Loading */
+.dj-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 10px;
-  }
-  .dj-image-wrapper {
-    width: 60px;
-    height: 60px;
-  }
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--dj-accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Mobile First - Responsive */
+@media (max-width: 480px) {
+    .dj-image-ring { width: 100px; height: 100px; }
+    #dj-name { font-size: 1.1rem; }
+    .dj-phrase { font-size: 0.85rem; }
 }
 /* FIN ESTILOS DJ */
 </style>
@@ -1337,31 +1385,33 @@
     </section>
 
 <!-- INICIO HTML DJ-->
- <!-- DJs Virtuales Section -->
-<section id="virtual-djs" class="dj-section" aria-live="polite">
-  <div class="dj-card">
-    
-    <div class="dj-badge">EN CABINA</div>
-
-    <div class="dj-content">
-      <div class="dj-image-wrapper">
-        <img 
-          id="djImage"
-          src="assets/djs/default.jpg"
-          alt="DJ Virtual"
-          loading="lazy"
-          decoding="async"
-          class="dj-image"
-        />
-      </div>
-
-      <div class="dj-info">
-        <p id="djName" class="dj-name">DJ Virtual</p>
-        <p id="djPhrase" class="dj-phrase">"Conectando con cabina..."</p>
-      </div>
-
+ <section id="virtual-dj-container" class="dj-section-wrapper">
+    <!-- El contenido se genera dinámicamente para evitar Layout Shift -->
+    <div id="dj-skeleton" class="dj-loading">
+        <div class="spinner"></div>
+        <p>Conectando con cabina...</p>
     </div>
-  </div>
+    
+    <div id="dj-content" class="dj-content hidden">
+        <div class="dj-badge">EN CABINA</div>
+        
+        <div class="dj-visual">
+            <div class="dj-image-ring">
+                <img id="dj-avatar" src="" alt="DJ en vivo" loading="lazy">
+            </div>
+        </div>
+
+        <div class="dj-info">
+            <h3 id="dj-name">Nombre DJ</h3>
+            <div class="track-data">
+                <span class="music-icon">♪</span>
+                <span id="current-track">Detectando música...</span>
+            </div>
+            <div class="phrase-container">
+                <p id="dj-phrase" class="dj-phrase">"Cargando inspiración..."</p>
+            </div>
+        </div>
+    </div>
 </section>
 <!-- FIN HTML DJ -->
 
@@ -2621,203 +2671,206 @@
   })();
 </script>
 <!-- INICIO SCRIPT DJ -->
-<script>
-  (() => {
-  "use strict";
+ /**
+ * Radiochar Virtual DJ System
+ * Arquitectura de alto rendimiento con Cache y Preload
+ */
 
-  /* =============================
-     CONFIG
-  ============================== */
+const DJ_CONFIG = {
+    FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
+    UPDATE_INTERVAL: 30000,
+    REQUEST_TIMEOUT: 8000,
+    PROGRAMS: [
+        { id: 'lover', name: 'Miranda Fuentes', show: 'LOVER CITY', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
+        { id: 'wonders', name: 'Jhon Martin', show: 'THE WONDERS', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s16000/JhonDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 5, end: 10 },
+        { id: 'piedras', name: 'Tito González', show: 'PATEANDO PIEDRAS', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s16000/TitoDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 10, end: 15 },
+        { id: 'rockstars', name: 'Salma Cifuentes', show: 'ROCKSTARS', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s16000/SalmaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
+        { id: 'hits', name: 'Karol Morales', show: 'HITS DON´T LIE', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDzoq_pTmC45CLGbrYWwHAjVegHcJ6h0adHxybVEBXOjp0tzRwesUhAHieyNfA6tAijA1wW79b0NpUwItTgzGEX-_ybsMic9WsSYAshhLu8kT9YxjR8cwNZ_BlsLphXR4wmE7jVmL4yIUJ85VhCzB5EBn0HnXVTJT47DgvcHcA5ouhvOQQgwu5W8iVTpKW/s16000/KarolDJ%20(1).png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
+    ],
+    FALLBACK_PHRASES: [
+        "¡Disfruta de la mejor música aquí en Radiochar!",
+        "La compañía perfecta para tu día.",
+        "Siente el ritmo, vive la radio.",
+        "Transmitiendo energía positiva las 24 horas."
+    ]
+};
 
-  const FEED_URL = "https://cast2.my-control-panel.com/recentfeed/robinson/json/";
-  const REFRESH_INTERVAL = 30000;
+// Estado Global (In-memory Cache)
+const state = {
+    phraseCache: {},
+    lastTrackId: null,
+    currentProgram: null,
+    isInitialLoad: true
+};
 
-  const DJ_PROGRAMS = [
-    {
-      name: "Lover City",
-      start: 0,
-      end: 6,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s16000/SalmaDJ.png",
-      json: "https://robinsonchar.github.io/radiochar/frases-lover-city.JSON"
-    },
-    {
-      name: "The Wonders",
-      start: 6,
-      end: 12,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s16000/TitoDJ.png",
-      json: "https://robinsonchar.github.io/radiochar/frases-the-wonders.json"
-    },
-    {
-      name: "Pateando Piedras",
-      start: 12,
-      end: 15,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDzoq_pTmC45CLGbrYWwHAjVegHcJ6h0adHxybVEBXOjp0tzRwesUhAHieyNfA6tAijA1wW79b0NpUwItTgzGEX-_ybsMic9WsSYAshhLu8kT9YxjR8cwNZ_BlsLphXR4wmE7jVmL4yIUJ85VhCzB5EBn0HnXVTJT47DgvcHcA5ouhvOQQgwu5W8iVTpKW/s16000/KarolDJ%20(1).png",
-      json: "https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON"
-    },
-    {
-      name: "Rockstars",
-      start: 15,
-      end: 20,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s16000/JhonDJ.png",
-      json: "https://robinsonchar.github.io/radiochar/frases-rockstars.JSON"
-    },
-    {
-      name: "Hits Dont Lie",
-      start: 20,
-      end: 24,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png",
-      json: "https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON"
-    }
-  ];
+/**
+ * Normaliza strings para comparaciones robustas
+ */
+const normalizeString = (str) => {
+    if (!str) return '';
+    return str.toString()
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Elimina acentos
+        .replace(/[^a-z0-9]/g, ''); // Deja solo alfanuméricos
+};
 
-  /* =============================
-     STATE
-  ============================== */
-
-  const phraseCache = {};
-  let lastTrackId = null;
-
-  const djNameEl = document.getElementById("djName");
-  const djPhraseEl = document.getElementById("djPhrase");
-  const djImageEl = document.getElementById("djImage");
-
-  /* =============================
-     UTILITIES
-  ============================== */
-
-  function normalizeString(str = "") {
-    return str
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^\w\s]/gi, "")
-      .trim();
-  }
-
-  function getCurrentProgram() {
+/**
+ * Obtiene el programa activo según la hora local
+ */
+const getCurrentProgram = () => {
     const hour = new Date().getHours();
-    return DJ_PROGRAMS.find(p => hour >= p.start && hour < p.end);
-  }
+    return DJ_CONFIG.PROGRAMS.find(p => hour >= p.start && hour < p.end) || DJ_CONFIG.PROGRAMS[0];
+};
 
-  async function fetchWithTimeout(url, timeout = 5000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(id);
-      if (!res.ok) throw new Error("Network error");
-      return await res.json();
-    } catch (err) {
-      clearTimeout(id);
-      throw err;
-    }
-  }
-
-  async function preloadJSON() {
-    const promises = DJ_PROGRAMS.map(async program => {
-      try {
-        const data = await fetchWithTimeout(program.json);
-        phraseCache[program.name] = data;
-      } catch {
-        phraseCache[program.name] = [];
-      }
+/**
+ * Precarga todos los JSON de frases al iniciar
+ */
+const preloadAllData = async () => {
+    console.log("Iniciando precarga de datos...");
+    const fetchPromises = DJ_CONFIG.PROGRAMS.map(async (prog) => {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), DJ_CONFIG.REQUEST_TIMEOUT);
+            
+            const response = await fetch(prog.json, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            const data = await response.json();
+            
+            // Guardamos en cache
+            state.phraseCache[prog.id] = data;
+            return true;
+        } catch (err) {
+            console.warn(`Error precargando ${prog.id}:`, err);
+            state.phraseCache[prog.id] = null;
+            return false;
+        }
     });
 
-    await Promise.all(promises);
-  }
+    await Promise.all(fetchPromises);
+    console.log("Precarga completada.");
+};
 
-  async function fetchCurrentTrack() {
-    try {
-      const data = await fetchWithTimeout(FEED_URL);
-      const current = data[0];
-      const artist = current.artist || "";
-      const title = current.title || "";
-
-      return {
-        id: normalizeString(artist + "-" + title),
-        artist,
-        title
-      };
-    } catch {
-      return null;
+/**
+ * Busca la frase más adecuada en el cache
+ */
+const findPhrase = (programId, artist, title) => {
+    const phrases = state.phraseCache[programId];
+    if (!phrases || !Array.isArray(phrases)) {
+        return DJ_CONFIG.FALLBACK_PHRASES[Math.floor(Math.random() * DJ_CONFIG.FALLBACK_PHRASES.length)];
     }
-  }
 
-  function findPhrase(programName, track) {
-    const phrases = phraseCache[programName] || [];
-    if (!phrases.length) return `"Disfrutando ${track.title}"`;
+    const normSearch = normalizeString(`${artist}${title}`);
+    
+    // 1. Coincidencia exacta/cercana
+    const match = phrases.find(item => {
+        const itemNorm = normalizeString(`${item.artista}${item.titulo}`);
+        return normSearch.includes(itemNorm) || itemNorm.includes(normSearch);
+    });
 
-    const normalizedTrack = normalizeString(track.artist + " " + track.title);
+    if (match) return match.frase;
 
-    let exact = phrases.find(p =>
-      normalizeString(p.track) === normalizedTrack
-    );
+    // 2. Coincidencia por Artista
+    const artistNorm = normalizeString(artist);
+    const artistMatch = phrases.filter(item => normalizeString(item.artista).includes(artistNorm));
+    if (artistMatch.length > 0) {
+        return artistMatch[Math.floor(Math.random() * artistMatch.length)].frase;
+    }
 
-    if (exact) return `"${exact.phrase}"`;
+    // 3. Fallback: Frase aleatoria del programa
+    return phrases[Math.floor(Math.random() * phrases.length)].frase;
+};
 
-    let partial = phrases.find(p =>
-      normalizeString(p.track).includes(normalizedTrack)
-    );
+/**
+ * Actualiza el DOM con animaciones optimizadas
+ */
+const renderDJSection = (program, trackInfo, phrase) => {
+    const content = document.getElementById('dj-content');
+    const skeleton = document.getElementById('dj-skeleton');
+    
+    // Ocultar skeleton en primera carga
+    if (state.isInitialLoad) {
+        skeleton.classList.add('hidden');
+        content.classList.remove('hidden');
+        state.isInitialLoad = false;
+    }
 
-    if (partial) return `"${partial.phrase}"`;
-
-    const random = phrases[Math.floor(Math.random() * phrases.length)];
-    return `"${random.phrase}"`;
-  }
-
-  function renderDJSection(program, phrase) {
-    djNameEl.textContent = program.name;
-    djImageEl.src = program.image;
-
-    djPhraseEl.classList.add("fade-out");
+    // Aplicar micro-animación de salida
+    content.style.opacity = '0.5';
+    content.style.transform = 'scale(0.98)';
 
     setTimeout(() => {
-      djPhraseEl.textContent = phrase;
-      djPhraseEl.classList.remove("fade-out");
-      djPhraseEl.classList.add("fade-in");
-
-      setTimeout(() => {
-        djPhraseEl.classList.remove("fade-in");
-      }, 400);
+        document.getElementById('dj-avatar').src = program.img;
+        document.getElementById('dj-name').textContent = program.name;
+        document.getElementById('current-track').textContent = trackInfo;
+        document.getElementById('dj-phrase').textContent = `"${phrase}"`;
+        
+        // Restaurar con animación de entrada
+        content.style.opacity = '1';
+        content.style.transform = 'scale(1)';
     }, 200);
-  }
+};
 
-  /* =============================
-     MAIN LOOP
-  ============================== */
+/**
+ * Función principal de actualización
+ */
+const updateStationInfo = async () => {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), DJ_CONFIG.REQUEST_TIMEOUT);
+        
+        const response = await fetch(DJ_CONFIG.FEED_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        const data = await response.json();
+        if (!data || !data.length) throw new Error("Feed vacío");
 
-  async function update() {
-    const program = getCurrentProgram();
-    const track = await fetchCurrentTrack();
+        const lastTrack = data[0];
+        const artist = lastTrack.artist || 'Radiochar';
+        const title = lastTrack.title || 'Música en vivo';
+        const trackId = normalizeString(`${artist}${title}`);
 
-    if (!track) {
-      djPhraseEl.textContent = `"Conectando con cabina..."`;
-      return;
+        // OPTIMIZACIÓN: Solo actualizar si la canción cambió
+        if (trackId === state.lastTrackId) {
+            console.log("Misma canción, omitiendo renderizado.");
+            return;
+        }
+
+        const program = getCurrentProgram();
+        const phrase = findPhrase(program.id, artist, title);
+        
+        renderDJSection(program, `${artist} - ${title}`, phrase);
+        
+        state.lastTrackId = trackId;
+        state.currentProgram = program.id;
+
+    } catch (err) {
+        console.error("Error actualizando feed:", err);
+        // No mostramos error invasivo, mantenemos último estado o reintentamos en 30s
     }
+};
 
-    if (track.id === lastTrackId) return;
+/**
+ * Inicialización del módulo
+ */
+const initVirtualDJ = async () => {
+    // 1. Precarga
+    await preloadAllData();
+    
+    // 2. Primera ejecución
+    await updateStationInfo();
+    
+    // 3. Loop infinito cada 30 segundos
+    setInterval(updateStationInfo, DJ_CONFIG.UPDATE_INTERVAL);
+};
 
-    lastTrackId = track.id;
-
-    const phrase = findPhrase(program.name, track);
-    renderDJSection(program, phrase);
-  }
-
-  /* =============================
-     INIT
-  ============================== */
-
-  async function init() {
-    await preloadJSON();
-    update();
-    setInterval(update, REFRESH_INTERVAL);
-  }
-
-  init();
-
-})();
-</script>
+// Punto de entrada seguro
+window.addEventListener('DOMContentLoaded', () => {
+    initVirtualDJ().catch(console.error);
+});
 <!-- FIN SCRIT DJ -->
 <script src="radiochar-djs.js"></script>
 </body>
