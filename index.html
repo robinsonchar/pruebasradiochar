@@ -2678,26 +2678,27 @@
 </script>
 <!-- INICIO SCRIPT DJ -->
  <script>
-   /**
-     * RADIOCHAR - VIRTUAL DJ ENGINE v2.1
-     * Optimized for GitHub Pages + Blogger Iframe Architecture
+	  /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.3
+     * Reparación de JSON Crítico + Sincronización Universal de Reproductor
      */
 
     const DJ_APP = {
         config: {
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
-            INTERVAL: 15000,
-            TIMEOUT: 6000,
+            INTERVAL: 10000,
+            TIMEOUT: 10000,
+            // Selectores actualizados para capturar el texto del reproductor en index.html
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson',
-                ARTIST: '#cc_strinfo_trackartist_robinson'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, [class*="track-name"]',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, [class*="artist-name"]'
             },
             PROGRAMS: [
-                { id: 'lover', name: 'Miranda Fuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5, seed: "Siente el amor en cada canción aquí en Radiochar." },
-                { id: 'wonders', name: 'Jhon Martin', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s16000/JhonDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 5, end: 10, seed: "Recordando las maravillas que marcaron tu vida." },
-                { id: 'piedras', name: 'Tito González', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s16000/TitoDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 10, end: 15, seed: "Pateando Piedras: el rock no descansa en Radiochar." },
-                { id: 'rockstars', name: 'Salma Cifuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s16000/SalmaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20, seed: "Donde nacen las leyendas, solo éxitos Rockstars." },
-                { id: 'hits', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDzoq_pTmC45CLGbrYWwHAjVegHcJ6h0adHxybVEBXOjp0tzRwesUhAHieyNfA6tAijA1wW79b0NpUwItTgzGEX-_ybsMic9WsSYAshhLu8kT9YxjR8cwNZ_BlsLphXR4wmE7jVmL4yIUJ85VhCzB5EBn0HnXVTJT47DgvcHcA5ouhvOQQgwu5W8iVTpKW/s16000/KarolDJ%20(1).png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24, seed: "Lo que el mundo escucha, los hits no mienten." }
+                { id: 'lover', name: 'Miranda Fuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
+                { id: 'wonders', name: 'Jhon Martin', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s16000/JhonDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 5, end: 10 },
+                { id: 'piedras', name: 'Tito González', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s16000/TitoDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 10, end: 15 },
+                { id: 'rockstars', name: 'Salma Cifuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s16000/SalmaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
+                { id: 'hits', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDzoq_pTmC45CLGbrYWwHAjVegHcJ6h0adHxybVEBXOjp0tzRwesUhAHieyNfA6tAijA1wW79b0NpUwItTgzGEX-_ybsMic9WsSYAshhLu8kT9YxjR8cwNZ_BlsLphXR4wmE7jVmL4yIUJ85VhCzB5EBn0HnXVTJT47DgvcHcA5ouhvOQQgwu5W8iVTpKW/s16000/KarolDJ%20(1).png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
             ],
             FALLBACKS: [
                 "¡Disfruta de la mejor música en Radiochar!",
@@ -2706,22 +2707,12 @@
                 "Transmitiendo éxitos sin fronteras."
             ]
         },
-        state: {
-            cache: {},
-            lastTrackId: null,
-            isFirstRun: true
-        }
+        state: { cache: {}, lastTrackId: null, isFirstRun: true }
     };
 
-    /**
-     * Advanced Normalization: Removes noise from track titles for precise matching
-     */
     function normalize(str) {
         if (!str) return '';
-        return str.toString().toLowerCase()
-            .replace(/\(.*\)|\[.*\]/g, "") // Removes parentheses content
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Diacritics
-            .replace(/[^a-z0-9]/g, '').trim();
+        return str.toString().toLowerCase().replace(/\(.*\)|\[.*\]/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '').trim();
     }
 
     function getActiveDJ() {
@@ -2730,59 +2721,51 @@
     }
 
     /**
-     * Regex Salvage: Rescues valid JSON objects from corrupted files
+     * MODO SALVAMENTO EXTREMO: Escanea texto plano buscando objetos válidos
      */
-    function attemptJSONSalvage(text) {
+    function salvageJSON(text) {
         try { return JSON.parse(text); } 
         catch (e) {
-            const objectRegex = /\{[^{}]*"artista"[^{}]*\}/g;
-            const matches = text.match(objectRegex);
+            console.warn("JSON Malformado detectado. Iniciando extracción por bloques...");
+            // Regex para capturar bloques que contienen "artista" y "frase" o "cancion"
+            const regex = /\{[^{}]*"artista"[^{}]*\}/g;
+            const matches = text.match(regex);
             if (!matches) return null;
-            const salvaged = [];
-            matches.forEach(m => { try { salvaged.push(JSON.parse(m)); } catch(err) {} });
-            return salvaged.length > 0 ? salvaged : null;
+            
+            const results = [];
+            matches.forEach(m => {
+                try {
+                    // Limpieza profunda de comillas y caracteres extraños antes de parsear cada fragmento
+                    let fragment = m.trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+                    results.push(JSON.parse(fragment));
+                } catch(err) {}
+            });
+            return results.length > 0 ? results : null;
         }
     }
 
-    /**
-     * Library Preloading with CORS/Network failure handling
-     */
     async function preloadLibrary() {
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
-                const controller = new AbortController();
-                const id = setTimeout(() => controller.abort(), DJ_APP.config.TIMEOUT);
-                
-                // Fetch using cache busting to avoid GitHub Pages stale cache
-                const response = await fetch(`${prog.json}?v=${Date.now()}`, { signal: controller.signal });
-                clearTimeout(id);
-                
-                if (!response.ok) throw new Error();
-                const rawText = await response.text();
-                const cleanText = rawText.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").replace(/^\uFEFF/, "").trim();
-                
-                const data = attemptJSONSalvage(cleanText);
+                const response = await fetch(`${prog.json}?v=${Date.now()}`);
+                if (!response.ok) return;
+                const text = await response.text();
+                const data = salvageJSON(text);
                 if (data) DJ_APP.state.cache[prog.id] = data;
             } catch (err) {
-                // Seed fallback if fetch fails
-                DJ_APP.state.cache[prog.id] = [{ artista: "GENERIC", cancion: "GENERIC", frase: prog.seed }];
+                console.error(`Fallo en precarga de ${prog.id}`);
             }
         });
         await Promise.all(tasks);
     }
 
-    /**
-     * Smart Phrase Search
-     */
     function getPhrase(progId, artist, title) {
         const library = DJ_APP.state.cache[progId];
-        if (!library || !Array.isArray(library)) {
-            return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
-        }
+        if (!library || !Array.isArray(library)) return DJ_APP.config.FALLBACKS[0];
 
         const normFull = normalize(`${artist}${title}`);
         
-        // Priority 1: Exact or contained match
+        // 1. Coincidencia exacta/parcial
         const match = library.find(item => {
             const iTitle = item.titulo || item.cancion || "";
             const iNorm = normalize(`${item.artista}${iTitle}`);
@@ -2791,18 +2774,22 @@
 
         if (match && match.frase) return match.frase;
 
-        // Priority 2: Random from program library
-        const randomItem = library[Math.floor(Math.random() * library.length)];
-        return randomItem ? randomItem.frase : DJ_APP.config.FALLBACKS[0];
+        // 2. Coincidencia solo por Artista
+        const artMatch = library.filter(item => normalize(item.artista).includes(normalize(artist)));
+        if (artMatch.length > 0) return artMatch[Math.floor(Math.random() * artMatch.length)].frase;
+
+        // 3. Random del programa
+        return library[Math.floor(Math.random() * library.length)].frase || DJ_APP.config.FALLBACKS[0];
     }
 
     /**
-     * Scrapes song info directly from Centova elements in the current DOM
+     * LECTURA UNIVERSAL: Captura texto directamente de cualquier elemento de título/artista
      */
     function getTrackFromDOM() {
         try {
             const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
             const artistEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
+            
             const title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
             const artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
             
@@ -2815,19 +2802,13 @@
 
     async function getTrackFromFeed() {
         try {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), DJ_APP.config.TIMEOUT);
-            const response = await fetch(DJ_APP.config.FEED_URL, { signal: controller.signal });
-            clearTimeout(id);
+            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`);
             const data = await response.json();
             if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
         } catch (e) {}
         return null;
     }
 
-    /**
-     * UI Updates with smooth transitions
-     */
     function updateUI(dj, trackInfo, phrase) {
         const container = document.getElementById('dj-content');
         const skeleton = document.getElementById('dj-skeleton');
@@ -2836,7 +2817,7 @@
         if (container) container.classList.remove('hidden');
 
         container.style.opacity = '0';
-        container.style.transform = 'translateY(10px)';
+        container.style.transform = 'translateY(8px)';
 
         setTimeout(() => {
             document.getElementById('dj-avatar').src = dj.img;
@@ -2848,13 +2829,11 @@
 
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
-        }, 200);
+        }, 300);
     }
 
-    /**
-     * Main Sync Orchestrator
-     */
     async function syncStation() {
+        // Prioridad absoluta a lo que dice el Reproductor en pantalla
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
         
         const artist = trackData ? trackData.artist : "Radiochar";
@@ -2871,25 +2850,18 @@
         DJ_APP.state.isFirstRun = false;
     }
 
-    /**
-     * Reactive Observer: Triggers sync when Centova elements change
-     */
-    function initObserver() {
-        const target = document.body;
-        const observer = new MutationObserver(() => syncStation());
-        observer.observe(target, { childList: true, subtree: true, characterData: true });
-    }
-
     window.addEventListener('load', async () => {
-        // Preload, Sync and Init Observer
         await preloadLibrary();
         await syncStation();
-        initObserver();
         
-        // Backup polling every 15s
+        // El observador ahora es más profundo para detectar cambios de texto incluso en elementos anidados
+        const observer = new MutationObserver(() => syncStation());
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true, characterDataOldValue: true });
+        
         setInterval(syncStation, DJ_APP.config.INTERVAL);
     });
  </script>
 <!-- FIN SCRIT DJ -->
 </body>
 </html>
+
