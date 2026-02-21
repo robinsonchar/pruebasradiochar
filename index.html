@@ -1151,7 +1151,7 @@
     }
 
 /* INICIO ESTILOS DJ */
- :root {
+:root {
             --dj-accent: #ff0055;
             --dj-bg: rgba(0, 0, 0, 0.4);
             --dj-text: #ffffff;
@@ -1388,13 +1388,11 @@
 
 <!-- INICIO HTML DJ-->
  <section id="virtual-dj-container" class="dj-section-wrapper">
-    <!-- Loader inicial -->
     <div id="dj-skeleton" class="dj-loading">
         <div class="spinner"></div>
         <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
-    <!-- UI del DJ -->
     <div id="dj-content" class="dj-content hidden">
         <div class="dj-badge">EN CABINA</div>
         <div class="dj-visual">
@@ -1406,7 +1404,7 @@
             <h3 id="dj-name">---</h3>
             <div class="track-display">
                 <span class="music-icon">♪</span>
-                <span id="current-track">Conectando...</span>
+                <span id="current-track">Detectando señal...</span>
             </div>
             <div class="phrase-box">
                 <p id="dj-phrase">"..."</p>
@@ -2673,9 +2671,9 @@
 </script>
 <!-- INICIO SCRIPT DJ -->
  <script>
-  /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.7
-     * Limpieza Binaria + Extracción "frases_por_cancion" + Sincronización Forzada
+   /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.8
+     * Lógica de Selección Ultra-Precisa (Canción > Artista)
      */
 
     const DJ_APP = {
@@ -2704,11 +2702,14 @@
         state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
     };
 
+    /**
+     * Normalización: limpia ruidos de títulos para comparaciones precisas
+     */
     function normalize(str) {
         if (!str) return '';
         return str.toString().toLowerCase()
-            .replace(/\(.*\)|\[.*\]/g, "") 
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+            .replace(/\(.*\)|\[.*\]/g, "") // Quitar paréntesis de remezclas
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Diacríticos
             .replace(/[^a-z0-9]/g, '').trim();
     }
 
@@ -2718,25 +2719,21 @@
     }
 
     /**
-     * LIMPIEZA BINARIA + EXTRACCIÓN RAÍZ
-     * Soluciona "Unterminated string" y caracteres Unicode basura
+     * SALVAMENTO REFORZADO: Repara comillas inteligentes y detecta la raíz del JSON
      */
     function salvageJSON(text) {
-        // Limpieza de caracteres de control e invisibles
         let cleanText = text
             .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') // Comillas inteligentes a rectas
             .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres no imprimibles
-            .replace(/^\uFEFF/, "") // BOM
-            .trim();
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres de control
+            .replace(/^\uFEFF/, ""); // BOM
 
         try { 
             const parsed = JSON.parse(cleanText);
-            // Si el JSON tiene la raíz "frases_por_cancion" o "programa.frases_por_cancion"
-            let data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
-            return Array.isArray(data) ? data : null;
+            // Extraer frases_por_cancion si existe esa clave raíz
+            return parsed.frases_por_cancion || parsed;
         } catch (e) {
-            console.warn("Fallo en JSON.parse. Iniciando modo de salvamento por Regex...");
+            console.warn("Fallo en JSON.parse. Intentando extracción Regex de fragmentos...");
             const regex = /\{[^{}]*"artista"[^{}]*\}/g;
             const matches = cleanText.match(regex);
             if (!matches) return null;
@@ -2745,7 +2742,6 @@
             matches.forEach(m => {
                 try {
                     let fragment = m.trim();
-                    // Reparar comillas sin cerrar al final del fragmento si es necesario
                     if ((fragment.match(/"/g) || []).length % 2 !== 0) fragment = fragment.replace(/\}?$/, '" }');
                     results.push(JSON.parse(fragment));
                 } catch(err) {}
@@ -2755,7 +2751,6 @@
     }
 
     async function preloadLibrary() {
-        console.log("🛠️ Sincronizando librerías de frases...");
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
                 const response = await fetch(`${prog.json}?v=${Date.now()}`);
@@ -2771,23 +2766,67 @@
         DJ_APP.state.isLoaded = true;
     }
 
+    /**
+     * LÓGICA DE SELECCIÓN v2.8 (JERARQUÍA ESTRICTA)
+     */
     function getPhrase(progId, artist, title) {
         const library = DJ_APP.state.cache[progId];
         if (!library || !Array.isArray(library)) return DJ_APP.config.FALLBACKS[0];
 
-        const normFull = normalize(`${artist}${title}`);
-        
-        const match = library.find(item => {
-            const iTitle = item.titulo || item.cancion || "";
-            const iNorm = normalize(`${item.artista}${iTitle}`);
-            return iNorm.length > 3 && (normFull.includes(iNorm) || iNorm.includes(normFull));
+        const nArtist = normalize(artist);
+        const nTitle = normalize(title);
+
+        console.log(`Buscando frase para: [${artist}] - [${title}]`);
+
+        // 1. PRIORIDAD MÁXIMA: Artista Y Canción coinciden perfectamente
+        const perfectMatch = library.find(item => {
+            const iArt = normalize(item.artista);
+            const iSong = normalize(item.titulo || item.cancion || "");
+            return nArtist === iArt && nTitle === iSong;
+        });
+        if (perfectMatch && perfectMatch.frase) {
+            console.log("Match perfecto encontrado.");
+            return perfectMatch.frase;
+        }
+
+        // 2. PRIORIDAD MEDIA: La canción coincide (por si el artista viene distinto en el feed)
+        const songMatch = library.find(item => {
+            const iSong = normalize(item.titulo || item.cancion || "");
+            return iSong.length > 4 && nTitle === iSong;
+        });
+        if (songMatch && songMatch.frase) {
+            console.log("Match por canción encontrado.");
+            return songMatch.frase;
+        }
+
+        // 3. PRIORIDAD BAJA: El artista coincide
+        const artistMatches = library.filter(item => normalize(item.artista) === nArtist);
+        if (artistMatches.length > 0) {
+            // Intentar buscar una frase del artista que NO tenga una canción específica (genérica)
+            const genericArtistPhrase = artistMatches.find(item => {
+                const iSong = item.titulo || item.cancion || "";
+                return iSong === "" || normalize(iSong).includes("generico");
+            });
+            
+            if (genericArtistPhrase) {
+                console.log("Frase genérica de artista encontrada.");
+                return genericArtistPhrase.frase;
+            }
+
+            // Si todas las frases del artista mencionan canciones, pero ninguna es la actual,
+            // mejor usar una genérica del programa o una al azar (menos ideal pero evita el error de la imagen)
+            console.log("Coincide artista pero no canción. Evitando frases de otras canciones.");
+        }
+
+        // 4. FALLBACK: Frase aleatoria del programa completo (pero evitar las que mencionan canciones)
+        const generalPhrases = library.filter(item => {
+            const iSong = item.titulo || item.cancion || "";
+            return iSong === "";
         });
 
-        if (match && match.frase) return match.frase;
-        
-        // Match solo por artista
-        const artOnly = library.filter(item => normalize(item.artista).includes(normalize(artist)) && normalize(artist).length > 2);
-        if (artOnly.length > 0) return artOnly[Math.floor(Math.random() * artOnly.length)].frase;
+        if (generalPhrases.length > 0) {
+            return generalPhrases[Math.floor(Math.random() * generalPhrases.length)].frase;
+        }
 
         return library[Math.floor(Math.random() * library.length)].frase || DJ_APP.config.FALLBACKS[0];
     }
@@ -2841,7 +2880,6 @@
     }
 
     async function syncStation() {
-        // Forzar ocultación del skeleton si las librerías tardan mucho
         setTimeout(() => {
             if (DJ_APP.state.isFirstRun && document.getElementById('dj-content').classList.contains('hidden')) {
                 const dj = getActiveDJ();
@@ -2861,8 +2899,6 @@
         const currentTrackId = normalize(`${artist}${title}`);
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
 
-        console.log(`Sync [${source}]: ${artist} - ${title}`);
-
         const activeDJ = getActiveDJ();
         const phrase = getPhrase(activeDJ.id, artist, title);
         
@@ -2881,8 +2917,7 @@
             
             setInterval(syncStation, DJ_APP.config.INTERVAL);
         } catch (e) {
-            console.error("Fallo crítico:", e);
-            // Fallback de emergencia
+            console.error("Error crítico:", e);
             const skeleton = document.getElementById('dj-skeleton');
             const content = document.getElementById('dj-content');
             if(skeleton) skeleton.classList.add('hidden');
