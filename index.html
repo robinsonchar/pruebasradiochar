@@ -1151,7 +1151,7 @@
     }
 
 /* INICIO ESTILOS DJ */
-:root {
+ :root {
             --dj-accent: #ff0055;
             --dj-bg: rgba(0, 0, 0, 0.4);
             --dj-text: #ffffff;
@@ -2670,24 +2670,22 @@
   })();
 </script>
 <!-- INICIO SCRIPT DJ -->
- <script>
-  /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.4
-     * Reparación Profunda de JSON + Scraping DOM Agresivo
+ /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.5
+     * Soporte para estructura anidada "frases_por_cancion" + Limpieza Unicode
      */
 
     const DJ_APP = {
         config: {
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
-            INTERVAL: 8000, 
-            TIMEOUT: 10000,
-            // Selectores expandidos basados en tu diseño actual
+            INTERVAL: 10000, 
+            TIMEOUT: 12000,
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, .title',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, .track-artist, .artist'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, .track-artist'
             },
             PROGRAMS: [
-                { id: 'lover', name: 'Miranda Fuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
+                { id: 'lover', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
                 { id: 'wonders', name: 'Jhon Martin', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSfxftwe5xsNVyEXUjnWLO9-EZFFzrdWq4tfmRrd-fvY6nGgQ8o7OiWhGvTAdO6_smQt_pgo5tHty-t64RXCPDZGbBKlKFoQwF2r14Z3b1f_C6YXjynGA2I1eOYKbh03PMQ7OMnrlnkHO7v_y-x6yygp3DKG0ifVBoKjlPtd5o2II0TCGlxI7K3wuRi2P_/s16000/JhonDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 5, end: 10 },
                 { id: 'piedras', name: 'Tito González', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQ_a3bu8sIVyMUg25K9MjRuCC7xLmUncSSmT3HhOpoVO8Cu9_VsfzfP8y0jvOf5V9y5oioQ8jOYOPicRfA8fTS0n9evteaNPCI3M6VsjwS2HFtbHmuuEsmSd6pUcWqK2nTG-FVeHo0Wa6lgC8RxA_5wVtA9g6Bxq35fFqUOXMT667ih5lag5q_r6VZFcCB/s16000/TitoDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 10, end: 15 },
                 { id: 'rockstars', name: 'Salma Cifuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghGlBQlHUoFaWx8hg6hsmVW9zN0yvCpwAa6ar51eluTrhKwGvtp6SO-0KBoEGVl6U0T5zRj4ufIA4LasO79JHjvJlLgPEsbK952xUmw-s4OmWFuh5xQluZJkmbPRhRCeKNmyb8s0LDRtuYhUVVmYShe3eHWSVgUrlrbFM05wYBjLclkBL7h26XLScojLd-/s16000/SalmaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
@@ -2705,7 +2703,10 @@
 
     function normalize(str) {
         if (!str) return '';
-        return str.toString().toLowerCase().replace(/\(.*\)|\[.*\]/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '').trim();
+        return str.toString().toLowerCase()
+            .replace(/\(.*\)|\[.*\]/g, "") 
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+            .replace(/[^a-z0-9]/g, '').trim();
     }
 
     function getActiveDJ() {
@@ -2714,13 +2715,20 @@
     }
 
     /**
-     * MODO SALVAMENTO AVANZADO: Limpia y repara fragmentos de JSON
+     * MODO SALVAMENTO REFORZADO: Detecta frases_por_cancion y limpia basura Unicode
      */
     function salvageJSON(text) {
-        try { return JSON.parse(text); } 
-        catch (e) {
-            console.warn("🔧 JSON con errores. Iniciando reparación de frases...");
-            // Regex que captura objetos completos con sus pares de llaves
+        // Limpiar caracteres invisibles/Unicode basura que detectó VS Code
+        const cleanText = text.replace(/[\u007F-\uFFFF]/g, function(chr) {
+            return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).slice(-4);
+        }).replace(/[\u0000-\u001F]/g, "");
+
+        try { 
+            const parsed = JSON.parse(text);
+            // Extraer frases si vienen en el formato frases_por_cancion
+            return parsed.frases_por_cancion || parsed;
+        } catch (e) {
+            console.warn("Manejando JSON malformado o con caracteres especiales...");
             const regex = /\{[^{}]*"artista"[^{}]*\}/g;
             const matches = text.match(regex);
             if (!matches) return null;
@@ -2728,12 +2736,8 @@
             const results = [];
             matches.forEach(m => {
                 try {
-                    // Limpieza agresiva de caracteres invisibles
-                    let fragment = m.trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
-                    // Asegurar cierre de comillas si el fragmento se cortó mal
-                    if ((fragment.match(/"/g) || []).length % 2 !== 0) {
-                        fragment = fragment.replace(/\}?$/, '" }');
-                    }
+                    let fragment = m.trim().replace(/[\u0000-\u001F]/g, "");
+                    if ((fragment.match(/"/g) || []).length % 2 !== 0) fragment = fragment.replace(/\}?$/, '" }');
                     results.push(JSON.parse(fragment));
                 } catch(err) {}
             });
@@ -2744,7 +2748,7 @@
     async function preloadLibrary() {
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
-                const response = await fetch(`${prog.json}?nocache=${Date.now()}`);
+                const response = await fetch(`${prog.json}?v=${Date.now()}`);
                 if (!response.ok) return;
                 const text = await response.text();
                 const data = salvageJSON(text);
@@ -2760,7 +2764,6 @@
 
         const normFull = normalize(`${artist}${title}`);
         
-        // Match inteligente
         const match = library.find(item => {
             const iTitle = item.titulo || item.cancion || "";
             const iNorm = normalize(`${item.artista}${iTitle}`);
@@ -2769,31 +2772,19 @@
 
         if (match && match.frase) return match.frase;
         
-        // Match solo por artista si falla el completo
         const artOnly = library.filter(item => normalize(item.artista).includes(normalize(artist)));
         if (artOnly.length > 0) return artOnly[Math.floor(Math.random() * artOnly.length)].frase;
 
         return library[Math.floor(Math.random() * library.length)].frase || DJ_APP.config.FALLBACKS[0];
     }
 
-    /**
-     * SCRAPING AGRESIVO: Busca en múltiples capas del DOM
-     */
     function getTrackFromDOM() {
         try {
-            // Intentar con selectores específicos
             let titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
             let artistEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
 
             let title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
             let artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
-
-            // Validación: Si el título es muy genérico o vacío, buscamos por estructura
-            if (!title || title.includes('...') || title === 'Detectando') {
-                // Buscamos el h1 o h2 más cercano al reproductor
-                const mainTitle = document.querySelector('h1.cc_strinfo_tracktitle_robinson, h2');
-                if (mainTitle) title = mainTitle.innerText.trim();
-            }
 
             if (title && title.length > 2 && !title.includes('...')) {
                 return { artist: artist || "Radiochar", title, source: 'DOM' };
@@ -2806,9 +2797,7 @@
         try {
             const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`);
             const data = await response.json();
-            if (data && data.length > 0) {
-                return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
-            }
+            if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
         } catch (e) {}
         return null;
     }
@@ -2827,19 +2816,15 @@
             document.getElementById('dj-avatar').src = dj.img;
             document.getElementById('dj-name').textContent = dj.name;
             document.getElementById('current-track').textContent = trackInfo;
-            
             const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
             document.getElementById('dj-phrase').textContent = phraseClean;
-
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
         }, 200);
     }
 
     async function syncStation() {
-        // Prioridad total a lo que se ve en la web
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
-        
         if (!trackData) return;
 
         const { artist, title, source } = trackData;
@@ -2861,13 +2846,8 @@
         await preloadLibrary();
         await syncStation();
         
-        // Observador agresivo: detecta cambios en cualquier parte del cuerpo de la página
         const observer = new MutationObserver(() => syncStation());
-        observer.observe(document.body, { 
-            childList: true, 
-            subtree: true, 
-            characterData: true 
-        });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
         
         setInterval(syncStation, DJ_APP.config.INTERVAL);
     });
