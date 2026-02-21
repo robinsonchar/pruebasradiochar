@@ -1160,11 +1160,11 @@
         /* Contenedor principal: Sin background, sin borde, limpio y minimalista */
         .dj-section-wrapper {
             width: 100%;
-            max-width: 1000px; /* Ancho ajustado para balancear con el reproductor de radio */
+            max-width: 1000px;
             margin: 20px auto;
             padding: 20px;
             background: transparent; 
-            border: none; /* Borde eliminado */
+            border: none;
             box-shadow: none;
             color: var(--dj-text);
             display: flex;
@@ -1173,20 +1173,23 @@
             font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
         }
 
-        /* Estructura en dos bloques paralelos */
-        .dj-content {
-            display: flex;
+        /* NUEVO CONTENEDOR MAESTRO: Controlado por CSS hermano */
+        .dj-main-layout {
+            display: none; /* Se oculta hasta que el loader desaparece */
             flex-direction: row; /* Diseño horizontal */
             align-items: center;
             gap: 40px; /* Espacio limpio entre la imagen y los textos */
             width: 100%;
-            transition: opacity var(--dj-transition), transform var(--dj-transition);
-            will-change: opacity, transform;
+        }
+
+        /* LA MAGIA: Cuando el JS oculta el skeleton, mostramos la estructura base */
+        #dj-skeleton.hidden ~ .dj-main-layout {
+            display: flex !important;
         }
 
         .hidden { display: none !important; }
 
-        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ LIMPIA */
+        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ LIMPIA (ESTÁTICA, SIN EFECTOS DE JS) */
         .dj-visual {
             flex-shrink: 0;
             width: 200px; 
@@ -1197,34 +1200,37 @@
         #dj-avatar {
             width: 200px;
             height: 200px;
-            border-radius: 50%; /* Se mantiene circular por elegancia, ajustado a medida exacta */
+            border-radius: 50%;
             object-fit: cover;
             background: #111;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* Sombra sutil conservada */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
-        /* BLOQUE DERECHO: TEXTOS JUSTIFICADOS A LA IZQUIERDA Y EXPANDIDOS */
+        /* BLOQUE DERECHO: TEXTOS (AQUÍ ACTÚA EL EFECTO FADE DEL JAVASCRIPT) */
         .dj-info {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Alinea los elementos a la izquierda */
+            align-items: flex-start;
             text-align: left; 
             justify-content: center;
             flex-grow: 1;
-            width: calc(100% - 240px); /* Toma el 100% del espacio restante */
+            width: calc(100% - 240px);
+            /* Trasladamos los efectos de animación a este bloque exclusivo */
+            transition: opacity var(--dj-transition), transform var(--dj-transition);
+            will-change: opacity, transform;
         }
 
         /* Contenedor para colocar Badge y Nombre en la misma línea */
         .dj-header-inline {
             display: flex;
             align-items: center;
-            flex-wrap: wrap; /* Permite que baje de línea si la pantalla es muy angosta */
-            gap: 15px; /* Espacio entre el botón EN CABINA y el Nombre */
+            flex-wrap: wrap;
+            gap: 15px;
             margin-bottom: 12px;
             width: 100%;
         }
 
-        /* Línea 1-A: EN CABINA (A modo de botón parpadeante) */
+        /* Línea 1-A: EN CABINA */
         .dj-badge {
             background-color: var(--dj-accent);
             color: #ffffff;
@@ -1239,7 +1245,6 @@
             white-space: nowrap;
         }
 
-        /* Animación de parpadeo suave */
         @keyframes badge-blink {
             0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); }
             50% { opacity: 0.4; box-shadow: 0 0 0px transparent; }
@@ -1247,33 +1252,31 @@
 
         /* Línea 1-B: Nombre del DJ */
         #dj-name {
-            font-size: 20px; /* Ajuste milimétrico para que fluya perfecto al lado del botón */
-            margin: 0; /* Sin márgenes para compartir línea */
+            font-size: 20px;
+            margin: 0;
             font-weight: 600;
             letter-spacing: -0.5px;
             color: #ffffff;
         }
         
-        /* Agrega el prefijo "DJ " automáticamente sin tocar el JS */
         #dj-name::before {
             content: 'DJ ';
         }
 
-        /* Línea 2: Frase a 16 puntos, extendida en el bloque disponible */
+        /* Línea 2: Frase a 16 puntos */
         #dj-phrase {
-            font-size:13pt; /* Tamaño exacto solicitado */
+            font-size: 13pt;
             font-style: italic;
             line-height: 1.5;
             color: #eaeaea;
             margin: 0;
-            text-align: left; /* Confirmación de justificado a la izquierda */
+            text-align: left;
             width: 100%;
         }
 
-        /* Comillas sutiles en blanco */
         #dj-phrase::before, #dj-phrase::after {
             content: '"';
-            color: #ffffff; /* Modificado a color blanco */
+            color: #ffffff;
             font-weight: bold;
         }
 
@@ -1299,18 +1302,18 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Responsividad para móviles: Apila los bloques si la pantalla es muy pequeña */
+        /* Responsividad para móviles */
         @media (max-width: 650px) {
-            .dj-content {
+            .dj-main-layout {
                 flex-direction: column;
-                align-items: center; /* Centra el avatar en móviles */
+                align-items: center;
                 gap: 25px;
             }
             .dj-visual {
                 width: auto;
             }
             #dj-avatar {
-                width: 160px; /* Un poco más pequeño en móviles para no desbordar */
+                width: 160px;
                 height: 160px;
             }
             .dj-info {
@@ -1418,25 +1421,25 @@
         <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
-    <!-- UI Minimalista del DJ (Dos Bloques) -->
-    <div id="dj-content" class="dj-content hidden">
+    <!-- NUEVO CONTENEDOR MAESTRO (Se muestra solo mediante CSS) -->
+    <div class="dj-main-layout">
         
-        <!-- Bloque Izquierdo: Ancho estricto 200px -->
+        <!-- Bloque Izquierdo: IMAGEN ESTÁTICA (Libre de efectos de JS) -->
         <div class="dj-visual">
             <img id="dj-avatar" src="" alt="DJ" loading="lazy">
         </div>
         
-        <!-- Bloque Derecho: Resto del contenedor -->
-        <div class="dj-info">
+        <!-- Bloque Derecho: TEXTOS ANIMADOS (Trasladamos el id="dj-content" aquí) -->
+        <div id="dj-content" class="dj-info hidden">
             <!-- Badge y Título alineados en la misma fila -->
             <div class="dj-header-inline">
-                <div class="dj-badge">EN CABINA</div>
+                <div class="dj-badge">EN VIVO - EN CABINA</div>
                 <h3 id="dj-name">---</h3>
             </div>
             
             <p id="dj-phrase">"..."</p>
             
-            <!-- Elemento Oculto: Se mantiene para recibir el dato del JS sin mostrar "Música en vivo" -->
+            <!-- Elemento Oculto -->
             <span id="current-track" style="display: none;"></span>
         </div>
         
