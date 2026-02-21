@@ -1151,7 +1151,7 @@
     }
 
 /* INICIO ESTILOS DJ */
-:root {
+ :root {
             --dj-accent: #ff0055;
             --dj-bg: rgba(0, 0, 0, 0.4);
             --dj-text: #ffffff;
@@ -1388,13 +1388,13 @@
 
 <!-- INICIO HTML DJ-->
  <section id="virtual-dj-container" class="dj-section-wrapper">
-    <!-- Estado de carga: se oculta al sincronizar -->
+    <!-- Loader inicial -->
     <div id="dj-skeleton" class="dj-loading">
         <div class="spinner"></div>
         <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
-    <!-- Contenido del DJ -->
+    <!-- UI del DJ -->
     <div id="dj-content" class="dj-content hidden">
         <div class="dj-badge">EN CABINA</div>
         <div class="dj-visual">
@@ -1406,7 +1406,7 @@
             <h3 id="dj-name">---</h3>
             <div class="track-display">
                 <span class="music-icon">♪</span>
-                <span id="current-track">Detectando señal...</span>
+                <span id="current-track">Conectando...</span>
             </div>
             <div class="phrase-box">
                 <p id="dj-phrase">"..."</p>
@@ -2672,9 +2672,9 @@
   })();
 </script>
 <!-- INICIO SCRIPT DJ -->
- /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.6
-     * Reparación de estructura anidada + Limpieza de Comillas Inteligentes
+  /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.7
+     * Limpieza Binaria + Extracción "frases_por_cancion" + Sincronización Forzada
      */
 
     const DJ_APP = {
@@ -2700,12 +2700,9 @@
                 "Transmitiendo éxitos sin fronteras."
             ]
         },
-        state: { cache: {}, lastTrackId: null, isFirstRun: true }
+        state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
     };
 
-    /**
-     * Normalización: quita ruidos y caracteres especiales
-     */
     function normalize(str) {
         if (!str) return '';
         return str.toString().toLowerCase()
@@ -2720,23 +2717,25 @@
     }
 
     /**
-     * SALVAMENTO EXTREMO: Repara comillas inteligentes y extrae la raíz frases_por_cancion
+     * LIMPIEZA BINARIA + EXTRACCIÓN RAÍZ
+     * Soluciona "Unterminated string" y caracteres Unicode basura
      */
     function salvageJSON(text) {
-        // 1. Reemplazar comillas inteligentes por comillas rectas antes de procesar
+        // Limpieza de caracteres de control e invisibles
         let cleanText = text
-            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') // Comillas dobles curvas
-            .replace(/[\u2018\u2019\u201A\u201B]/g, "'") // Comillas simples curvas
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres de control
-            .replace(/^\uFEFF/, ""); // BOM
+            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') // Comillas inteligentes a rectas
+            .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres no imprimibles
+            .replace(/^\uFEFF/, "") // BOM
+            .trim();
 
         try { 
             const parsed = JSON.parse(cleanText);
-            // Si el JSON tiene la raíz frases_por_cancion (como en tu captura), la extraemos
-            return parsed.frases_por_cancion || parsed;
+            // Si el JSON tiene la raíz "frases_por_cancion" o "programa.frases_por_cancion"
+            let data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
+            return Array.isArray(data) ? data : null;
         } catch (e) {
-            console.warn("JSON malformado detectado. Intentando extracción por Regex...");
-            // Buscar solo la parte que contiene el array de frases
+            console.warn("Fallo en JSON.parse. Iniciando modo de salvamento por Regex...");
             const regex = /\{[^{}]*"artista"[^{}]*\}/g;
             const matches = cleanText.match(regex);
             if (!matches) return null;
@@ -2745,6 +2744,7 @@
             matches.forEach(m => {
                 try {
                     let fragment = m.trim();
+                    // Reparar comillas sin cerrar al final del fragmento si es necesario
                     if ((fragment.match(/"/g) || []).length % 2 !== 0) fragment = fragment.replace(/\}?$/, '" }');
                     results.push(JSON.parse(fragment));
                 } catch(err) {}
@@ -2754,11 +2754,11 @@
     }
 
     async function preloadLibrary() {
-        console.log("Iniciando precarga de librerías...");
+        console.log("🛠️ Sincronizando librerías de frases...");
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
                 const response = await fetch(`${prog.json}?v=${Date.now()}`);
-                if (!response.ok) return;
+                if (!response.ok) throw new Error();
                 const text = await response.text();
                 const data = salvageJSON(text);
                 if (data) DJ_APP.state.cache[prog.id] = data;
@@ -2767,7 +2767,7 @@
             }
         });
         await Promise.all(tasks);
-        console.log("Librerías listas.");
+        DJ_APP.state.isLoaded = true;
     }
 
     function getPhrase(progId, artist, title) {
@@ -2776,7 +2776,6 @@
 
         const normFull = normalize(`${artist}${title}`);
         
-        // Match por combinación Artista + Canción
         const match = library.find(item => {
             const iTitle = item.titulo || item.cancion || "";
             const iNorm = normalize(`${item.artista}${iTitle}`);
@@ -2792,9 +2791,6 @@
         return library[Math.floor(Math.random() * library.length)].frase || DJ_APP.config.FALLBACKS[0];
     }
 
-    /**
-     * LECTURA DEL DOM: Extrae la canción actual de lo que se ve en la web
-     */
     function getTrackFromDOM() {
         try {
             const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
@@ -2812,7 +2808,10 @@
 
     async function getTrackFromFeed() {
         try {
-            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`);
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 5000);
+            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`, { signal: controller.signal });
+            clearTimeout(id);
             const data = await response.json();
             if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
         } catch (e) {}
@@ -2841,22 +2840,24 @@
     }
 
     async function syncStation() {
-        // Prioridad absoluta a lo que se ve en el reproductor de la página
-        const trackData = getTrackFromDOM() || await getTrackFromFeed();
-        
-        if (!trackData) {
-            // Si todo falla tras la carga inicial, forzamos mostrar la UI
-            if (DJ_APP.state.isFirstRun) {
+        // Forzar ocultación del skeleton si las librerías tardan mucho
+        setTimeout(() => {
+            if (DJ_APP.state.isFirstRun && document.getElementById('dj-content').classList.contains('hidden')) {
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
                 DJ_APP.state.isFirstRun = false;
             }
-            return;
-        }
+        }, 6000);
 
-        const { artist, title, source } = trackData;
+        const trackData = getTrackFromDOM() || await getTrackFromFeed();
+        
+        if (!trackData && !DJ_APP.state.isFirstRun) return;
+
+        const artist = trackData ? trackData.artist : "Radiochar";
+        const title = trackData ? trackData.title : "Música en vivo";
+        const source = trackData ? trackData.source : "FALLBACK";
+
         const currentTrackId = normalize(`${artist}${title}`);
-
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
 
         console.log(`Sync [${source}]: ${artist} - ${title}`);
@@ -2874,14 +2875,13 @@
             await preloadLibrary();
             await syncStation();
             
-            // Observador para cambios en el reproductor real
             const observer = new MutationObserver(() => syncStation());
             observer.observe(document.body, { childList: true, subtree: true, characterData: true });
             
             setInterval(syncStation, DJ_APP.config.INTERVAL);
         } catch (e) {
-            console.error("Fallo crítico en inicialización:", e);
-            // Fallback de emergencia para que la UI no se quede en negro
+            console.error("Fallo crítico:", e);
+            // Fallback de emergencia
             const skeleton = document.getElementById('dj-skeleton');
             const content = document.getElementById('dj-content');
             if(skeleton) skeleton.classList.add('hidden');
