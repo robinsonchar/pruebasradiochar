@@ -1390,7 +1390,7 @@
  <section id="virtual-dj-container" class="dj-section-wrapper">
     <div id="dj-skeleton" class="dj-loading">
         <div class="spinner"></div>
-        <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">CONECTANDO CABINA...</p>
+        <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
     <div id="dj-content" class="dj-content hidden">
@@ -2671,20 +2671,20 @@
 </script>
 <!-- INICIO SCRIPT DJ -->
  <script>
-   /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.3
-     * Reparación de JSON Crítico + Sincronización Universal de Reproductor
+  /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.4
+     * Reparación Profunda de JSON + Scraping DOM Agresivo
      */
 
     const DJ_APP = {
         config: {
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
-            INTERVAL: 10000,
+            INTERVAL: 8000, 
             TIMEOUT: 10000,
-            // Selectores actualizados para capturar el texto del reproductor en index.html
+            // Selectores expandidos basados en tu diseño actual
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, [class*="track-name"]',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, [class*="artist-name"]'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, .title',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, .track-artist, .artist'
             },
             PROGRAMS: [
                 { id: 'lover', name: 'Miranda Fuentes', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
@@ -2714,13 +2714,13 @@
     }
 
     /**
-     * MODO SALVAMENTO EXTREMO: Escanea texto plano buscando objetos válidos
+     * MODO SALVAMENTO AVANZADO: Limpia y repara fragmentos de JSON
      */
     function salvageJSON(text) {
         try { return JSON.parse(text); } 
         catch (e) {
-            console.warn("JSON Malformado detectado. Iniciando extracción por bloques...");
-            // Regex para capturar bloques que contienen "artista" y "frase" o "cancion"
+            console.warn("🔧 JSON con errores. Iniciando reparación de frases...");
+            // Regex que captura objetos completos con sus pares de llaves
             const regex = /\{[^{}]*"artista"[^{}]*\}/g;
             const matches = text.match(regex);
             if (!matches) return null;
@@ -2728,8 +2728,12 @@
             const results = [];
             matches.forEach(m => {
                 try {
-                    // Limpieza profunda de comillas y caracteres extraños antes de parsear cada fragmento
+                    // Limpieza agresiva de caracteres invisibles
                     let fragment = m.trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+                    // Asegurar cierre de comillas si el fragmento se cortó mal
+                    if ((fragment.match(/"/g) || []).length % 2 !== 0) {
+                        fragment = fragment.replace(/\}?$/, '" }');
+                    }
                     results.push(JSON.parse(fragment));
                 } catch(err) {}
             });
@@ -2740,14 +2744,12 @@
     async function preloadLibrary() {
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
-                const response = await fetch(`${prog.json}?v=${Date.now()}`);
+                const response = await fetch(`${prog.json}?nocache=${Date.now()}`);
                 if (!response.ok) return;
                 const text = await response.text();
                 const data = salvageJSON(text);
                 if (data) DJ_APP.state.cache[prog.id] = data;
-            } catch (err) {
-                console.error(`Fallo en precarga de ${prog.id}`);
-            }
+            } catch (err) {}
         });
         await Promise.all(tasks);
     }
@@ -2758,7 +2760,7 @@
 
         const normFull = normalize(`${artist}${title}`);
         
-        // 1. Coincidencia exacta/parcial
+        // Match inteligente
         const match = library.find(item => {
             const iTitle = item.titulo || item.cancion || "";
             const iNorm = normalize(`${item.artista}${iTitle}`);
@@ -2766,28 +2768,35 @@
         });
 
         if (match && match.frase) return match.frase;
+        
+        // Match solo por artista si falla el completo
+        const artOnly = library.filter(item => normalize(item.artista).includes(normalize(artist)));
+        if (artOnly.length > 0) return artOnly[Math.floor(Math.random() * artOnly.length)].frase;
 
-        // 2. Coincidencia solo por Artista
-        const artMatch = library.filter(item => normalize(item.artista).includes(normalize(artist)));
-        if (artMatch.length > 0) return artMatch[Math.floor(Math.random() * artMatch.length)].frase;
-
-        // 3. Random del programa
         return library[Math.floor(Math.random() * library.length)].frase || DJ_APP.config.FALLBACKS[0];
     }
 
     /**
-     * LECTURA UNIVERSAL: Captura texto directamente de cualquier elemento de título/artista
+     * SCRAPING AGRESIVO: Busca en múltiples capas del DOM
      */
     function getTrackFromDOM() {
         try {
-            const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
-            const artistEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
-            
-            const title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
-            const artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
-            
-            if (title && !title.includes('...') && !title.toLowerCase().includes('loading')) {
-                return { artist, title, source: 'DOM' };
+            // Intentar con selectores específicos
+            let titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
+            let artistEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
+
+            let title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
+            let artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
+
+            // Validación: Si el título es muy genérico o vacío, buscamos por estructura
+            if (!title || title.includes('...') || title === 'Detectando') {
+                // Buscamos el h1 o h2 más cercano al reproductor
+                const mainTitle = document.querySelector('h1.cc_strinfo_tracktitle_robinson, h2');
+                if (mainTitle) title = mainTitle.innerText.trim();
+            }
+
+            if (title && title.length > 2 && !title.includes('...')) {
+                return { artist: artist || "Radiochar", title, source: 'DOM' };
             }
         } catch (e) {}
         return null;
@@ -2797,7 +2806,9 @@
         try {
             const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`);
             const data = await response.json();
-            if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
+            if (data && data.length > 0) {
+                return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
+            }
         } catch (e) {}
         return null;
     }
@@ -2810,7 +2821,7 @@
         if (container) container.classList.remove('hidden');
 
         container.style.opacity = '0';
-        container.style.transform = 'translateY(8px)';
+        container.style.transform = 'translateY(5px)';
 
         setTimeout(() => {
             document.getElementById('dj-avatar').src = dj.img;
@@ -2822,18 +2833,21 @@
 
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
-        }, 300);
+        }, 200);
     }
 
     async function syncStation() {
-        // Prioridad absoluta a lo que dice el Reproductor en pantalla
+        // Prioridad total a lo que se ve en la web
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
         
-        const artist = trackData ? trackData.artist : "Radiochar";
-        const title = trackData ? trackData.title : "Música en vivo";
-        
+        if (!trackData) return;
+
+        const { artist, title, source } = trackData;
         const currentTrackId = normalize(`${artist}${title}`);
+
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
+
+        console.log(`🎵 Sync [${source}]: ${artist} - ${title}`);
 
         const activeDJ = getActiveDJ();
         const phrase = getPhrase(activeDJ.id, artist, title);
@@ -2847,9 +2861,13 @@
         await preloadLibrary();
         await syncStation();
         
-        // El observador ahora es más profundo para detectar cambios de texto incluso en elementos anidados
+        // Observador agresivo: detecta cambios en cualquier parte del cuerpo de la página
         const observer = new MutationObserver(() => syncStation());
-        observer.observe(document.body, { childList: true, subtree: true, characterData: true, characterDataOldValue: true });
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true, 
+            characterData: true 
+        });
         
         setInterval(syncStation, DJ_APP.config.INTERVAL);
     });
