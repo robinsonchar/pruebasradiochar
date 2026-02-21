@@ -1151,7 +1151,7 @@
     }
 
 /* INICIO ESTILOS DJ */
- :root {
+:root {
             --dj-accent: #ff0055;
             --dj-text: #ffffff;
             --dj-transition: 450ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -1160,7 +1160,7 @@
         /* Contenedor principal: Sin background, sin bordes, limpio y minimalista */
         .dj-section-wrapper {
             width: 100%;
-            max-width: 800px; /* Más ancho para acomodar la estructura horizontal */
+            max-width: 700px; /* Ancho ajustado para balancear con el reproductor de radio */
             margin: 20px auto;
             padding: 20px;
             background: transparent; 
@@ -1204,24 +1204,36 @@
         .dj-info {
             display: flex;
             flex-direction: column;
+            align-items: flex-start; /* Evita que el botón de En Cabina se estire */
             text-align: left; /* Textos alineados a la izquierda */
             justify-content: center;
             flex-grow: 1;
         }
 
-        /* Línea 1: EN CABINA */
+        /* Línea 1: EN CABINA (A modo de botón parpadeante) */
         .dj-badge {
-            color: var(--dj-accent);
+            background-color: var(--dj-accent);
+            color: #ffffff;
             font-size: 12px;
             font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+            letter-spacing: 1.5px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 12px;
             text-transform: uppercase;
+            display: inline-block;
+            animation: badge-blink 1.5s infinite ease-in-out;
+        }
+
+        /* Animación de parpadeo suave */
+        @keyframes badge-blink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); }
+            50% { opacity: 0.4; box-shadow: 0 0 0px transparent; }
         }
 
         /* Línea 2: Nombre del DJ */
         #dj-name {
-            font-size: 16px;
+            font-size: 14px;
             margin: 0 0 15px 0;
             font-weight: 800;
             letter-spacing: -0.5px;
@@ -1233,9 +1245,9 @@
             content: 'DJ ';
         }
 
-        /* Línea 3: Frase a 12 puntos */
+        /* Línea 3: Frase a 14 puntos */
         #dj-phrase {
-            font-size: 12pt; /* Tamaño exacto solicitado */
+            font-size: 14pt; /* Tamaño exacto solicitado */
             font-style: italic;
             line-height: 1.5;
             color: #eaeaea;
