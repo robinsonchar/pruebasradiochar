@@ -2674,8 +2674,8 @@
 <!-- INICIO SCRIPT DJ -->
  <script>
    /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v3.1 (Precisión Extrema)
-     * Solución al falso positivo "ESTAMOS PRESENTANDO" + Extracción Regex Indestructible
+     * RADIOCHAR VIRTUAL DJ ENGINE v3.2 (Master Release)
+     * Filtro de Ruido (Noise Filter) + Regex Quirúrgico + Determinismo
      */
 
     const DJ_APP = {
@@ -2683,10 +2683,10 @@
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
             INTERVAL: 10000, 
             TIMEOUT: 6000,
-            // SELECTORES QUIRÚRGICOS: Eliminados h1, h2, h3 para no capturar textos de diseño de la web
+            // Selectores amplios, pero ahora están respaldados por un filtro inteligente
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, [class*="title"]',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, h4, .track-artist, [class*="artist"]'
             },
             PROGRAMS: [
                 { id: 'lover', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
@@ -2699,8 +2699,7 @@
                 "¡Disfruta de la mejor música en Radiochar!",
                 "Conectados con tu ritmo las 24 horas.",
                 "Siente la energía de nuestra programación virtual.",
-                "Transmitiendo éxitos sin fronteras.",
-                "La radio que evoluciona contigo."
+                "Transmitiendo éxitos sin fronteras."
             ]
         },
         state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
@@ -2714,7 +2713,7 @@
         return str.toString()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Limpia tildes
             .toLowerCase()
-            .replace(/[^a-z0-9]/g, ''); // Solo alfanuméricos. Mantiene el contenido de los paréntesis íntegro.
+            .replace(/[^a-z0-9]/g, ''); // Deja sólo alfanuméricos
     }
 
     function getActiveDJ() {
@@ -2722,23 +2721,8 @@
         return DJ_APP.config.PROGRAMS.find(p => hour >= p.start && hour < p.end) || DJ_APP.config.PROGRAMS[0];
     }
 
-    function extractPhrases(obj, results = []) {
-        if (!obj) return results;
-        if (Array.isArray(obj)) {
-            obj.forEach(item => extractPhrases(item, results));
-        } else if (typeof obj === 'object') {
-            if (obj.frase && (obj.artista || obj.cancion || obj.titulo)) {
-                results.push(obj); 
-            } else {
-                Object.values(obj).forEach(val => extractPhrases(val, results));
-            }
-        }
-        return results;
-    }
-
     /**
-     * EXTRACTOR INDESTRUCTIBLE
-     * Ignora errores de JSON (Unterminated strings) y extrae las frases a la fuerza.
+     * EXTRACTOR INDESTRUCTIBLE v3
      */
     function salvageJSON(text) {
         let cleanText = text
@@ -2750,27 +2734,33 @@
         let results = [];
         try { 
             const parsed = JSON.parse(cleanText);
-            results = extractPhrases(parsed);
-            if (results.length > 0) return results;
+            const data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
+            if (Array.isArray(data)) return data;
         } catch (e) {
             console.warn("⚠️ [JSON ENGINE] Error de sintaxis detectado. Activando Extractor Manual Regex...");
         }
 
-        // Si JSON.parse falla, extraemos los datos manualmente bloque por bloque
-        const blocks = cleanText.match(/\{[^{}]*?"frase"[^{}]*?\}/gi);
+        // Recuperación por fragmentos (a prueba de comas colgantes y comillas escapadas)
+        const blocks = cleanText.match(/\{[^}]*?"frase"[^}]*\}/gi);
         if (blocks) {
             blocks.forEach(b => {
-                // Captura tolerante hasta la siguiente coma o cierre de llave
-                const artM = b.match(/"artista"\s*:\s*"([^]*?)"\s*(?:,|})/i);
-                const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"([^]*?)"\s*(?:,|})/i);
-                const phrM = b.match(/"frase"\s*:\s*"([^]*?)"\s*(?:,|})/i);
-                
-                if (phrM) {
-                    results.push({
-                        artista: artM ? artM[1] : "",
-                        cancion: titM ? titM[1] : "",
-                        frase: phrM[1]
-                    });
+                try {
+                    let fixed = b.replace(/,\s*\}/g, '}'); // Repara comas finales
+                    let pFrag = JSON.parse(fixed);
+                    if (pFrag.frase) results.push(pFrag);
+                } catch(err) {
+                    // Nivel máximo de supervivencia: extracción manual de campos
+                    const artM = b.match(/"artista"\s*:\s*"((?:\\"|[^"])*)"/i);
+                    const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"((?:\\"|[^"])*)"/i);
+                    const phrM = b.match(/"frase"\s*:\s*"((?:\\"|[^"])*)"/i);
+                    
+                    if (phrM) {
+                        results.push({
+                            artista: artM ? artM[1].replace(/\\"/g, '"') : "",
+                            cancion: titM ? titM[1].replace(/\\"/g, '"') : "",
+                            frase: phrM[1].replace(/\\"/g, '"')
+                        });
+                    }
                 }
             });
         }
@@ -2845,7 +2835,6 @@
         // 3: PROHIBIDO USAR FRASES DE OTRAS CANCIONES
         console.log(`[🛑 SIN MATCH] Retornando frase genérica segura.`);
         
-        // Buscar frase genérica del programa (sin canción asignada)
         const genericLibraryPhrases = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
             return jsonTitle === "" || jsonTitle === "generico";
@@ -2859,17 +2848,43 @@
     }
 
     /**
-     * DOM SCRAPER QUIRÚRGICO
+     * DOM SCRAPER QUIRÚRGICO (CON FILTRO DE RUIDO)
      */
     function getTrackFromDOM() {
         try {
-            const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
-            const artistEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
+            const titleEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.TITLE);
+            const artistEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
             
-            const title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
-            const artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
+            let title = "";
+            let artist = "";
 
-            if (title && title.length > 2 && !title.includes('...') && !title.toLowerCase().includes('cargando')) {
+            // FILTRO DE RUIDO: Ignoramos textos de diseño de tu web
+            const invalidWords = ['ESTAMOS PRESENTANDO', 'CARGANDO', 'RADIOCHAR', 'AL AIRE', 'PIDE TU CANCIÓN', 'ROCKSTARS', 'HITS DON'];
+            
+            const isCleanText = (txt) => {
+                if (!txt) return false;
+                const upper = txt.toUpperCase().trim();
+                return upper.length > 2 && !invalidWords.some(w => upper.includes(w));
+            };
+
+            // Escanear hasta encontrar el primer texto válido real
+            for (let el of titleEls) {
+                let text = (el.innerText || el.textContent).trim();
+                if (isCleanText(text)) { title = text; break; }
+            }
+
+            for (let el of artistEls) {
+                let text = (el.innerText || el.textContent).trim();
+                if (isCleanText(text) && text !== title) { artist = text; break; }
+            }
+
+            if (title) {
+                // Si el título trae el artista concatenado (ej. "Queen - We Are The Champions")
+                if (!artist && title.includes(' - ')) {
+                    const parts = title.split(' - ');
+                    artist = parts[0].trim();
+                    title = parts.slice(1).join(' - ').trim();
+                }
                 return { artist: artist || "Radiochar", title, source: 'DOM' };
             }
         } catch (e) {}
@@ -2886,7 +2901,17 @@
             const data = await response.json();
             
             if (data && data.length > 0 && data[0].title) {
-                return { artist: data[0].artist || "Radiochar", title: data[0].title, source: 'FEED' };
+                let trackArtist = data[0].artist;
+                let trackTitle = data[0].title;
+                
+                // Formateo para feeds que envían todo junto
+                if (!trackArtist && trackTitle.includes(' - ')) {
+                    const parts = trackTitle.split(' - ');
+                    trackArtist = parts[0].trim();
+                    trackTitle = parts.slice(1).join(' - ').trim();
+                }
+                
+                return { artist: trackArtist || "Radiochar", title: trackTitle, source: 'FEED' };
             }
         } catch (e) {}
         return null;
@@ -2917,6 +2942,7 @@
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
         
         if (!trackData) {
+            console.warn("[⚠️ VIRTUAL DJ] Sin señal del reproductor. Mostrando fallback.");
             if (DJ_APP.state.isFirstRun) {
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
@@ -2944,7 +2970,7 @@
         // WATCHDOG TIMER (Seguro Anti-Congelamiento de 7 Segundos)
         const safetyTimeout = setTimeout(() => {
             if (DJ_APP.state.isFirstRun) {
-                console.warn("[VIRTUAL DJ] Timeout. Forzando UI...");
+                console.warn("[VIRTUAL DJ] Timeout. Forzando UI de emergencia...");
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Conectado", DJ_APP.config.FALLBACKS[0]);
                 DJ_APP.state.isFirstRun = false;
