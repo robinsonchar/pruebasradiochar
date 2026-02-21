@@ -1151,137 +1151,114 @@
     }
 
 /* INICIO ESTILOS DJ */
-:root {
+ :root {
             --dj-accent: #ff0055;
-            --dj-bg: rgba(0, 0, 0, 0.4);
             --dj-text: #ffffff;
             --dj-transition: 450ms cubic-bezier(0.23, 1, 0.32, 1);
         }
 
+        /* Contenedor principal: Sin background, sin bordes, limpio y minimalista */
         .dj-section-wrapper {
             width: 100%;
-            max-width: 500px;
+            max-width: 800px; /* Más ancho para acomodar la estructura horizontal */
             margin: 20px auto;
-            padding: 25px;
-            background: var(--dj-bg);
-            border-radius: 15px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            background: transparent; 
+            border: none; 
+            box-shadow: none;
             color: var(--dj-text);
-            min-height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
+        /* Estructura en dos bloques paralelos */
         .dj-content {
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Diseño horizontal */
             align-items: center;
+            gap: 40px; /* Espacio limpio entre la imagen y los textos */
             width: 100%;
-            text-align: center;
             transition: opacity var(--dj-transition), transform var(--dj-transition);
             will-change: opacity, transform;
         }
 
         .hidden { display: none !important; }
 
-        .dj-badge {
-            background: var(--dj-accent);
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 4px 14px;
-            border-radius: 20px;
-            letter-spacing: 1.5px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
-            text-transform: uppercase;
-        }
-
+        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ (200x200px) */
         .dj-visual {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .dj-image-ring {
-            width: 125px;
-            height: 125px;
-            border-radius: 50%;
-            padding: 4px;
-            background: linear-gradient(45deg, var(--dj-accent), #00d4ff, var(--dj-accent));
-            background-size: 200% 200%;
-            animation: gradientRotate 4s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-shrink: 0;
         }
 
         #dj-avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%; /* Se mantiene circular por elegancia, ajustado a medida exacta */
             object-fit: cover;
             background: #111;
-            border: 3px solid #000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* Sombra sutil para despegarlo del fondo oscuro */
         }
 
+        /* BLOQUE DERECHO: TEXTOS JUSTIFICADOS A LA IZQUIERDA */
+        .dj-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left; /* Textos alineados a la izquierda */
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        /* Línea 1: EN CABINA */
+        .dj-badge {
+            color: var(--dj-accent);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Línea 2: Nombre del DJ */
         #dj-name {
-            font-size: 1.25rem;
-            margin: 5px 0;
+            font-size: 28px;
+            margin: 0 0 15px 0;
             font-weight: 800;
             letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+        
+        /* Agrega el prefijo "DJ " automáticamente sin tocar el JS */
+        #dj-name::before {
+            content: 'DJ ';
         }
 
-        .track-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .music-icon { color: var(--dj-accent); font-weight: bold; }
-
-        .phrase-box {
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 15px;
-        }
-
+        /* Línea 3: Frase a 16 puntos */
         #dj-phrase {
-            font-size: 0.95rem;
+            font-size: 16pt; /* Tamaño exacto solicitado */
             font-style: italic;
-            line-height: 1.4;
-            color: #f1f1f1;
+            line-height: 1.6;
+            color: #eaeaea;
             margin: 0;
+            text-align: left; /* Confirmación de justificado a la izquierda */
         }
 
+        /* Comillas sutiles */
         #dj-phrase::before, #dj-phrase::after {
             content: '"';
             color: var(--dj-accent);
             font-weight: bold;
-            font-size: 1.1rem;
         }
 
-        @keyframes gradientRotate {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        /* Loader adaptado a la estética minimalista */
         .dj-loading {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 15px;
+            width: 100%;
+            padding: 40px 0;
         }
 
         .spinner {
@@ -1295,10 +1272,17 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        @media (max-width: 480px) {
-            .dj-section-wrapper { padding: 15px; min-height: 250px; }
-            .dj-image-ring { width: 110px; height: 110px; }
-            #dj-phrase { font-size: 0.85rem; }
+        /* Responsividad para móviles: Apila los bloques si la pantalla es muy pequeña */
+        @media (max-width: 650px) {
+            .dj-content {
+                flex-direction: column;
+                align-items: flex-start; /* Mantiene justificado a la izquierda en celular */
+                gap: 25px;
+            }
+            #dj-avatar {
+                width: 160px; /* Un poco más pequeño en móviles para no desbordar */
+                height: 160px;
+            }
         }
 /* FIN ESTILOS DJ */
 </style>
@@ -1394,24 +1378,24 @@
         <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
-    <!-- UI del DJ -->
+    <!-- UI Minimalista del DJ (Dos Bloques) -->
     <div id="dj-content" class="dj-content hidden">
-        <div class="dj-badge">EN CABINA</div>
+        
+        <!-- Bloque Izquierdo -->
         <div class="dj-visual">
-            <div class="dj-image-ring">
-                <img id="dj-avatar" src="" alt="DJ" loading="lazy">
-            </div>
+            <img id="dj-avatar" src="" alt="DJ" loading="lazy">
         </div>
+        
+        <!-- Bloque Derecho -->
         <div class="dj-info">
+            <div class="dj-badge">EN CABINA</div>
             <h3 id="dj-name">---</h3>
-            <div class="track-display">
-                <span class="music-icon">♪</span>
-                <span id="current-track">Conectando...</span>
-            </div>
-            <div class="phrase-box">
-                <p id="dj-phrase">"..."</p>
-            </div>
+            <p id="dj-phrase">"..."</p>
+            
+            <!-- Elemento Oculto: Se mantiene para recibir el dato del JS sin mostrar "Música en vivo" -->
+            <span id="current-track" style="display: none;"></span>
         </div>
+        
     </div>
 </section>
 <!-- FIN HTML DJ -->
