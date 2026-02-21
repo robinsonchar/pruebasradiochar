@@ -1421,15 +1421,19 @@
     <!-- UI Minimalista del DJ (Dos Bloques) -->
     <div id="dj-content" class="dj-content hidden">
         
-        <!-- Bloque Izquierdo -->
+        <!-- Bloque Izquierdo: Ancho estricto 200px -->
         <div class="dj-visual">
             <img id="dj-avatar" src="" alt="DJ" loading="lazy">
         </div>
         
-        <!-- Bloque Derecho -->
+        <!-- Bloque Derecho: Resto del contenedor -->
         <div class="dj-info">
-            <div class="dj-badge">EN CABINA</div>
-            <h3 id="dj-name">---</h3>
+            <!-- Badge y Título alineados en la misma fila -->
+            <div class="dj-header-inline">
+                <div class="dj-badge">EN CABINA</div>
+                <h3 id="dj-name">---</h3>
+            </div>
+            
             <p id="dj-phrase">"..."</p>
             
             <!-- Elemento Oculto: Se mantiene para recibir el dato del JS sin mostrar "Música en vivo" -->
