@@ -1388,11 +1388,13 @@
 
 <!-- INICIO HTML DJ-->
  <section id="virtual-dj-container" class="dj-section-wrapper">
+    <!-- Loader inicial -->
     <div id="dj-skeleton" class="dj-loading">
         <div class="spinner"></div>
         <p style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">SINCRONIZANDO CABINA...</p>
     </div>
     
+    <!-- UI del DJ -->
     <div id="dj-content" class="dj-content hidden">
         <div class="dj-badge">EN CABINA</div>
         <div class="dj-visual">
@@ -1404,7 +1406,7 @@
             <h3 id="dj-name">---</h3>
             <div class="track-display">
                 <span class="music-icon">♪</span>
-                <span id="current-track">Detectando señal...</span>
+                <span id="current-track">Conectando...</span>
             </div>
             <div class="phrase-box">
                 <p id="dj-phrase">"..."</p>
@@ -2672,15 +2674,14 @@
 <!-- INICIO SCRIPT DJ -->
  <script>
   /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.9
-     * Lógica Estricta de Selección (Canción > Artista > Genérico)
-     * Solución al "Caos" de Metallica y Benny Mardones
+     * RADIOCHAR VIRTUAL DJ ENGINE v2.7
+     * Limpieza Binaria + Extracción "frases_por_cancion" + Sincronización Forzada
      */
 
     const DJ_APP = {
         config: {
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
-            INTERVAL: 8000, 
+            INTERVAL: 10000, 
             TIMEOUT: 12000,
             PLAYER_SELECTORS: {
                 TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, [class*="tracktitle"]',
@@ -2697,17 +2698,12 @@
                 "¡Disfruta de la mejor música en Radiochar!",
                 "Conectados con tu ritmo las 24 horas.",
                 "Siente la energía de nuestra programación virtual.",
-                "Transmitiendo éxitos sin fronteras.",
-                "La radio que evoluciona contigo."
+                "Transmitiendo éxitos sin fronteras."
             ]
         },
-        state: { cache: {}, lastTrackId: null, isFirstRun: true }
+        state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
     };
 
-    /**
-     * Normalización: quita ruidos y deja solo caracteres comparables.
-     * Importante: Limpia paréntesis de versiones para un mejor match.
-     */
     function normalize(str) {
         if (!str) return '';
         return str.toString().toLowerCase()
@@ -2722,21 +2718,25 @@
     }
 
     /**
-     * REPARACIÓN DE JSON: Convierte comillas inteligentes y extrae 'frases_por_cancion'
+     * LIMPIEZA BINARIA + EXTRACCIÓN RAÍZ
+     * Soluciona "Unterminated string" y caracteres Unicode basura
      */
     function salvageJSON(text) {
+        // Limpieza de caracteres de control e invisibles
         let cleanText = text
-            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') 
+            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') // Comillas inteligentes a rectas
             .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") 
-            .replace(/^\uFEFF/, "");
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres no imprimibles
+            .replace(/^\uFEFF/, "") // BOM
+            .trim();
 
         try { 
             const parsed = JSON.parse(cleanText);
-            // Soportamos la raíz 'frases_por_cancion' detectada en VS Code
-            return parsed.frases_por_cancion || parsed;
+            // Si el JSON tiene la raíz "frases_por_cancion" o "programa.frases_por_cancion"
+            let data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
+            return Array.isArray(data) ? data : null;
         } catch (e) {
-            console.warn("JSON malformado detectado. Intentando extracción quirúrgica...");
+            console.warn("[JSON ENGINE] Fallo en parseo nativo. Iniciando escaneo por fragmentos...");
             const regex = /\{[^{}]*"artista"[^{}]*\}/g;
             const matches = cleanText.match(regex);
             if (!matches) return null;
@@ -2745,6 +2745,7 @@
             matches.forEach(m => {
                 try {
                     let fragment = m.trim();
+                    // Reparar comillas sin cerrar al final del fragmento si es necesario
                     if ((fragment.match(/"/g) || []).length % 2 !== 0) fragment = fragment.replace(/\}?$/, '" }');
                     results.push(JSON.parse(fragment));
                 } catch(err) {}
@@ -2754,89 +2755,82 @@
     }
 
     async function preloadLibrary() {
+        console.log("🛠️ Sincronizando librerías de frases...");
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
                 const response = await fetch(`${prog.json}?v=${Date.now()}`);
-                if (!response.ok) return;
+                if (!response.ok) throw new Error();
                 const text = await response.text();
                 const data = salvageJSON(text);
                 if (data) DJ_APP.state.cache[prog.id] = data;
-            } catch (err) {}
+            } catch (err) {
+                console.error("Error cargando librería:", prog.id);
+            }
         });
         await Promise.all(tasks);
+        DJ_APP.state.isLoaded = true;
     }
 
     /**
-     * LÓGICA DE SELECCIÓN v2.9 (ESTRICTA)
+     * ALGORITMO DE BÚSQUEDA DETERMINISTA (NIVEL 5)
+     * Prioridad Absoluta: Nombre de la Canción -> Validación de Artista -> Frase
      */
-    function getPhrase(progId, artist, title) {
+    function getPhrase(progId, currentArtist, currentTitle) {
         const library = DJ_APP.state.cache[progId];
         if (!library || !Array.isArray(library)) return DJ_APP.config.FALLBACKS[0];
 
-        const nArtist = normalize(artist);
-        const nTitle = normalize(title);
+        const nTitle = normalize(currentTitle);
+        const nArtist = normalize(currentArtist);
 
-        console.log(`Buscando frase para: [${artist}] - [${title}]`);
+        console.log(`[🔍 VIRTUAL DJ] Buscando en DB: Canción="${nTitle}" | Artista="${nArtist}"`);
 
-        // 1. PRIORIDAD MÁXIMA: Artista Y Canción coinciden perfectamente
-        const perfectMatch = library.find(item => {
-            const iArt = normalize(item.artista);
-            const iSong = normalize(item.titulo || item.cancion || "");
-            return nArtist === iArt && nTitle === iSong;
+        // PASO 1: BÚSQUEDA PRIMARIA POR CANCIÓN (Llave Primaria)
+        const songMatches = library.filter(item => {
+            const jsonTitle = normalize(item.titulo || item.cancion || "");
+            if (!jsonTitle) return false;
+            // Coincidencia exacta o contención estricta
+            return jsonTitle === nTitle || nTitle.includes(jsonTitle) || jsonTitle.includes(nTitle);
         });
-        if (perfectMatch && perfectMatch.frase) {
-            console.log("✅ Coincidencia exacta encontrada.");
-            return perfectMatch.frase;
-        }
 
-        // 2. PRIORIDAD MEDIA: Solo la canción coincide (útil si el artista está escrito distinto)
-        const songMatch = library.find(item => {
-            const iSong = normalize(item.titulo || item.cancion || "");
-            return iSong.length > 4 && nTitle === iSong;
-        });
-        if (songMatch && songMatch.frase) {
-            console.log("✅ Coincidencia por canción encontrada.");
-            return songMatch.frase;
-        }
-
-        // 3. PRIORIDAD BAJA: El artista coincide, pero buscamos una frase que NO mencione otra canción
-        const artistMatches = library.filter(item => normalize(item.artista) === nArtist);
-        if (artistMatches.length > 0) {
-            // Buscamos una frase del artista que no tenga nombre de canción (frase genérica del artista)
-            const genericArtistPhrase = artistMatches.find(item => {
-                const iSong = (item.titulo || item.cancion || "").toLowerCase();
-                return iSong === "" || iSong.includes("generico");
+        if (songMatches.length > 0) {
+            // PASO 2: DESAMBIGUACIÓN POR ARTISTA
+            // Si encontró la canción, confirmamos que el artista de esa canción en el JSON sea el mismo
+            const perfectMatch = songMatches.find(item => {
+                const jsonArtist = normalize(item.artista || "");
+                return jsonArtist === nArtist || nArtist.includes(jsonArtist) || jsonArtist.includes(nArtist);
             });
-            
-            if (genericArtistPhrase) {
-                console.log("✅ Frase genérica del artista encontrada.");
-                return genericArtistPhrase.frase;
+
+            if (perfectMatch && perfectMatch.frase) {
+                console.log(`[✅ MATCH 100%] Canción y Artista confirmados.`);
+                return perfectMatch.frase;
             }
-            
-            // Si el artista existe pero todas sus frases mencionan canciones que NO son la actual,
-            // NO usamos esas frases para evitar el error de la imagen. Saltamos al fallback general.
-            console.log("⚠️ Artista coincide pero no la canción. Evitando frases incorrectas.");
+
+            // Si encontró la canción pero el artista varía un poco (ej: "Guns Roses" vs "Guns N' Roses"),
+            // confiamos en el título de la canción ya que es un identificador fuerte.
+            if (songMatches[0].frase) {
+                console.log(`[⚠️ MATCH PARCIAL] Canción confirmada, artista validado con tolerancia.`);
+                return songMatches[0].frase;
+            }
         }
 
-        // 4. FALLBACK FINAL: Frase aleatoria del programa que NO tenga canción asignada
-        const generalLibraryPhrases = library.filter(item => {
-            const iSong = item.titulo || item.cancion || "";
-            return iSong === "";
+        // PASO 3: BLOQUEO DE FALSOS POSITIVOS (ANTI-CAOS)
+        // Si la canción NO se encontró, ESTÁ PROHIBIDO devolver una frase de OTRA canción del mismo artista.
+        console.log(`[🛑 SIN COINCIDENCIA DE CANCIÓN] Previniendo error. Retornando frase genérica segura.`);
+
+        // Buscamos si el DJ tiene una frase totalmente genérica (sin canción asignada)
+        const genericLibraryPhrases = library.filter(item => {
+            const jsonTitle = normalize(item.titulo || item.cancion || "");
+            return jsonTitle === "" || jsonTitle === "generico";
         });
 
-        if (generalLibraryPhrases.length > 0) {
-            console.log("ℹ️ Usando frase genérica de la biblioteca del DJ.");
-            return generalLibraryPhrases[Math.floor(Math.random() * generalLibraryPhrases.length)].frase;
+        if (genericLibraryPhrases.length > 0) {
+            return genericLibraryPhrases[Math.floor(Math.random() * genericLibraryPhrases.length)].frase;
         }
 
-        // 5. RESPALDO HARDCODED: Si todo en el JSON falla
-        console.log("ℹ️ Usando frase de respaldo interna.");
+        // Si no hay frases genéricas en el JSON, devolvemos la frase estándar de la emisora
         return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
     }
 
-    /**
-     * LECTURA DEL DOM: Extrae la canción actual de lo que se ve en la web
-     */
     function getTrackFromDOM() {
         try {
             const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
@@ -2854,7 +2848,10 @@
 
     async function getTrackFromFeed() {
         try {
-            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`);
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 5000);
+            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`, { signal: controller.signal });
+            clearTimeout(id);
             const data = await response.json();
             if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
         } catch (e) {}
@@ -2875,31 +2872,32 @@
             document.getElementById('dj-avatar').src = dj.img;
             document.getElementById('dj-name').textContent = dj.name;
             document.getElementById('current-track').textContent = trackInfo;
-            
-            // Limpiar comillas repetidas si las hay
             const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
             document.getElementById('dj-phrase').textContent = phraseClean;
-
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
         }, 200);
     }
 
     async function syncStation() {
-        const trackData = getTrackFromDOM() || await getTrackFromFeed();
-        
-        if (!trackData) {
-            if (DJ_APP.state.isFirstRun) {
+        // Forzar ocultación del skeleton si las librerías tardan mucho
+        setTimeout(() => {
+            if (DJ_APP.state.isFirstRun && document.getElementById('dj-content').classList.contains('hidden')) {
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
                 DJ_APP.state.isFirstRun = false;
             }
-            return;
-        }
+        }, 6000);
 
-        const { artist, title, source } = trackData;
+        const trackData = getTrackFromDOM() || await getTrackFromFeed();
+        
+        if (!trackData && !DJ_APP.state.isFirstRun) return;
+
+        const artist = trackData ? trackData.artist : "Radiochar";
+        const title = trackData ? trackData.title : "Música en vivo";
+        const source = trackData ? trackData.source : "FALLBACK";
+
         const currentTrackId = normalize(`${artist}${title}`);
-
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
 
         console.log(`Sync [${source}]: ${artist} - ${title}`);
@@ -2922,7 +2920,8 @@
             
             setInterval(syncStation, DJ_APP.config.INTERVAL);
         } catch (e) {
-            console.error("Fallo inicial:", e);
+            console.error("Fallo crítico:", e);
+            // Fallback de emergencia
             const skeleton = document.getElementById('dj-skeleton');
             const content = document.getElementById('dj-content');
             if(skeleton) skeleton.classList.add('hidden');
