@@ -2674,8 +2674,8 @@
 <!-- INICIO SCRIPT DJ -->
  <script>
    /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v3.2 (Master Release)
-     * Filtro de Ruido (Noise Filter) + Regex Quirúrgico + Determinismo
+     * RADIOCHAR VIRTUAL DJ ENGINE v3.3 (Enterprise Edition Final)
+     * Puntería Láser en DOM + Jerarquía Inviolable de Canciones
      */
 
     const DJ_APP = {
@@ -2683,10 +2683,10 @@
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
             INTERVAL: 10000, 
             TIMEOUT: 6000,
-            // Selectores amplios, pero ahora están respaldados por un filtro inteligente
+            // SELECTORES QUIRÚRGICOS: Cero etiquetas genéricas (h1, h2) para evitar ruido visual de la web.
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, [class*="title"]',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, h4, .track-artist, [class*="artist"]'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, .song-title',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, .song-artist'
             },
             PROGRAMS: [
                 { id: 'lover', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
@@ -2713,7 +2713,7 @@
         return str.toString()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Limpia tildes
             .toLowerCase()
-            .replace(/[^a-z0-9]/g, ''); // Deja sólo alfanuméricos
+            .replace(/[^a-z0-9]/g, ''); // Deja sólo alfanuméricos continuos para un match inquebrantable
     }
 
     function getActiveDJ() {
@@ -2740,7 +2740,6 @@
             console.warn("⚠️ [JSON ENGINE] Error de sintaxis detectado. Activando Extractor Manual Regex...");
         }
 
-        // Recuperación por fragmentos (a prueba de comas colgantes y comillas escapadas)
         const blocks = cleanText.match(/\{[^}]*?"frase"[^}]*\}/gi);
         if (blocks) {
             blocks.forEach(b => {
@@ -2749,7 +2748,6 @@
                     let pFrag = JSON.parse(fixed);
                     if (pFrag.frase) results.push(pFrag);
                 } catch(err) {
-                    // Nivel máximo de supervivencia: extracción manual de campos
                     const artM = b.match(/"artista"\s*:\s*"((?:\\"|[^"])*)"/i);
                     const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"((?:\\"|[^"])*)"/i);
                     const phrM = b.match(/"frase"\s*:\s*"((?:\\"|[^"])*)"/i);
@@ -2794,6 +2792,7 @@
 
     /**
      * ALGORITMO DETERMINISTA (Cero Caos)
+     * Prioridad Absoluta a la Canción, no al artista solitario.
      */
     function getPhrase(progId, currentArtist, currentTitle) {
         const library = DJ_APP.state.cache[progId];
@@ -2807,7 +2806,7 @@
 
         console.log(`[🔍 MATCH] Buscando: Canción="${nTitle}" | Artista="${nArtist}"`);
 
-        // 1: Buscar estrictamente por CANCIÓN primero
+        // 1: Buscar estrictamente por CANCIÓN primero (La Llave Maestra)
         const songMatches = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
             if (!jsonTitle || jsonTitle.length < 3) return false;
@@ -2815,7 +2814,7 @@
         });
 
         if (songMatches.length > 0) {
-            // 2: Validar el Artista de esa canción
+            // 2: Confirmar que el artista concuerda (Evita covers equivocados)
             const perfectMatch = songMatches.find(item => {
                 const jsonArtist = normalize(item.artista || "");
                 return jsonArtist === nArtist || nArtist.includes(jsonArtist) || jsonArtist.includes(nArtist);
@@ -2832,7 +2831,7 @@
             }
         }
 
-        // 3: PROHIBIDO USAR FRASES DE OTRAS CANCIONES
+        // 3: PROTECCIÓN ANTI-CAOS. Si la canción no está, jamás decir otra del mismo artista.
         console.log(`[🛑 SIN MATCH] Retornando frase genérica segura.`);
         
         const genericLibraryPhrases = library.filter(item => {
@@ -2848,7 +2847,8 @@
     }
 
     /**
-     * DOM SCRAPER QUIRÚRGICO (CON FILTRO DE RUIDO)
+     * DOM SCRAPER CON LISTA NEGRA BLINDADA
+     * Previene que el scraper lea menús y subtítulos ("Artista", "Cargando", etc.)
      */
     function getTrackFromDOM() {
         try {
@@ -2858,16 +2858,25 @@
             let title = "";
             let artist = "";
 
-            // FILTRO DE RUIDO: Ignoramos textos de diseño de tu web
-            const invalidWords = ['ESTAMOS PRESENTANDO', 'CARGANDO', 'RADIOCHAR', 'AL AIRE', 'PIDE TU CANCIÓN', 'ROCKSTARS', 'HITS DON'];
+            // PALABRAS PROHIBIDAS: Si la web tiene estos textos estáticos, los ignora.
+            const invalidWords = [
+                'ESTAMOS PRESENTANDO', 'CARGANDO', 'RADIOCHAR', 'AL AIRE', 
+                'PIDE TU CANCIÓN', 'ROCKSTARS', 'HITS DON', 'ARTISTA', 
+                'SINTONIZANDO', 'TITULO', 'CANCION', 'CONECTANDO'
+            ];
             
             const isCleanText = (txt) => {
                 if (!txt) return false;
                 const upper = txt.toUpperCase().trim();
-                return upper.length > 2 && !invalidWords.some(w => upper.includes(w));
+                if (upper.length < 2) return false;
+                
+                // Si la palabra está en la lista negra, la descarta
+                for (let word of invalidWords) {
+                    if (upper.includes(word) || upper === word) return false;
+                }
+                return true;
             };
 
-            // Escanear hasta encontrar el primer texto válido real
             for (let el of titleEls) {
                 let text = (el.innerText || el.textContent).trim();
                 if (isCleanText(text)) { title = text; break; }
@@ -2879,7 +2888,6 @@
             }
 
             if (title) {
-                // Si el título trae el artista concatenado (ej. "Queen - We Are The Champions")
                 if (!artist && title.includes(' - ')) {
                     const parts = title.split(' - ');
                     artist = parts[0].trim();
@@ -2888,7 +2896,7 @@
                 return { artist: artist || "Radiochar", title, source: 'DOM' };
             }
         } catch (e) {}
-        return null;
+        return null; // Si no hay DOM limpio, forzará a usar el Feed que sí es exacto
     }
 
     async function getTrackFromFeed() {
@@ -2904,7 +2912,6 @@
                 let trackArtist = data[0].artist;
                 let trackTitle = data[0].title;
                 
-                // Formateo para feeds que envían todo junto
                 if (!trackArtist && trackTitle.includes(' - ')) {
                     const parts = trackTitle.split(' - ');
                     trackArtist = parts[0].trim();
@@ -2939,6 +2946,7 @@
     }
 
     async function syncStation() {
+        // El DOM intentará leer primero. Si lee basura, fallará y pasará al FEED (Que es 100% confiable)
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
         
         if (!trackData) {
@@ -2983,7 +2991,6 @@
             clearTimeout(safetyTimeout);
             
             const observer = new MutationObserver(() => syncStation());
-            // Limitado para evitar sobrecarga en la memoria
             observer.observe(document.body, { childList: true, subtree: true, characterData: true });
             
             setInterval(syncStation, DJ_APP.config.INTERVAL);
