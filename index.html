@@ -2673,19 +2673,20 @@
 </script>
 <!-- INICIO SCRIPT DJ -->
  <script>
-  /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v2.7
-     * Limpieza Binaria + Extracción "frases_por_cancion" + Sincronización Forzada
+   /**
+     * RADIOCHAR VIRTUAL DJ ENGINE v3.1 (Precisión Extrema)
+     * Solución al falso positivo "ESTAMOS PRESENTANDO" + Extracción Regex Indestructible
      */
 
     const DJ_APP = {
         config: {
             FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
             INTERVAL: 10000, 
-            TIMEOUT: 12000,
+            TIMEOUT: 6000,
+            // SELECTORES QUIRÚRGICOS: Eliminados h1, h2, h3 para no capturar textos de diseño de la web
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, h1, h2, .track-title, [class*="tracktitle"]',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, h3, .track-artist, [class*="artist"]'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson'
             },
             PROGRAMS: [
                 { id: 'lover', name: 'Karol Morales', img: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzrMy5dZ_8OTNe_Jnb8oUnMiiZwnu7wSjX5NelzvEGveoffAgKviwv7kDf4eKQw8RokK26d01KU9c_ctAyWeurqSRP3w9_17kCkyytSkk-0ZQHeH3PDLeMQTVGFceCpzTWz1Nb6xS9-GMnyqQGtPPk6DLIHggNxNxeiJUUD7l9VPZKK6x-WaWIs6aTwGCc/s16000/DannaDJ.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 5 },
@@ -2698,18 +2699,22 @@
                 "¡Disfruta de la mejor música en Radiochar!",
                 "Conectados con tu ritmo las 24 horas.",
                 "Siente la energía de nuestra programación virtual.",
-                "Transmitiendo éxitos sin fronteras."
+                "Transmitiendo éxitos sin fronteras.",
+                "La radio que evoluciona contigo."
             ]
         },
         state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
     };
 
+    /**
+     * NORMALIZACIÓN ESTRICTA
+     */
     function normalize(str) {
         if (!str) return '';
-        return str.toString().toLowerCase()
-            .replace(/\(.*\)|\[.*\]/g, "") 
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-            .replace(/[^a-z0-9]/g, '').trim();
+        return str.toString()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Limpia tildes
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, ''); // Solo alfanuméricos. Mantiene el contenido de los paréntesis íntegro.
     }
 
     function getActiveDJ() {
@@ -2717,84 +2722,110 @@
         return DJ_APP.config.PROGRAMS.find(p => hour >= p.start && hour < p.end) || DJ_APP.config.PROGRAMS[0];
     }
 
+    function extractPhrases(obj, results = []) {
+        if (!obj) return results;
+        if (Array.isArray(obj)) {
+            obj.forEach(item => extractPhrases(item, results));
+        } else if (typeof obj === 'object') {
+            if (obj.frase && (obj.artista || obj.cancion || obj.titulo)) {
+                results.push(obj); 
+            } else {
+                Object.values(obj).forEach(val => extractPhrases(val, results));
+            }
+        }
+        return results;
+    }
+
     /**
-     * LIMPIEZA BINARIA + EXTRACCIÓN RAÍZ
-     * Soluciona "Unterminated string" y caracteres Unicode basura
+     * EXTRACTOR INDESTRUCTIBLE
+     * Ignora errores de JSON (Unterminated strings) y extrae las frases a la fuerza.
      */
     function salvageJSON(text) {
-        // Limpieza de caracteres de control e invisibles
         let cleanText = text
-            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') // Comillas inteligentes a rectas
+            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') 
             .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") // Caracteres no imprimibles
-            .replace(/^\uFEFF/, "") // BOM
-            .trim();
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") 
+            .replace(/^\uFEFF/, "");
 
+        let results = [];
         try { 
             const parsed = JSON.parse(cleanText);
-            // Si el JSON tiene la raíz "frases_por_cancion" o "programa.frases_por_cancion"
-            let data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
-            return Array.isArray(data) ? data : null;
+            results = extractPhrases(parsed);
+            if (results.length > 0) return results;
         } catch (e) {
-            console.warn("[JSON ENGINE] Fallo en parseo nativo. Iniciando escaneo por fragmentos...");
-            const regex = /\{[^{}]*"artista"[^{}]*\}/g;
-            const matches = cleanText.match(regex);
-            if (!matches) return null;
-            
-            const results = [];
-            matches.forEach(m => {
-                try {
-                    let fragment = m.trim();
-                    // Reparar comillas sin cerrar al final del fragmento si es necesario
-                    if ((fragment.match(/"/g) || []).length % 2 !== 0) fragment = fragment.replace(/\}?$/, '" }');
-                    results.push(JSON.parse(fragment));
-                } catch(err) {}
-            });
-            return results.length > 0 ? results : null;
+            console.warn("⚠️ [JSON ENGINE] Error de sintaxis detectado. Activando Extractor Manual Regex...");
         }
+
+        // Si JSON.parse falla, extraemos los datos manualmente bloque por bloque
+        const blocks = cleanText.match(/\{[^{}]*?"frase"[^{}]*?\}/gi);
+        if (blocks) {
+            blocks.forEach(b => {
+                // Captura tolerante hasta la siguiente coma o cierre de llave
+                const artM = b.match(/"artista"\s*:\s*"([^]*?)"\s*(?:,|})/i);
+                const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"([^]*?)"\s*(?:,|})/i);
+                const phrM = b.match(/"frase"\s*:\s*"([^]*?)"\s*(?:,|})/i);
+                
+                if (phrM) {
+                    results.push({
+                        artista: artM ? artM[1] : "",
+                        cancion: titM ? titM[1] : "",
+                        frase: phrM[1]
+                    });
+                }
+            });
+        }
+        return results.length > 0 ? results : null;
     }
 
     async function preloadLibrary() {
-        console.log("🛠️ Sincronizando librerías de frases...");
+        console.log("🛠️ [VIRTUAL DJ] Reconstruyendo Caché de Conocimiento...");
         const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
             try {
-                const response = await fetch(`${prog.json}?v=${Date.now()}`);
-                if (!response.ok) throw new Error();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), DJ_APP.config.TIMEOUT);
+                const response = await fetch(`${prog.json}?v=${Date.now()}`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error("HTTP Status " + response.status);
                 const text = await response.text();
                 const data = salvageJSON(text);
-                if (data) DJ_APP.state.cache[prog.id] = data;
+                
+                DJ_APP.state.cache[prog.id] = data || []; 
             } catch (err) {
-                console.error("Error cargando librería:", prog.id);
+                console.error(`[ERROR] Conexión fallida con el archivo: ${prog.id}`);
+                DJ_APP.state.cache[prog.id] = []; 
             }
         });
-        await Promise.all(tasks);
+        
+        await Promise.allSettled(tasks);
         DJ_APP.state.isLoaded = true;
+        console.log("✅ [VIRTUAL DJ] Motores de texto listos.");
     }
 
     /**
-     * ALGORITMO DE BÚSQUEDA DETERMINISTA (NIVEL 5)
-     * Prioridad Absoluta: Nombre de la Canción -> Validación de Artista -> Frase
+     * ALGORITMO DETERMINISTA (Cero Caos)
      */
     function getPhrase(progId, currentArtist, currentTitle) {
         const library = DJ_APP.state.cache[progId];
-        if (!library || !Array.isArray(library)) return DJ_APP.config.FALLBACKS[0];
+        
+        if (!library || !Array.isArray(library) || library.length === 0) {
+            return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
+        }
 
         const nTitle = normalize(currentTitle);
         const nArtist = normalize(currentArtist);
 
-        console.log(`[🔍 VIRTUAL DJ] Buscando en DB: Canción="${nTitle}" | Artista="${nArtist}"`);
+        console.log(`[🔍 MATCH] Buscando: Canción="${nTitle}" | Artista="${nArtist}"`);
 
-        // PASO 1: BÚSQUEDA PRIMARIA POR CANCIÓN (Llave Primaria)
+        // 1: Buscar estrictamente por CANCIÓN primero
         const songMatches = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
-            if (!jsonTitle) return false;
-            // Coincidencia exacta o contención estricta
+            if (!jsonTitle || jsonTitle.length < 3) return false;
             return jsonTitle === nTitle || nTitle.includes(jsonTitle) || jsonTitle.includes(nTitle);
         });
 
         if (songMatches.length > 0) {
-            // PASO 2: DESAMBIGUACIÓN POR ARTISTA
-            // Si encontró la canción, confirmamos que el artista de esa canción en el JSON sea el mismo
+            // 2: Validar el Artista de esa canción
             const perfectMatch = songMatches.find(item => {
                 const jsonArtist = normalize(item.artista || "");
                 return jsonArtist === nArtist || nArtist.includes(jsonArtist) || jsonArtist.includes(nArtist);
@@ -2805,19 +2836,16 @@
                 return perfectMatch.frase;
             }
 
-            // Si encontró la canción pero el artista varía un poco (ej: "Guns Roses" vs "Guns N' Roses"),
-            // confiamos en el título de la canción ya que es un identificador fuerte.
             if (songMatches[0].frase) {
-                console.log(`[⚠️ MATCH PARCIAL] Canción confirmada, artista validado con tolerancia.`);
+                console.log(`[⚠️ MATCH PARCIAL] Canción confirmada.`);
                 return songMatches[0].frase;
             }
         }
 
-        // PASO 3: BLOQUEO DE FALSOS POSITIVOS (ANTI-CAOS)
-        // Si la canción NO se encontró, ESTÁ PROHIBIDO devolver una frase de OTRA canción del mismo artista.
-        console.log(`[🛑 SIN COINCIDENCIA DE CANCIÓN] Previniendo error. Retornando frase genérica segura.`);
-
-        // Buscamos si el DJ tiene una frase totalmente genérica (sin canción asignada)
+        // 3: PROHIBIDO USAR FRASES DE OTRAS CANCIONES
+        console.log(`[🛑 SIN MATCH] Retornando frase genérica segura.`);
+        
+        // Buscar frase genérica del programa (sin canción asignada)
         const genericLibraryPhrases = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
             return jsonTitle === "" || jsonTitle === "generico";
@@ -2827,10 +2855,12 @@
             return genericLibraryPhrases[Math.floor(Math.random() * genericLibraryPhrases.length)].frase;
         }
 
-        // Si no hay frases genéricas en el JSON, devolvemos la frase estándar de la emisora
         return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
     }
 
+    /**
+     * DOM SCRAPER QUIRÚRGICO
+     */
     function getTrackFromDOM() {
         try {
             const titleEl = document.querySelector(DJ_APP.config.PLAYER_SELECTORS.TITLE);
@@ -2839,7 +2869,7 @@
             const title = titleEl ? (titleEl.innerText || titleEl.textContent).trim() : "";
             const artist = artistEl ? (artistEl.innerText || artistEl.textContent).trim() : "";
 
-            if (title && title.length > 2 && !title.includes('...')) {
+            if (title && title.length > 2 && !title.includes('...') && !title.toLowerCase().includes('cargando')) {
                 return { artist: artist || "Radiochar", title, source: 'DOM' };
             }
         } catch (e) {}
@@ -2852,8 +2882,12 @@
             const id = setTimeout(() => controller.abort(), 5000);
             const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`, { signal: controller.signal });
             clearTimeout(id);
+            if (!response.ok) return null;
             const data = await response.json();
-            if (data && data.length > 0) return { artist: data[0].artist, title: data[0].title, source: 'FEED' };
+            
+            if (data && data.length > 0 && data[0].title) {
+                return { artist: data[0].artist || "Radiochar", title: data[0].title, source: 'FEED' };
+            }
         } catch (e) {}
         return null;
     }
@@ -2880,27 +2914,23 @@
     }
 
     async function syncStation() {
-        // Forzar ocultación del skeleton si las librerías tardan mucho
-        setTimeout(() => {
-            if (DJ_APP.state.isFirstRun && document.getElementById('dj-content').classList.contains('hidden')) {
+        const trackData = getTrackFromDOM() || await getTrackFromFeed();
+        
+        if (!trackData) {
+            if (DJ_APP.state.isFirstRun) {
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
                 DJ_APP.state.isFirstRun = false;
             }
-        }, 6000);
+            return;
+        }
 
-        const trackData = getTrackFromDOM() || await getTrackFromFeed();
-        
-        if (!trackData && !DJ_APP.state.isFirstRun) return;
-
-        const artist = trackData ? trackData.artist : "Radiochar";
-        const title = trackData ? trackData.title : "Música en vivo";
-        const source = trackData ? trackData.source : "FALLBACK";
-
+        const { artist, title, source } = trackData;
         const currentTrackId = normalize(`${artist}${title}`);
+
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
 
-        console.log(`Sync [${source}]: ${artist} - ${title}`);
+        console.log(`[📡 LECTURA ${source}] Sonando: ${artist} - ${title}`);
 
         const activeDJ = getActiveDJ();
         const phrase = getPhrase(activeDJ.id, artist, title);
@@ -2911,21 +2941,32 @@
     }
 
     window.addEventListener('load', async () => {
+        // WATCHDOG TIMER (Seguro Anti-Congelamiento de 7 Segundos)
+        const safetyTimeout = setTimeout(() => {
+            if (DJ_APP.state.isFirstRun) {
+                console.warn("[VIRTUAL DJ] Timeout. Forzando UI...");
+                const dj = getActiveDJ();
+                updateUI(dj, "Radiochar - Conectado", DJ_APP.config.FALLBACKS[0]);
+                DJ_APP.state.isFirstRun = false;
+            }
+        }, 7000);
+
         try {
             await preloadLibrary();
             await syncStation();
+            clearTimeout(safetyTimeout);
             
             const observer = new MutationObserver(() => syncStation());
+            // Limitado para evitar sobrecarga en la memoria
             observer.observe(document.body, { childList: true, subtree: true, characterData: true });
             
             setInterval(syncStation, DJ_APP.config.INTERVAL);
         } catch (e) {
-            console.error("Fallo crítico:", e);
-            // Fallback de emergencia
-            const skeleton = document.getElementById('dj-skeleton');
-            const content = document.getElementById('dj-content');
-            if(skeleton) skeleton.classList.add('hidden');
-            if(content) content.classList.remove('hidden');
+            console.error("[CRÍTICO] Fallo general de motor:", e);
+            clearTimeout(safetyTimeout);
+            const dj = getActiveDJ();
+            updateUI(dj, "Radiochar - Sistema Activo", DJ_APP.config.FALLBACKS[0]);
+            DJ_APP.state.isFirstRun = false;
         }
     });
  </script>
