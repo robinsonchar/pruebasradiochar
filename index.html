@@ -1157,14 +1157,14 @@
             --dj-transition: 450ms cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* Contenedor principal: Sin background, sin bordes, limpio y minimalista */
+        /* Contenedor principal: Sin background, sin borde, limpio y minimalista */
         .dj-section-wrapper {
             width: 100%;
-            max-width: 1000px; /* Ancho ajustado para balancear con el reproductor de radio */
+            max-width: 700px; /* Ancho ajustado para balancear con el reproductor de radio */
             margin: 20px auto;
             padding: 20px;
-            background: transparent;
-            border: none; 
+            background: transparent; 
+            border: none; /* Borde eliminado */
             box-shadow: none;
             color: var(--dj-text);
             display: flex;
@@ -1186,7 +1186,7 @@
 
         .hidden { display: none !important; }
 
-        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ (Ancho estricto de 200px) */
+        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ LIMPIA */
         .dj-visual {
             flex-shrink: 0;
             width: 200px; 
@@ -1200,7 +1200,7 @@
             border-radius: 50%; /* Se mantiene circular por elegancia, ajustado a medida exacta */
             object-fit: cover;
             background: #111;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* Sombra sutil para despegarlo del fondo oscuro */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* Sombra sutil conservada */
         }
 
         /* BLOQUE DERECHO: TEXTOS JUSTIFICADOS A LA IZQUIERDA Y EXPANDIDOS */
@@ -1241,7 +1241,7 @@
 
         /* Animación de parpadeo suave */
         @keyframes badge-blink {
-            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); }
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); }
             50% { opacity: 0.4; box-shadow: 0 0 0px transparent; }
         }
 
