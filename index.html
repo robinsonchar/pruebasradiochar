@@ -1186,9 +1186,12 @@
 
         .hidden { display: none !important; }
 
-        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ (200x200px) */
+        /* BLOQUE IZQUIERDO: IMAGEN DEL DJ (Ancho estricto de 200px) */
         .dj-visual {
             flex-shrink: 0;
+            width: 200px; 
+            display: flex;
+            justify-content: center;
         }
 
         #dj-avatar {
@@ -1200,29 +1203,40 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* Sombra sutil para despegarlo del fondo oscuro */
         }
 
-        /* BLOQUE DERECHO: TEXTOS JUSTIFICADOS A LA IZQUIERDA */
+        /* BLOQUE DERECHO: TEXTOS JUSTIFICADOS A LA IZQUIERDA Y EXPANDIDOS */
         .dj-info {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Evita que el botón de En Cabina se estire */
-            text-align: left; /* Textos alineados a la izquierda */
+            align-items: flex-start; /* Alinea los elementos a la izquierda */
+            text-align: left; 
             justify-content: center;
             flex-grow: 1;
+            width: calc(100% - 240px); /* Toma el 100% del espacio restante */
         }
 
-        /* Línea 1: EN CABINA (A modo de botón parpadeante) */
+        /* Contenedor para colocar Badge y Nombre en la misma línea */
+        .dj-header-inline {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Permite que baje de línea si la pantalla es muy angosta */
+            gap: 15px; /* Espacio entre el botón EN CABINA y el Nombre */
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        /* Línea 1-A: EN CABINA (A modo de botón parpadeante) */
         .dj-badge {
             background-color: var(--dj-accent);
             color: #ffffff;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 800;
             letter-spacing: 1.5px;
             padding: 4px 14px;
             border-radius: 20px;
-            margin-bottom: 12px;
             text-transform: uppercase;
             display: inline-block;
             animation: badge-blink 1.5s infinite ease-in-out;
+            white-space: nowrap;
         }
 
         /* Animación de parpadeo suave */
@@ -1231,10 +1245,10 @@
             50% { opacity: 0.4; box-shadow: 0 0 0px transparent; }
         }
 
-        /* Línea 2: Nombre del DJ */
+        /* Línea 1-B: Nombre del DJ */
         #dj-name {
-            font-size: 14px;
-            margin: 0 0 15px 0;
+            font-size: 14px; /* Ajuste milimétrico para que fluya perfecto al lado del botón */
+            margin: 0; /* Sin márgenes para compartir línea */
             font-weight: 800;
             letter-spacing: -0.5px;
             color: #ffffff;
@@ -1245,14 +1259,15 @@
             content: 'DJ ';
         }
 
-        /* Línea 3: Frase a 14 puntos */
+        /* Línea 2: Frase a 16 puntos, extendida en el bloque disponible */
         #dj-phrase {
-            font-size: 14pt; /* Tamaño exacto solicitado */
+            font-size:13pt; /* Tamaño exacto solicitado */
             font-style: italic;
             line-height: 1.5;
             color: #eaeaea;
             margin: 0;
             text-align: left; /* Confirmación de justificado a la izquierda */
+            width: 100%;
         }
 
         /* Comillas sutiles */
@@ -1288,12 +1303,25 @@
         @media (max-width: 650px) {
             .dj-content {
                 flex-direction: column;
-                align-items: flex-start; /* Mantiene justificado a la izquierda en celular */
+                align-items: center; /* Centra el avatar en móviles */
                 gap: 25px;
+            }
+            .dj-visual {
+                width: auto;
             }
             #dj-avatar {
                 width: 160px; /* Un poco más pequeño en móviles para no desbordar */
                 height: 160px;
+            }
+            .dj-info {
+                width: 100%;
+                align-items: flex-start;
+            }
+            .dj-header-inline {
+                gap: 10px;
+            }
+            #dj-name {
+                font-size: 22px;
             }
         }
 /* FIN ESTILOS DJ */
