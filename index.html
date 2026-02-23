@@ -313,125 +313,43 @@
     .cbox-form-wrapper { height: 128px !important; width: 100%; border: 0 !important; border-top: 1px solid rgba(255,255,255,0.1); display: block; margin: 0; padding: 0; overflow: hidden; }
     #cboxdiv iframe { width: 100%; height: 100%; border: 0; display: block; vertical-align: bottom; margin: 0; padding: 0; }
     
-    /* --- SECCIÓN DIRECTORIOS (SIN FILTROS) --- */
-    .directorios-section {
-    width: 100%;
-    padding: 60px 0;
-    text-align: center;
-    background-color: transparent;
-    overflow: hidden;
-}
+    /* --- SECCIÓN DIRECTORIOS (MARQUESINA INFINITA) --- */
+    .marquee-wrapper {
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        display: flex;
+        /* Difuminado elegante en los bordes izquierdo y derecho */
+        mask-image: linear-gradient(to right, transparent, black 2%, black 98%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 2%, black 98%, transparent);
+        padding: 10px 0;
+    }
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        /* Ajusta los segundos (40s) para hacerlo más rápido o más lento */
+        animation: scroll-marquee 40s linear infinite;
+    }
+    .marquee-track:hover {
+        animation-play-state: paused;
+    }
+    .marquee-content {
+        display: flex;
+        gap: 30px;
+        padding-right: 30px; /* Igual al gap para asegurar continuidad */
+    }
+    @keyframes scroll-marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+    
+    .directory-card { flex: 0 0 250px; background: rgba(30, 30, 30, 0.4); border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease, background 0.3s ease; display: block; text-decoration: none; backface-visibility: hidden; transform: translateZ(0); }
+    .directory-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); border-color: var(--color-accent-orange); }
+    .directory-logo-wrap { width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .directory-card img { max-width: 100%; max-height: 100%; width: auto; height: auto; transition: transform 0.3s ease; }
+    .directory-card:hover img { transform: scale(1.1); }
+    .directory-name { padding: 10px; text-align: center; font-weight: 700; color: #fff; text-transform: uppercase; background: rgba(0,0,0,0.3); font-size: 14px; letter-spacing: 1px; }
 
-.directorios-title {
-    font-size: 14px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: #fca311; /* Ajustado al tono naranja/amarillo de tu título original en la captura */
-    margin-bottom: 0px; 
-    border-left: 4px solid #fca311; /* Para mantener la barrita naranja a la izquierda de tu diseño original */
-    padding-left: 10px;
-    display: inline-block; /* Mantiene el borde pegado al texto */
-}
-
-.marquee-wrapper {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    overflow: hidden;
-    position: relative;
-    padding-top: 45px; 
-    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-}
-
-.marquee-track {
-    display: flex;
-    align-items: center; 
-    width: max-content;
-    animation: scroll-marquee 30s linear infinite;
-}
-
-.marquee-track:hover {
-    animation-play-state: paused;
-}
-
-.marquee-item {
-    padding: 0 40px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    position: relative; 
-}
-
-/* Tooltip (Nombre) */
-.marquee-item::after {
-    content: attr(data-name); 
-    position: absolute;
-    top: -35px; 
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background-color: #ffffff;
-    color: #0b0614; 
-    font-size: 12px;
-    font-weight: 800;
-    padding: 5px 12px;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    pointer-events: none; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 10;
-}
-
-.marquee-item::before {
-    content: '';
-    position: absolute;
-    top: -8px; 
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    border-width: 6px 6px 0 6px;
-    border-style: solid;
-    border-color: #ffffff transparent transparent transparent;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    pointer-events: none;
-    z-index: 10;
-}
-
-.marquee-item:hover::after,
-.marquee-item:hover::before {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0); 
-}
-
-.marquee-item img {
-    height: 58px; 
-    max-width: 260px; 
-    object-fit: contain;
-    filter: grayscale(100%) opacity(0.4);
-    transition: all 0.3s ease;
-}
-
-.marquee-item:hover img {
-    filter: grayscale(0%) opacity(1);
-    transform: scale(1.1);
-}
-
-@keyframes scroll-marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); } 
-}
-
-@media (max-width: 768px) {
-    .marquee-item { padding: 0 25px; }
-    .marquee-item img { height: 44px; }
-}
     /* ==========================================================================
        MEDIA QUERIES (RESPONSIVE ENGINE V38.0)
        ========================================================================== */
@@ -1063,55 +981,39 @@
         </div>
     </section>
     
-    <section class="directorios-section" id="directorios">
-    <h2 class="directorios-title">Disponible en plataformas</h2>
-    
-    <div class="marquee-wrapper">
-        <div class="marquee-track" id="marquee-track">
-            
-            <a href="[http://tun.in/sfKBJ](http://tun.in/sfKBJ)" target="_blank" class="marquee-item" title="Escuchar en Tunein" data-name="Tunein">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20tunein%20color.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20tunein%20color.png)" alt="Tunein">
-            </a>
-            <a href="[https://es.streema.com/radios/Radiochar](https://es.streema.com/radios/Radiochar)" target="_blank" class="marquee-item" title="Escuchar en Streema" data-name="Streema">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/streema.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/streema.png)" alt="Streema">
-            </a>
-            <a href="[https://www.radio.net/s/radiochar](https://www.radio.net/s/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Radio.net" data-name="Radio.net">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20radionet%20color.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20radionet%20color.png)" alt="Radio.net">
-            </a>
-            <a href="[https://mytuner-radio.com/radio/radiochar-514035/](https://mytuner-radio.com/radio/radiochar-514035/)" target="_blank" class="marquee-item" title="Escuchar en MyTuner" data-name="MyTuner">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20mytuner%20color.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20mytuner%20color.png)" alt="MyTuner">
-            </a>
-            <a href="[https://onlineradiobox.com/co/radiochar](https://onlineradiobox.com/co/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Online Radio Box" data-name="Online Radio Box">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20onlineradiobox%20color.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/logo%20onlineradiobox%20color.png)" alt="Online Radio Box">
-            </a>
-            <a href="[https://www.emisorascolombianas.co/radiochar](https://www.emisorascolombianas.co/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Radios.com.co" data-name="Radios.com.co">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/emisoras-colombianas.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/emisoras-colombianas.png)" alt="Radios.com.co">
-            </a>
-            <a href="[https://liveonlineradio.net/radiochar](https://liveonlineradio.net/radiochar)" target="_blank" class="marquee-item" title="Escuchar en LiveOnlineRadio" data-name="LiveOnlineRadio">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/LiveOnlineRadio.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/LiveOnlineRadio.png)" alt="LiveOnlineRadio">
-            </a>
-            <a href="[https://www.getmeradio.com/stations/radiochar-11470/](https://www.getmeradio.com/stations/radiochar-11470/)" target="_blank" class="marquee-item" title="Escuchar en Get Me Radio" data-name="Get Me Radio">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/GetMeRadio.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/GetMeRadio.png)" alt="Get Me Radio">
-            </a>
-            <a href="[https://forwardmystream.com/station/radiochar](https://forwardmystream.com/station/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Forward My Stream" data-name="Forward My Stream">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/ForwardMyStream.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/ForwardMyStream.png)" alt="Forward My Stream">
-            </a>
-            <a href="[https://theonestopradio.com/radio/radiochar%20co](https://theonestopradio.com/radio/radiochar%20co)" target="_blank" class="marquee-item" title="Escuchar en The OneStop Radio" data-name="The OneStop Radio">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/TheOneStopRadio.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/TheOneStopRadio.png)" alt="The OneStop Radio">
-            </a>
-            <a href="[https://www.radioguide.fm/internet-radio-colombia/radiochar](https://www.radioguide.fm/internet-radio-colombia/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Radio Guide FM" data-name="Radio Guide FM">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/radioguide.fm.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/radioguide.fm.png)" alt="Radio Guide FM">
-            </a>
-            <a href="[https://radio.menu/stations/radiochar-online-radiochar/](https://radio.menu/stations/radiochar-online-radiochar/)" target="_blank" class="marquee-item" title="Escuchar en Radio Menu" data-name="Radio Menu">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Radio%20Menu.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Radio%20Menu.png)" alt="Radio Menu">
-            </a>
-            <a href="[https://www.liveradio.ie/stations/radiochar](https://www.liveradio.ie/stations/radiochar)" target="_blank" class="marquee-item" title="Escuchar en Live Radio" data-name="Live Radio">
-                <img src="[https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/14.png](https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/14.png)" alt="Live Radio">
-            </a>
-            
+    <section class="content-section directories-section-container">
+        <div class="section-header-common"><h2 class="section-title-common directories-title-custom">DISPONIBLE EN DIRECTORIOS</h2></div>
+        <!-- INICIO MARQUESINA INFINITA DIRECTORIOS -->
+        <div class="marquee-wrapper">
+            <div class="marquee-track">
+                <!-- Bloque 1 Original -->
+                <div class="marquee-content">
+                    <a href="https://www.getmeradio.com/stations/radiochar-11470/" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhp-GTg6Hb14M_ZLaFlZnkMaT0LkMmYPYPxGx1G_mezigt_JHoZyXdshlj4_tPVv79uftLUskRJPSor0YJwxsap0NoIlqDq368sUpUgEgSMEPxitK9ktyUAJyW582ozNjKdo_w0Qxuj2RG82vg5qAiG9GsrysMcCN-eXKy_jCIFSjcPQ1iKACfvBdPiyb5L/s300/GetMeRadio.png" alt="Get Me Radio"></div><div class="directory-name">Get Me Radio</div></a>
+                    <a href="https://forwardmystream.com/station/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiSWNNZIAGbnOPGKEPyVTzsIaaRzniqoU9cEdC4iwlBnLIMBKeGBZogMGUU0RKK0s2MC0d2emRjKVonc23mKSPXSBu84Fs2byEA89VOTnlonf9god3RXs4ziQ9GEI72i_2IvAt3lr2_cxJdsBRpAWTwGTMwbp3sYnyYsX4r1IQ2YjjG33ZDLskLxTQlcZs1/s1600/ForwardMyStream.png" alt="Forward My Stream"></div><div class="directory-name">Forward My Stream</div></a>
+                    <a href="https://theonestopradio.com/radio/radiochar%20co" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIk_IUagLJ5h6UYoFUcaCveJ-iDfGsYayy63caTzNQKOM_5lubkZvpONuZenvm0BK62dohkoZhWTF99ZTQwJNQJ-7yX0tatTgC3dAZQZ_La7breT9daLTQKrsn6WM9DLxFz4N5NV7Fu_ZdVwtkne05V-E9qLQpZQnVRXLCz1-Vgftb1vgzDSQifcn-c0bR/s1600/TheOneStopRadio.png" alt="The OneStop Radio"></div><div class="directory-name">The OneStop Radio</div></a>
+                    <a href="http://tun.in/sfKBJ" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhxPhIPia7P4pYMXosrf5d5CfqqNfX08wWGebiC4haJsbte021F2AVfd12PrKjbalBC1d-ewSoA7fFVeYIkCLrHm80nu4lhBfzm0PFYuhjpZk6gdFg6Mx-Bl5iQbyWpt3eDvq-ze1ewT5Vx6qv0Osy5nNFtvwgJWrg0yeD7VlVMWvVQ4OZH8HFd-K8CvaPK/s16000/logo%20tunein%20color.png" alt="Tunein"></div><div class="directory-name">TuneIn</div></a>
+                    <a href="https://mytuner-radio.com/radio/radiochar-514035/" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgnioQJBDi-nzHfdkEmfjo3Q6bSEt7q6qYJk0O5mzXby7Zluv-5fI_b5LPiVOH1S3uRMGCNKGCN3oTseGcFIDaC9leVi5f5EGt43Narxc48MDZGtP_VV7ifbiVst-DByLdz0mjkFbj710O5Ru8NEm8NsPO-e1vPnG4f9BCCcYTFgnlccvEi_zZbo-Et6WtA/s1600/logo%20mytuner%20color.png" alt="MyTuner"></div><div class="directory-name">MyTuner</div></a>
+                    <a href="https://onlineradiobox.com/co/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEir-HbCUabt3Jm5QUfKOQZsc1b3VRCfKpcbCWAjnPUZqIfb2rRaMUKrCXCF6S-ZvT6FQmj9FRYDZM_SyCAqxD-Zadfgwu5Cgg-kXQZRFjpvfP2J_G4FS4J6hMmQcj-MRtAMFvzxbtClpVrdgF2nfm9W-U1inZNvf_kQY1xdX5VYEh8MU9dNKOfO0kb83c1y/s1600/logo%20onlineradiobox%20color.png" alt="Online Radio Box"></div><div class="directory-name">Radio Box</div></a>
+                    <a href="https://www.radio.net/s/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhYNZwPLx_VygFzysh9hAK6RVQvFqhiIqDP1KHEALTiNgK1pUcRdZEdWhWElK35zFQMwiWz-KiMLEUyYJfpeAkS0iQxdpC8JNP9Ox8kXQniQBvD_xN3tGOGWByRpkt8T4Me005LYQzMAPYmog8LbGobqnJSRh4kCSpBGAZlqJlIgynHPCOPv-s3aI6bl9GN/s16000/logo%20radionet%20color.png" alt="Radio.net"></div><div class="directory-name">Radio.net</div></a>
+                    <a href="https://www.emisorascolombianas.co/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4tgA98MOTW8Jg9VLB8ffw1AzyRGfJmXkA_psX8pUP4WdjuCoNXgRQn_QROUc1YKfA45ksGckzRIEftcq_aQEgJJ9LOh5MXogP8_Fun0EZehgd8wq4yE-Ee8IsqibkjuMkbZ0efbDRjVAnKX4FA7UrMzEA8THLAS8tJ3HyJTPXdgzl-EHKwiaoF1hmXrHL/s300/emisoras-colombianas.png" alt="Emisoras Colombianas"></div><div class="directory-name">Emisoras Colombianas</div></a>
+                    <a href="https://es.streema.com/radios/Radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj_LNIAYVHF3yB3prLtWRNLmDoLaBkeTHyMKcFyvSpW9kZkzUIU3sofTKXJyBxCeWSmC-G6HTTIHLQRDgE2nWxlm8aPPiaZnBGicc_4ygXQFwfM9C8I8nzjxCPUKQYZASvT_1O_oPf9J79wJ5TYkXNxVegptqIcE6rq-R6sXaX_qC6Zh2gWqaYdpfCn28BB/s300/streema.png" alt="Streema"></div><div class="directory-name">Streema</div></a>    
+                </div>
+                <!-- Bloque 2 Clonado (Para el efecto infinito) -->
+                <div class="marquee-content" aria-hidden="true">
+                    <a href="https://www.getmeradio.com/stations/radiochar-11470/" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhp-GTg6Hb14M_ZLaFlZnkMaT0LkMmYPYPxGx1G_mezigt_JHoZyXdshlj4_tPVv79uftLUskRJPSor0YJwxsap0NoIlqDq368sUpUgEgSMEPxitK9ktyUAJyW582ozNjKdo_w0Qxuj2RG82vg5qAiG9GsrysMcCN-eXKy_jCIFSjcPQ1iKACfvBdPiyb5L/s300/GetMeRadio.png" alt="Get Me Radio"></div><div class="directory-name">Get Me Radio</div></a>
+                    <a href="https://forwardmystream.com/station/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiSWNNZIAGbnOPGKEPyVTzsIaaRzniqoU9cEdC4iwlBnLIMBKeGBZogMGUU0RKK0s2MC0d2emRjKVonc23mKSPXSBu84Fs2byEA89VOTnlonf9god3RXs4ziQ9GEI72i_2IvAt3lr2_cxJdsBRpAWTwGTMwbp3sYnyYsX4r1IQ2YjjG33ZDLskLxTQlcZs1/s1600/ForwardMyStream.png" alt="Forward My Stream"></div><div class="directory-name">Forward My Stream</div></a>
+                    <a href="https://theonestopradio.com/radio/radiochar%20co" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIk_IUagLJ5h6UYoFUcaCveJ-iDfGsYayy63caTzNQKOM_5lubkZvpONuZenvm0BK62dohkoZhWTF99ZTQwJNQJ-7yX0tatTgC3dAZQZ_La7breT9daLTQKrsn6WM9DLxFz4N5NV7Fu_ZdVwtkne05V-E9qLQpZQnVRXLCz1-Vgftb1vgzDSQifcn-c0bR/s1600/TheOneStopRadio.png" alt="The OneStop Radio"></div><div class="directory-name">The OneStop Radio</div></a>
+                    <a href="http://tun.in/sfKBJ" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhxPhIPia7P4pYMXosrf5d5CfqqNfX08wWGebiC4haJsbte021F2AVfd12PrKjbalBC1d-ewSoA7fFVeYIkCLrHm80nu4lhBfzm0PFYuhjpZk6gdFg6Mx-Bl5iQbyWpt3eDvq-ze1ewT5Vx6qv0Osy5nNFtvwgJWrg0yeD7VlVMWvVQ4OZH8HFd-K8CvaPK/s16000/logo%20tunein%20color.png" alt="Tunein"></div><div class="directory-name">TuneIn</div></a>
+                    <a href="https://mytuner-radio.com/radio/radiochar-514035/" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgnioQJBDi-nzHfdkEmfjo3Q6bSEt7q6qYJk0O5mzXby7Zluv-5fI_b5LPiVOH1S3uRMGCNKGCN3oTseGcFIDaC9leVi5f5EGt43Narxc48MDZGtP_VV7ifbiVst-DByLdz0mjkFbj710O5Ru8NEm8NsPO-e1vPnG4f9BCCcYTFgnlccvEi_zZbo-Et6WtA/s1600/logo%20mytuner%20color.png" alt="MyTuner"></div><div class="directory-name">MyTuner</div></a>
+                    <a href="https://onlineradiobox.com/co/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEir-HbCUabt3Jm5QUfKOQZsc1b3VRCfKpcbCWAjnPUZqIfb2rRaMUKrCXCF6S-ZvT6FQmj9FRYDZM_SyCAqxD-Zadfgwu5Cgg-kXQZRFjpvfP2J_G4FS4J6hMmQcj-MRtAMFvzxbtClpVrdgF2nfm9W-U1inZNvf_kQY1xdX5VYEh8MU9dNKOfO0kb83c1y/s1600/logo%20onlineradiobox%20color.png" alt="Online Radio Box"></div><div class="directory-name">Radio Box</div></a>
+                    <a href="https://www.radio.net/s/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhYNZwPLx_VygFzysh9hAK6RVQvFqhiIqDP1KHEALTiNgK1pUcRdZEdWhWElK35zFQMwiWz-KiMLEUyYJfpeAkS0iQxdpC8JNP9Ox8kXQniQBvD_xN3tGOGWByRpkt8T4Me005LYQzMAPYmog8LbGobqnJSRh4kCSpBGAZlqJlIgynHPCOPv-s3aI6bl9GN/s16000/logo%20radionet%20color.png" alt="Radio.net"></div><div class="directory-name">Radio.net</div></a>
+                    <a href="https://www.emisorascolombianas.co/radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4tgA98MOTW8Jg9VLB8ffw1AzyRGfJmXkA_psX8pUP4WdjuCoNXgRQn_QROUc1YKfA45ksGckzRIEftcq_aQEgJJ9LOh5MXogP8_Fun0EZehgd8wq4yE-Ee8IsqibkjuMkbZ0efbDRjVAnKX4FA7UrMzEA8THLAS8tJ3HyJTPXdgzl-EHKwiaoF1hmXrHL/s300/emisoras-colombianas.png" alt="Emisoras Colombianas"></div><div class="directory-name">Emisoras Colombianas</div></a>
+                    <a href="https://es.streema.com/radios/Radiochar" target="_blank" class="directory-card"><div class="directory-logo-wrap"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj_LNIAYVHF3yB3prLtWRNLmDoLaBkeTHyMKcFyvSpW9kZkzUIU3sofTKXJyBxCeWSmC-G6HTTIHLQRDgE2nWxlm8aPPiaZnBGicc_4ygXQFwfM9C8I8nzjxCPUKQYZASvT_1O_oPf9J79wJ5TYkXNxVegptqIcE6rq-R6sXaX_qC6Zh2gWqaYdpfCn28BB/s300/streema.png" alt="Streema"></div><div class="directory-name">Streema</div></a>    
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+        <!-- FIN MARQUESINA INFINITA DIRECTORIOS -->
+    </section>
 
 </main>
 
@@ -1423,12 +1325,6 @@
                 setTimeout(function() { splash.remove(); }, 1000);
             }
         }, 2000);
-        
-        // V29.0: NEW DIRECTORIES CAROUSEL INIT
-        if (DOM.directories.prev && DOM.directories.next && DOM.directories.track) {
-            DOM.directories.prev.addEventListener('click', function() { DOM.directories.track.scrollBy({ left: -270, behavior: 'smooth' }); });
-            DOM.directories.next.addEventListener('click', function() { DOM.directories.track.scrollBy({ left: 270, behavior: 'smooth' }); });
-        }
     });
 
     // ... Rest of the script logic (Schedule, Player, etc.) REMAINS THE SAME ...
@@ -2314,7 +2210,7 @@
                 { id: 'wonders', name: 'Tito González', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
                 { id: 'piedras', name: 'Salma Cifuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
                 { id: 'rockstars', name: 'Jhon Martin', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
-                { id: 'hits', name: 'Miranda Fuentes', img: 'https://raw.githubusercontent.com/robinsonchar/pruebasradiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
+                { id: 'hits', name: 'Miranda Fuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
             ],
             FALLBACKS: [
                 "¡Disfruta de la mejor música en Radiochar!",
@@ -2716,21 +2612,5 @@
     });
 </script>
 <!-- FIN SCRIPT COMPARTIR -->
-
-	<!-- INICIO SCRIPT DIRECTORIOS MARQUESINA -->
-	<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const track = document.getElementById('marquee-track');
-        if(track) {
-            // Duplica el contenido para que el ciclo sea infinito sin saltos
-            track.innerHTML += track.innerHTML;
-        }
-    });
-</script>
-	<!-- FIN SCRIPT DIRECTORIOS MARQUESINA -->
-	
 </body>
 </html>
-
-
-
