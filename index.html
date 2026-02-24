@@ -1042,7 +1042,11 @@
     </div>
 </div>
 
+<!-- ==============================================
+     CANALES DE AUDIO 
+     ============================================== -->
 <audio id="radio" src="https://cast2.my-control-panel.com/proxy/robinson/stream"></audio>
+<audio id="jinglePlayer" src="https://robinsonchar.github.io/radiochar/radiochar.mp3" preload="auto"></audio>
 
 <script>
 (function() {
@@ -1100,6 +1104,7 @@
 
     var DOM = {
         audio: document.getElementById('radio'),
+        jinglePlayer: document.getElementById('jinglePlayer'), // NUEVO: Canal de Audio para Pisacanciones
         playBtn: document.getElementById('playPause'),
         playIcon: document.querySelector('#playPause i'),
         sourceTitle: document.getElementById('trackTitleSource'),
@@ -1147,11 +1152,6 @@
             track: document.getElementById('recentTracksTrack'),
             prev: document.getElementById('recentTracksPrev'),
             next: document.getElementById('recentTracksNext')
-        },
-        directories: {
-            track: document.getElementById('directoriesTrack'),
-            prev: document.getElementById('directoriesPrev'),
-            next: document.getElementById('directoriesNext')
         }
     };
 
@@ -1327,7 +1327,6 @@
         }, 2000);
     });
 
-    // ... Rest of the script logic (Schedule, Player, etc.) REMAINS THE SAME ...
     var ScheduleEngine = {
         programs: [
             { id: 'lover', title: 'LOVER CITY', subtitle: 'BALADAS AMERICANAS', start: 0, end: 6, img: 'https://mickpini.com/wp-content/uploads/2025/07/1.png', displayTime: '00:00 - 05:59 (GMT-5)' },
@@ -1442,9 +1441,22 @@
         }
     }
 
+    // === LÓGICA DE DUCKING (VOLUMEN DINÁMICO PISACANCIONES) ===
     var isPlaying = false;
     var currentMetadata = { artist: "Radiochar", song: "", album: "", genre: "" };
-    var timelineState = { duration: 0, current: 0, start: 0, interval: null };
+    var timelineState = { duration: 0, current: 0, start: 0, interval: null, halfwayPlayed: false };
+
+    if (DOM.jinglePlayer) {
+        DOM.jinglePlayer.addEventListener('play', function() {
+            if (isPlaying) DOM.audio.volume = 0.7; // Baja volumen al 70%
+        });
+        DOM.jinglePlayer.addEventListener('ended', function() {
+            if (isPlaying) DOM.audio.volume = 1.0; // Sube volumen al 100%
+        });
+        DOM.jinglePlayer.addEventListener('pause', function() {
+            if (isPlaying) DOM.audio.volume = 1.0; // Respaldo si se pausa
+        });
+    }
 
     document.getElementById('listenerCount').innerText = Math.floor(Math.random() * (50 - 25 + 1) + 25);
     var ctx = DOM.canvas.getContext('2d');
@@ -1490,11 +1502,19 @@
     DOM.playBtn.addEventListener('click', function() {
         if (isPlaying) { 
             DOM.audio.pause(); 
+            if (DOM.jinglePlayer) {
+                DOM.jinglePlayer.pause();
+                DOM.jinglePlayer.currentTime = 0;
+            }
             DOM.playIcon.classList.replace('fa-pause', 'fa-play'); 
             DOM.playBtn.classList.remove('playing'); 
             isPlaying = false;
         } else { 
             DOM.audio.play(); 
+            if (DOM.jinglePlayer) {
+                DOM.jinglePlayer.currentTime = 0;
+                DOM.jinglePlayer.play().catch(function(e){ console.log("Pisacanciones auto-prevenido", e); });
+            }
             DOM.playIcon.classList.replace('fa-play', 'fa-pause'); 
             DOM.playBtn.classList.add('playing'); 
             isPlaying = true;
@@ -1571,6 +1591,7 @@
         }
         
         timelineState.duration = adjustedDuration / 1000;
+        timelineState.halfwayPlayed = false; // Resetear pisacanciones en cada nueva canción
         
         var updateTick = function() {
             var elapsed = (Date.now() - timelineState.start) / 1000;
@@ -1579,6 +1600,24 @@
             if (DOM.currentTime) DOM.currentTime.innerText = Utils.formatTime(current);
             if (DOM.totalTime) DOM.totalTime.innerText = Utils.formatTime(timelineState.duration);
             if (DOM.progressFill) DOM.progressFill.style.width = ((current / timelineState.duration) * 100) + "%";
+
+            // === LÓGICA DE DISPARO DEL PISACANCIONES AL 50% ===
+            if (isPlaying && !timelineState.halfwayPlayed && timelineState.duration > 60 && DOM.jinglePlayer) {
+                if (current >= (timelineState.duration / 2)) {
+                    timelineState.halfwayPlayed = true; // Asegurar que no suene dos veces
+                    
+                    var curArt = Utils.cleanText(currentMetadata.artist || "").toLowerCase();
+                    var curTit = Utils.cleanText(currentMetadata.song || "").toLowerCase();
+                    var fStr = curArt + " " + curTit;
+                    
+                    var isFiltered = CONFIG.FILTERS.some(function(f) { return fStr.includes(f); });
+                    
+                    if (!isFiltered) {
+                        DOM.jinglePlayer.currentTime = 0;
+                        DOM.jinglePlayer.play().catch(function(e){});
+                    }
+                }
+            }
         };
         
         updateTick();
