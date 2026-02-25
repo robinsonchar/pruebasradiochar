@@ -689,13 +689,6 @@
             width: 100%;
         }
 
-        /* Comillas sutiles en blanco */
-        #dj-phrase::before, #dj-phrase::after {
-            content: '"';
-            color: #ffffff; /* Modificado a color blanco */
-            font-weight: bold;
-        }
-
         /* Loader adaptado a la estética minimalista */
         .dj-loading {
             display: flex;
@@ -902,7 +895,7 @@
                 <h3 id="dj-name">---</h3>
             </div>
             
-            <p id="dj-phrase">"..."</p>
+            <p id="dj-phrase">Sintonizando cabina...</p>
             
             <!-- Botón de compartir híbrido -->
             <button class="dj-share-btn" onclick="shareCurrentTrack()" aria-label="Compartir">
@@ -1330,7 +1323,7 @@
     var ScheduleEngine = {
         programs: [
             { id: 'lover', title: 'LOVER CITY', subtitle: 'BALADAS AMERICANAS', start: 0, end: 6, img: 'https://mickpini.com/wp-content/uploads/2025/07/1.png', displayTime: '00:00 - 05:59 (GMT-5)' },
-            { id: 'wonders', title: 'THE WONDERS', subtitle: 'LOS 90S', start: 6, end: 12, img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', displayTime: '06:00 - 11:59 (GMT-5)' },
+            { id: 'wonders', title: 'THE WONDERS', subtitle: 'LOS 90S', start: 6, end: 12, img: 'https://wallpapers.com/images/hd/90s-theme-background-fdllcnh7s97z4qio.jpg', displayTime: '06:00 - 11:59 (GMT-5)' },
             { id: 'tirando', title: 'PATEANDO PIEDRAS', subtitle: 'ROCK & POP EN ESPAÑOL', start: 12, end: 15, img: 'https://dojiw2m9tvv09.cloudfront.net/36300/product/los-rodriguez-vinilo-89039.jpg', displayTime: '12:00 - 14:59 (GMT-5)' },
             { id: 'rockstars', title: 'ROCKSTARS', subtitle: 'ROCK DE LOS 80S', start: 15, end: 20, img: 'https://i0.wp.com/lashistoriasdelrock.com/wp-content/uploads/2024/06/Son-10-Canciones-de-Rock-Mas-Emblematicas-de-los-80s.jpg', displayTime: '15:00 - 19:59 (GMT-5)' },
             { id: 'hits_lie', title: 'HITS DON´T LIE', subtitle: 'HITS 80S/90S', start: 20, end: 24, img: 'https://djhire.melbourne/wp-content/uploads/2024/11/Bon-Jovi-80s.png', displayTime: '20:00 - 23:59 (GMT-5)' }
@@ -2245,11 +2238,11 @@
             },
             // FIX: Horarios, nombres e imágenes sincronizados correctamente.
             PROGRAMS: [
-                { id: 'lover', name: 'Karol Morales en Lover City', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 6 },
-                { id: 'wonders', name: 'Tito González en The Wonders', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
-                { id: 'piedras', name: 'Salma Cifuentes en Pateando Piedras', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
-                { id: 'rockstars', name: 'Jhon Martin en Rockstars', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
-                { id: 'hits', name: 'Miranda Fuentes en Hits Don´t Lie', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
+                { id: 'lover', name: 'Karol Morales', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 6 },
+                { id: 'wonders', name: 'Tito González', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
+                { id: 'piedras', name: 'Salma Cifuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
+                { id: 'rockstars', name: 'Jhon Martin', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
+                { id: 'hits', name: 'Miranda Fuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
             ],
             FALLBACKS: [
                 "¡Disfruta de la mejor música en Radiochar!",
@@ -2484,8 +2477,17 @@
             document.getElementById('dj-avatar').src = dj.img;
             document.getElementById('dj-name').textContent = dj.name;
             document.getElementById('current-track').textContent = trackInfo;
+            
             const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
-            document.getElementById('dj-phrase').textContent = phraseClean;
+            
+            // OBTENER HORA LOCAL DEL NAVEGADOR
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            
+            // INSERTAR LA HORA ANTES DE LA FRASE
+            document.getElementById('dj-phrase').innerHTML = `<span style="color: var(--dj-accent); font-style: normal; font-weight: 600; font-size: 11pt;">A las ${hh}:${mm}:</span> "${phraseClean}"`;
+            
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
         }, 200);
@@ -2653,6 +2655,3 @@
 <!-- FIN SCRIPT COMPARTIR -->
 </body>
 </html>
-
-
-
