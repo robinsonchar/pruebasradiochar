@@ -793,6 +793,111 @@
         .s-btn.fb { background: #1877F2; }
         .s-btn.x { background: #000000; border: 1px solid rgba(255,255,255,0.2); }
 /* FIN ESTILOS DJ */
+
+/* INICIO ESTILOS DJ MARQUESINA */
+/* =========================================
+           SECCIÓN DISC JOCKEYS (ROSTER MARQUESINA)
+           ========================================= */
+        .dj-marquee-wrapper {
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+            display: flex;
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            padding: 20px 0 40px 0;
+        }
+        .dj-marquee-track {
+            display: flex;
+            width: max-content;
+            animation: scroll-dj-marquee 30s linear infinite;
+        }
+        .dj-marquee-track:hover {
+            animation-play-state: paused;
+        }
+        .dj-marquee-content {
+            display: flex;
+            gap: 50px;
+            padding-right: 50px; 
+        }
+        @keyframes scroll-dj-marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        .dj-roster-card {
+            flex: 0 0 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .dj-roster-img-wrap {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: #111;
+        }
+        .dj-roster-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%); 
+            transition: filter 0.4s ease, transform 0.4s ease;
+        }
+        
+        .dj-roster-card:hover .dj-roster-img-wrap {
+            border-color: var(--dj-accent); 
+            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.4);
+        }
+        .dj-roster-card:hover img {
+            filter: grayscale(0%); 
+            transform: scale(1.1);
+        }
+        
+        .dj-roster-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+        
+        /* Nuevo estilo para el nombre del programa */
+        .dj-roster-show {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-accent-blue); /* Color azul por defecto para contrastar */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .dj-roster-card:hover .dj-roster-name {
+            color: var(--dj-accent);
+        }
+        .dj-roster-card:hover .dj-roster-show {
+            color: #ffffff; /* El programa se vuelve blanco al hacer hover para equilibrar */
+        }
+
+        @media (max-width: 600px) {
+            .dj-roster-card { flex: 0 0 130px; }
+            .dj-roster-img-wrap { width: 120px; height: 120px; }
+            .dj-roster-name { font-size: 13px; }
+            .dj-roster-show { font-size: 10px; } /* Ajuste móvil para el programa */
+            .dj-marquee-content { gap: 30px; padding-right: 30px; }
+        }
+/* FIN ESTILOS DJ MARQUESINA */
+
 </style>
 </head>
 <body>
@@ -909,6 +1014,78 @@
     </div>
 </section>
 <!-- FIN HTML DJ -->
+
+<!-- INICIO HTML DJS MARQUESINA -->
+    <section class="content-section dj-roster-container">
+        <div class="section-header-common">
+            <h2 class="section-title-common" style="color: var(--dj-accent); border-left: 3px solid var(--dj-accent);">DISC JOCKEYS</h2>
+        </div>
+        
+        <div class="dj-marquee-wrapper">
+            <div class="dj-marquee-track">
+                
+                <!-- BLOQUE 1 DE DJS -->
+                <div class="dj-marquee-content">
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png" alt="Karol Morales"></div>
+                        <div class="dj-roster-name">Karol Morales</div>
+                        <div class="dj-roster-show">Lover City</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png" alt="Tito González"></div>
+                        <div class="dj-roster-name">Tito González</div>
+                        <div class="dj-roster-show">The Wonders</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png" alt="Salma Cifuentes"></div>
+                        <div class="dj-roster-name">Salma Cifuentes</div>
+                        <div class="dj-roster-show">Pateando Piedras</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png" alt="Jhon Martin"></div>
+                        <div class="dj-roster-name">Jhon Martin</div>
+                        <div class="dj-roster-show">Rockstars</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png" alt="Miranda Fuentes"></div>
+                        <div class="dj-roster-name">Miranda Fuentes</div>
+                        <div class="dj-roster-show">Hits Don't Lie</div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE 2 DE DJS (CLON EXACTO PARA EL BUCLE INFINITO) -->
+                <div class="dj-marquee-content" aria-hidden="true">
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png" alt="Karol Morales"></div>
+                        <div class="dj-roster-name">Karol Morales</div>
+                        <div class="dj-roster-show">Lover City</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png" alt="Tito González"></div>
+                        <div class="dj-roster-name">Tito González</div>
+                        <div class="dj-roster-show">The Wonders</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png" alt="Salma Cifuentes"></div>
+                        <div class="dj-roster-name">Salma Cifuentes</div>
+                        <div class="dj-roster-show">Pateando Piedras</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png" alt="Jhon Martin"></div>
+                        <div class="dj-roster-name">Jhon Martin</div>
+                        <div class="dj-roster-show">Rockstars</div>
+                    </div>
+                    <div class="dj-roster-card">
+                        <div class="dj-roster-img-wrap"><img src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png" alt="Miranda Fuentes"></div>
+                        <div class="dj-roster-name">Miranda Fuentes</div>
+                        <div class="dj-roster-show">Hits Don't Lie</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+<!-- FIN HTML DJS MARQUESINA -->
 
     <section class="content-section schedule-section">
       <div class="section-header-common"><h2 class="section-title-common schedule-title-custom">ESTAMOS PRESENTANDO</h2></div>
