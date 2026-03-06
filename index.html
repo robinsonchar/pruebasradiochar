@@ -2400,7 +2400,7 @@
 <!-- INICIO SCRIPT DJ -->
  <script>
    /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v3.4 (Ultimate Edition)
+     * RADIOCHAR VIRTUAL DJ ENGINE v6.0 (Voces de IA + Ducking Integrado)
      * Puntería Láser en DOM + Jerarquía Inviolable + Fix de Identidades y Horarios
      */
 
@@ -2410,16 +2410,18 @@
             INTERVAL: 10000, 
             TIMEOUT: 6000,
             PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, .song-title',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, .song-artist'
+                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, .song-title, #displayTitle',
+                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, .song-artist, #displayArtist'
             },
-            // FIX: Horarios, nombres e imágenes sincronizados correctamente.
+            // Repositorio base donde están las carpetas de voces en tu GitHub
+            AUDIO_BASE_URL: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/', 
             PROGRAMS: [
-                { id: 'lover', name: 'Karol Morales', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 6 },
-                { id: 'wonders', name: 'Tito González', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
-                { id: 'piedras', name: 'Salma Cifuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
-                { id: 'rockstars', name: 'Jhon Martin', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
-                { id: 'hits', name: 'Miranda Fuentes', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
+                // Se agregó la propiedad 'audioFolder'
+                { id: 'lover', name: 'Karol Morales', audioFolder: 'voces_lover', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 6 },
+                { id: 'wonders', name: 'Tito González', audioFolder: 'voces_wonders', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
+                { id: 'piedras', name: 'Salma Cifuentes', audioFolder: 'voces_piedras', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
+                { id: 'rockstars', name: 'Jhon Martin', audioFolder: 'voces_rockstars', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
+                { id: 'hits', name: 'Miranda Fuentes', audioFolder: 'voces_hits', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
             ],
             FALLBACKS: [
                 "¡Disfruta de la mejor música en Radiochar!",
@@ -2428,18 +2430,75 @@
                 "Transmitiendo éxitos sin fronteras."
             ]
         },
-        state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
+        state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false, mainAudioVol: 1.0, isDjSpeaking: false }
     };
 
+    // Crear reproductor de audio oculto para el DJ
+    const djAudioPlayer = new Audio();
+    djAudioPlayer.id = "djVoicePlayer";
+    document.body.appendChild(djAudioPlayer);
+
+    // Sistema de Ducking (Bajar volumen de la música principal)
+    function fadeMainAudio(targetVol, duration = 1000) {
+        const mainAudio = document.getElementById('radio');
+        if (!mainAudio || mainAudio.paused) return;
+
+        const startVol = mainAudio.volume;
+        const change = targetVol - startVol;
+        const steps = 20;
+        const stepTime = duration / steps;
+        const volStep = change / steps;
+        let currentStep = 0;
+
+        clearInterval(DJ_APP.state.fadeInterval);
+        DJ_APP.state.fadeInterval = setInterval(() => {
+            currentStep++;
+            let newVol = startVol + (volStep * currentStep);
+            // Evitar errores de rango
+            if (newVol > 1) newVol = 1;
+            if (newVol < 0) newVol = 0;
+            
+            mainAudio.volume = newVol;
+
+            if (currentStep >= steps) {
+                clearInterval(DJ_APP.state.fadeInterval);
+                mainAudio.volume = targetVol;
+            }
+        }, stepTime);
+    }
+
+    // Eventos del reproductor del DJ
+    djAudioPlayer.addEventListener('play', () => {
+        DJ_APP.state.isDjSpeaking = true;
+        fadeMainAudio(0.2, 500); // Baja al 20% en medio segundo
+        console.log("🎙️ [DJ AL AIRE] Volumen musical atenuado.");
+    });
+
+    djAudioPlayer.addEventListener('ended', () => {
+        DJ_APP.state.isDjSpeaking = false;
+        fadeMainAudio(1.0, 1500); // Sube al 100% en 1.5 segundos
+        console.log("🤫 [DJ FUERA DEL AIRE] Volumen musical restaurado.");
+    });
+    
+    djAudioPlayer.addEventListener('error', (e) => {
+         console.warn("⚠️ [DJ AUDIO] No se encontró el archivo de voz para esta canción.", e);
+         // Si falla, asegurarse de que el volumen siga arriba
+         if(DJ_APP.state.isDjSpeaking) {
+             DJ_APP.state.isDjSpeaking = false;
+             fadeMainAudio(1.0, 500);
+         }
+    });
+
     /**
-     * NORMALIZACIÓN ESTRICTA
+     * NORMALIZACIÓN ESTRICTA (Debe ser idéntica a la de Python)
      */
     function normalize(str) {
         if (!str) return '';
-        return str.toString()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+        return String(str)
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // Quitar tildes
             .toLowerCase()
-            .replace(/[^a-z0-9]/g, ''); 
+            .replace(/[^a-z0-9]/g, '');      // Solo letras y números
     }
 
     function getActiveDJ() {
@@ -2529,8 +2588,6 @@
         const nTitle = normalize(currentTitle);
         const nArtist = normalize(currentArtist);
 
-        console.log(`[🔍 MATCH] Buscando: Canción="${nTitle}" | Artista="${nArtist}"`);
-
         const songMatches = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
             if (!jsonTitle || jsonTitle.length < 3) return false;
@@ -2543,18 +2600,9 @@
                 return jsonArtist === nArtist || nArtist.includes(jsonArtist) || jsonArtist.includes(nArtist);
             });
 
-            if (perfectMatch && perfectMatch.frase) {
-                console.log(`[✅ MATCH 100%] Canción y Artista confirmados.`);
-                return perfectMatch.frase;
-            }
-
-            if (songMatches[0].frase) {
-                console.log(`[⚠️ MATCH PARCIAL] Canción confirmada.`);
-                return songMatches[0].frase;
-            }
+            if (perfectMatch && perfectMatch.frase) return perfectMatch.frase;
+            if (songMatches[0].frase) return songMatches[0].frase;
         }
-
-        console.log(`[🛑 SIN MATCH] Retornando frase genérica segura.`);
         
         const genericLibraryPhrases = library.filter(item => {
             const jsonTitle = normalize(item.titulo || item.cancion || "");
@@ -2609,7 +2657,10 @@
                     artist = parts[0].trim();
                     title = parts.slice(1).join(' - ').trim();
                 }
-                return { artist: artist || "Radiochar", title, source: 'DOM' };
+                
+                if (!artist || artist.toLowerCase() === 'radiochar') return null;
+
+                return { artist: artist, title: title, source: 'DOM' };
             }
         } catch (e) {}
         return null; 
@@ -2625,10 +2676,10 @@
             const data = await response.json();
             
             if (data && data.length > 0 && data[0].title) {
-                let trackArtist = data[0].artist;
-                let trackTitle = data[0].title;
+                let trackArtist = data[0].artist || "";
+                let trackTitle = data[0].title || "";
                 
-                if (!trackArtist && trackTitle.includes(' - ')) {
+                if ((!trackArtist || trackArtist.toLowerCase() === 'radiochar') && trackTitle.includes(' - ')) {
                     const parts = trackTitle.split(' - ');
                     trackArtist = parts[0].trim();
                     trackTitle = parts.slice(1).join(' - ').trim();
@@ -2657,13 +2708,11 @@
             
             const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
             
-            // OBTENER HORA LOCAL DEL NAVEGADOR
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             
-            // INSERTAR LA HORA ANTES DE LA FRASE
-            document.getElementById('dj-phrase').innerHTML = `<span style="color: var(--dj-accent); font-style: normal; font-weight: 600; font-size: 11pt;">Ahora (${hh}:${mm}):</span> "${phraseClean}"`;
+            document.getElementById('dj-phrase').innerHTML = `<span style="color: var(--dj-accent); font-style: normal; font-weight: 600; font-size: 11pt;">A las ${hh}:${mm}:</span> "${phraseClean}"`;
             
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';
@@ -2674,7 +2723,6 @@
         const trackData = getTrackFromDOM() || await getTrackFromFeed();
         
         if (!trackData) {
-            console.warn("[⚠️ VIRTUAL DJ] Sin señal del reproductor. Mostrando fallback.");
             if (DJ_APP.state.isFirstRun) {
                 const dj = getActiveDJ();
                 updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
@@ -2686,6 +2734,7 @@
         const { artist, title, source } = trackData;
         const currentTrackId = normalize(`${artist}${title}`);
 
+        // Solo procesa si la canción cambió
         if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
 
         console.log(`[📡 LECTURA ${source}] Sonando: ${artist} - ${title}`);
@@ -2696,6 +2745,38 @@
         updateUI(activeDJ, `${artist} - ${title}`, phrase);
         DJ_APP.state.lastTrackId = currentTrackId;
         DJ_APP.state.isFirstRun = false;
+
+        // --- SISTEMA DE REPRODUCCIÓN DE VOZ DE IA ---
+        // Detener la voz anterior si estaba hablando
+        djAudioPlayer.pause();
+        djAudioPlayer.currentTime = 0;
+
+        // Comprobar si el usuario tiene el reproductor principal "Play" encendido
+        // Si no está escuchando la radio, no disparamos al DJ
+        const mainRadio = document.getElementById('radio');
+        if (mainRadio && !mainRadio.paused) {
+            
+            // Construir la URL exacta del MP3 basada en la normalización
+            const normArtist = normalize(artist);
+            const normSong = normalize(title);
+            const audioFileName = `${activeDJ.id}_${normArtist}_${normSong}.mp3`;
+            
+            // URL a tu repositorio en GitHub
+            // Ejemplo: https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/voces_lover/lover_airsupply_makingloveoutofnothingatall.mp3
+            const audioUrl = `${DJ_APP.config.AUDIO_BASE_URL}${activeDJ.audioFolder}/${audioFileName}`;
+            
+            console.log(`[▶️ CARGANDO VOZ IA] Buscando: ${audioUrl}`);
+            
+            djAudioPlayer.src = audioUrl;
+            
+            // Un pequeño retraso para darle "naturalidad" (como si el DJ respirara antes de hablar)
+            setTimeout(() => {
+                 // Intentar reproducir (el .catch ataja el error silenciosamente si el MP3 no existe en GitHub 404)
+                 djAudioPlayer.play().catch(e => {
+                     console.log(`[INFO] No hay audio de voz grabado para: ${artist} - ${title}`);
+                 });
+            }, 1000); 
+        }
     }
 
     window.addEventListener('load', async () => {
@@ -2713,10 +2794,11 @@
             await syncStation();
             clearTimeout(safetyTimeout);
             
+            // Aceleramos el radar de 10s a 3s para que gane la carrera del "Buffer" contra el streaming de audio
             const observer = new MutationObserver(() => syncStation());
             observer.observe(document.body, { childList: true, subtree: true, characterData: true });
             
-            setInterval(syncStation, DJ_APP.config.INTERVAL);
+            setInterval(syncStation, 3000); // 3 segundos
         } catch (e) {
             console.error("[CRÍTICO] Fallo general de motor:", e);
             clearTimeout(safetyTimeout);
@@ -2832,3 +2914,4 @@
 <!-- FIN SCRIPT COMPARTIR -->
 </body>
 </html>
+
