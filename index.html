@@ -83,14 +83,15 @@
         opacity: 0; visibility: hidden; transition: all 0.3s ease;
     }
     .modal-overlay.active { display: flex; opacity: 1; visibility: visible; }
-    .modal-content { 
-        background: #1a1a1a; width: 600px; max-width: 90%; padding: 30px; 
-        border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); 
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8); position: relative; 
-        transform: translateY(20px); transition: transform 0.3s ease;
-        max-height: 85vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #444 #1a1a1a;
-    }
     .modal-overlay.active .modal-content { transform: translateY(0); }
+
+    /* Transición suave (fade in/out) exclusiva para el modal del DJ */
+    #modalOverlay {
+        display: flex;
+        pointer-events: none;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    #modalOverlay.active { pointer-events: auto; }
     .modal-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
     .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
     .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; color: #fff; letter-spacing: 0.5px; }
@@ -114,6 +115,22 @@
     .req-item-artist { font-size: 12px; color: #999; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     .req-submit { width: 100%; padding: 16px; background: var(--color-gradient-req); color: #fff; border: none; border-radius: 50px; font-weight: 700; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
     .req-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,198,255,0.3); }
+
+    /* Corrección de espaciado del modal "PIDE TU CANCIÓN" (antes sin padding/posición, botón de cerrar sobrepuesto) */
+    #reqModalOverlay .modal-content {
+        position: relative;
+        background: #1a1a1a;
+        color: #fff;
+        border-radius: 20px;
+        padding: 55px 32px 32px;
+        border: 1px solid #333;
+        width: 420px;
+        max-width: 90vw;
+        text-align: left;
+        box-sizing: border-box;
+    }
+    #reqModalOverlay .modal-title,
+    #reqModalOverlay .modal-subtitle { padding-right: 30px; }
     #realCentovaForm { display: none; }
 
     /* REPRODUCTOR */
@@ -186,6 +203,26 @@
     .carousel-wrapper-common { position: relative; width: 100%; }
     .carousel-track-common { display: flex; gap: 20px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 15px; padding-top: 10px; scrollbar-width: none; -ms-overflow-style: none; }
     .carousel-track-common::-webkit-scrollbar { display: none; }
+
+    /* === "UN DÍA COMO HOY EN LA MÚSICA" (Efemérides.md desde GitHub) === */
+    .otd-title-custom { color: var(--color-accent-orange); border-left: 3px solid var(--color-accent-orange); }
+    .otd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+    .otd-card {
+        display: flex; flex-direction: column; background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+        transition: transform 0.25s ease, background 0.25s ease;
+    }
+    .otd-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.06); }
+    .otd-card-img-wrap { position: relative; width: 100%; height: 210px; background: #111; overflow: hidden; border-radius: 16px 16px 0 0; flex-shrink: 0; }
+    .otd-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .otd-card-category { position: absolute; top: 12px; left: 12px; background: var(--color-accent-orange); color: #1a1000; font-size: 10.5px; font-weight: 800; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .otd-card-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; }
+    .otd-card-title { font-size: 16px; font-weight: 800; color: #fff; line-height: 1.35; }
+    .otd-card-text { font-size: 13px; line-height: 1.6; color: #ccc; }
+    @media (max-width: 900px) {
+        .otd-grid { grid-template-columns: 1fr; }
+        .otd-card-img-wrap { height: 240px; }
+    }
     
     .carousel-card-common { flex: 0 0 200px; background: rgba(30, 30, 30, 0.4); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease, background 0.3s ease; position: relative; cursor: pointer; }
     .carousel-card-common:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); }
@@ -303,14 +340,61 @@
     .creator-footer a:hover { opacity: 1; text-decoration: underline; }
 
     /* CBOX ZERO GAP */
-    #cboxbutton { position: fixed; bottom: 20px; right: 20px; z-index: var(--z-chat) !important; border-radius: 50% !important; background-color: #1877F2 !important; border: 1px solid #1565C0 !important; color: #fff !important; width: 60px !important; height: 60px !important; padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; font-size: 24px !important; cursor: pointer; transition: transform 0.2s ease; }
+    #cboxbutton { position: fixed; bottom: 20px; right: 20px; z-index: var(--z-chat) !important; border-radius: 50% !important; background-color: #1877F2 !important; border: 1px solid #1565C0 !important; color: #fff !important; width: 60px !important; height: 60px !important; padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; font-size: 24px !important; cursor: pointer; transition: transform 0.2s ease, bottom 0.3s ease; }
     #cboxbutton:hover { transform: scale(1.05); }
+    body.mini-player-active #cboxbutton { bottom: 90px; }
+    body.mini-player-active #cboxwrap { bottom: 160px; }
 
-    #cboxwrap { position: fixed; bottom: 90px; right: 20px; z-index: var(--z-chat) !important; border-radius: 12px !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; background: rgba(30, 30, 30, 0.95) !important; backdrop-filter: blur(10px) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important; display: none; overflow: hidden; font-size: 0; line-height: 0; }
+    /* Botón flotante de silenciar/activar volumen (esquina superior derecha) */
+    #muteBtn {
+        position: fixed; top: 20px; right: 20px; z-index: var(--z-chat);
+        width: 46px; height: 46px; border-radius: 50%;
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+        color: #fff; font-size: 18px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+    #muteBtn:hover { background: rgba(255,255,255,0.18); transform: scale(1.05); }
+    #muteBtn.muted { color: var(--color-accent-blue, #00c6ff); }
+
+    /* Barra flotante "reproduciendo ahora" (aparece cuando el reproductor sale de pantalla) */
+    .mini-player-bar {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-chat);
+        display: flex; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 14px 20px; background: rgba(20,20,20,0.92);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        transform: translateY(100%); opacity: 0; pointer-events: none;
+        transition: transform 0.35s ease, opacity 0.35s ease;
+        cursor: pointer; box-sizing: border-box;
+    }
+    .mini-player-bar.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mini-player-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; overflow: hidden; }
+    .mini-player-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 19px; }
+    .mini-player-title-text { font-weight: 800; color: #fff; }
+    .mini-player-artist-text { color: #ccc; font-weight: 500; margin-left: 8px; }
+    .mini-player-year-text { color: #888; font-weight: 500; margin-left: 8px; }
+    .mini-player-year-text:not(:empty)::before { content: '('; }
+    .mini-player-year-text:not(:empty)::after { content: ')'; }
+    .mini-player-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; text-align: right; margin-left: 14px; }
+    .mini-player-program { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--color-accent-gold); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .mini-player-listeners { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; font-weight: 600; white-space: nowrap; }
+    .mini-player-bar .live-dot-inline { flex-shrink: 0; width: 10px; height: 10px; }
+    @media (max-width: 480px) {
+        .mini-player-program { display: none; }
+        .mini-player-text { font-size: 15px; }
+    }
+
+    #cboxwrap { position: fixed; bottom: 90px; right: 20px; z-index: var(--z-chat) !important; border-radius: 12px !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; background: rgba(30, 30, 30, 0.95) !important; backdrop-filter: blur(10px) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important; display: none; overflow: hidden; font-size: 0; line-height: 0; transition: bottom 0.3s ease; }
     
-    #cboxdiv { width: 300px; height: 380px; display: block; }
-    .cbox-main-wrapper { height: 252px !important; width: 100%; border: 0 !important; display: block; margin: 0; padding: 0; overflow: hidden; }
-    .cbox-form-wrapper { height: 128px !important; width: 100%; border: 0 !important; border-top: 1px solid rgba(255,255,255,0.1); display: block; margin: 0; padding: 0; overflow: hidden; }
+    #cboxdiv { width: 300px; height: 380px; display: flex; flex-direction: column; background: #1a1a1a; }
+    .cbox-header { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #aaa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-sizing: border-box; }
+    .cbox-header a { color: #aaa; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .cbox-header a:hover { color: #fff; }
+    .cbox-frame-full { flex: 1 1 auto; width: 100%; border: 0; display: block; }
+    .cbox-main-wrapper { height: 252px !important; width: 100%; border: 0 !important; display: block; margin: 0; padding: 0; overflow: hidden; background: #1a1a1a; }
+    .cbox-form-wrapper { height: 128px !important; width: 100%; border: 0 !important; border-top: 1px solid rgba(255,255,255,0.1); display: block; margin: 0; padding: 0; overflow: hidden; background: #1a1a1a; }
     #cboxdiv iframe { width: 100%; height: 100%; border: 0; display: block; vertical-align: bottom; margin: 0; padding: 0; }
     
     /* --- SECCIÓN DIRECTORIOS (MARQUESINA INFINITA) --- */
@@ -792,6 +876,10 @@
         .s-btn.wa { background: #25D366; }
         .s-btn.fb { background: #1877F2; }
         .s-btn.x { background: #000000; border: 1px solid rgba(255,255,255,0.2); }
+        .s-btn.tg { background: #26A5E4; }
+        .s-btn.copy { background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.3); margin-top: 4px; }
+        .s-btn.copy.copied { background: #2ecc71; border-style: solid; }
+        .share-hint { font-size: 12px; color: #888; margin-top: 14px; line-height: 1.5; text-align: center; }
 /* FIN ESTILOS DJ */
 
 /* INICIO ESTILOS DJ MARQUESINA */
@@ -898,21 +986,76 @@
         }
 /* FIN ESTILOS DJ MARQUESINA */
 
+/* INICIO AJUSTES DE ANCHO ADAPTATIVO */
+
+/* 1. El Reproductor: Más espacio para lucirse en pantallas grandes */
+.radio-container {
+    width: 1100px !important; /* Pasamos de 1000px a 1100px */
+    max-width: 95% !important;
+}
+
+/* 2. Contenido General (Historial, Top 10, Repositorio): Ancho cómodo de lectura */
+.content-section {
+    width: 1100px !important; /* Un poco más amplio para que los carruseles se vean mejor */
+    max-width: 95% !important;
+}
+
+/* 3. Footer y secciones de comunidad: Aprovechan el ancho total */
+.community-section {
+    max-width: 1000px !important; /* Mantenemos este más contenido para impacto visual */
+}
+
+/* 4. Slogan: Queremos que resalte, pero sin ser eterno */
+.slogan-section {
+    max-width: 900px !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+/* FIN AJUSTES DE ANCHO ADAPTATIVO */
+
 </style>
 </head>
 <body>
+
+<button id="muteBtn" title="Silenciar" aria-label="Silenciar reproductor">
+    <i class="fas fa-volume-up"></i>
+</button>
+
+<div id="miniPlayerBar" class="mini-player-bar" title="Volver al reproductor">
+    <div class="mini-player-left">
+        <div class="live-dot-inline"></div>
+        <div class="mini-player-text">
+            <span id="miniPlayerTitle" class="mini-player-title-text">--</span>
+            <span id="miniPlayerArtist" class="mini-player-artist-text">--</span>
+            <span id="miniPlayerYear" class="mini-player-year-text"></span>
+        </div>
+    </div>
+    <div class="mini-player-right">
+        <div class="mini-player-program"><i class="fas fa-broadcast-tower"></i> <span id="miniPlayerProgram">--</span></div>
+        <div class="mini-player-listeners"><i class="fas fa-headphones"></i> <span id="miniPlayerListeners">--</span></div>
+    </div>
+</div>
+
 
 <div class="background-blur visual-transition" id="bgBlur"></div>
 <div class="splash-screen"><h1>Sintonizando...</h1><div class="spinner"></div></div>
 
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div class="modal-title" id="modalArtist">Artista</div>
-    <div class="modal-subtitle" id="modalTitle">Canción</div>
-    <div class="modal-body" id="modalBio">Cargando información...</div>
-    <div class="modal-meta"><div>Álbum<span id="modalAlbum">--</span></div><div>Género<span id="modalGenre">--</span></div></div>
-  </div>
+    <div class="modal-content" style="text-align: center; color: #fff; background: #1a1a1a; border-radius: 20px; padding: 40px; position: relative; border: 1px solid #333; width: 400px; z-index: 20000;">
+        <button class="modal-close" onclick="closeModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; color: #fff; font-size: 20px;">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div id="modalPhotoContainer" style="margin-bottom: 25px;">
+            <img id="modalPhoto" src="" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto; border: 2px solid #555;">
+        </div>
+        
+        <div id="modalName" style="font-size: 24px; font-weight: 800; margin-bottom: 5px;"></div>
+        <div id="modalProgram" style="color: var(--color-accent-blue); font-weight: bold; margin-bottom: 10px;"></div>
+        <div id="modalHorario" style="color: #aaa; font-size: 14px; margin-bottom: 20px;"></div>
+        
+        <div id="modalBio" style="font-size: 15px; color: #ccc; line-height: 1.6; text-align: center; border-top: 1px solid #333; padding-top: 20px;"></div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="reqModalOverlay">
@@ -939,12 +1082,26 @@
   </div>
 </div>
 
+<!-- MODAL DE INFORMACIÓN DE LA CANCIÓN (Wikipedia) -->
+<div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-content" style="text-align: left; color: #fff; background: #1a1a1a; border-radius: 20px; padding: 40px; position: relative; border: 1px solid #333; width: 420px;">
+        <button class="modal-close" onclick="closeInfoModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-title" id="infoModalTitle">--</div>
+        <div class="modal-subtitle" id="infoModalArtist">--</div>
+        <div class="modal-body" id="infoModalBio">Buscando información...</div>
+        <div class="modal-meta">
+            <div>Álbum<span id="infoModalAlbum">--</span></div>
+            <div>Género<span id="infoModalGenre">--</span></div>
+        </div>
+    </div>
+</div>
+
 <header>
     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHUtTEFGPRbqVpElB4IrEaW0Y4DJb6_wZwOS24Ns35md-ptU1l8644raWJ67ASFkb3c5gtQQR__wCoE3NNDwO76jBHve4H63CCySYCH3E49e_o-ANQHjSxXHD6cTnPeNUTzaomI14wmXOz-_s7-LzpKV8gOKCyRJJm26_h1fIBrAMjoCt-_dbet-7cH-0E/s16000/radiochar%2012.png" alt="Radiochar Logo" class="radio-logo" referrerpolicy="no-referrer">
 </header>
 
 <main>
-    <section class="radio-container" aria-label="Reproductor de Radio">
+    <section class="radio-container" id="radioPlayerSection" aria-label="Reproductor de Radio">
       <div class="cover">
         <button id="wikiBtn" class="wiki-btn" title="Ver reseña" onclick="openInfoModal()"><i class="fas fa-info"></i></button>
         <div id="albumYear" class="album-year-badge visual-transition"></div>
@@ -1107,6 +1264,13 @@
         </div>
     </section>
 
+    <section class="content-section otd-section">
+        <div class="section-header-common"><h2 class="section-title-common otd-title-custom">UN DÍA COMO HOY EN LA MÚSICA</h2></div>
+        <div class="otd-grid" id="otdList">
+            <div style="color: #aaa; padding: 20px; text-align: center; width:100%;">Buscando qué pasó hoy en la música...</div>
+        </div>
+    </section>
+
     <section class="content-section slogan-section">
         <h2 class="slogan-text">LA EMISORA ONLINE <p style="color: yellow; display: inline;">#1</p> EN LATINOAMÉRICA</h2>
         <h3 class="sub-slogan">TRANSMITIENDO 24/7 DESDE <p style="color: yellow; display: inline;">2011</p> EN HD</h3>
@@ -1206,9 +1370,12 @@
         <div class="share-modal-title">Compartir</div>
         <div class="share-btn-grid">
             <button onclick="shareToPlatform('wa')" class="s-btn wa"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+            <button onclick="shareToPlatform('tg')" class="s-btn tg"><i class="fab fa-telegram-plane"></i> Telegram</button>
             <button onclick="shareToPlatform('x')" class="s-btn x"><i class="fab fa-x-twitter"></i> X (Twitter)</button>
             <button onclick="shareToPlatform('fb')" class="s-btn fb"><i class="fab fa-facebook-f"></i> Facebook</button>
+            <button onclick="copyShareImage()" class="s-btn copy" id="copyImgBtn"><i class="fas fa-image"></i> Copiar portada</button>
         </div>
+        <div class="share-hint">Copia la portada y pégala (Ctrl+V) en la ventana que se abre al compartir, para que la imagen también se incluya en tu publicación.</div>
     </div>
 </div>
 
@@ -1219,6 +1386,23 @@
 <audio id="jinglePlayer" src="https://robinsonchar.github.io/radiochar/radiochar.mp3" preload="auto"></audio>
 
 <script>
+
+// --- INICIO MOTOR DE MARQUESINA ---
+let marqueeIntervalId = null;
+    function actualizarMarquesina(artista, cancion) {
+        if (marqueeIntervalId) clearInterval(marqueeIntervalId);
+        const textoBase = `${artista} - ${cancion}  ---  `;
+        let index = 0;
+        document.title = textoBase;
+        // Actualizamos cada 300ms (no en cada frame) para evitar sobrecargar el hilo
+        // principal: cambiar document.title es costoso y hacerlo a 60fps causaba
+        // pequeños congelamientos periódicos.
+        marqueeIntervalId = setInterval(function() {
+            index = (index + 1) % textoBase.length;
+            document.title = textoBase.substring(index) + textoBase.substring(0, index);
+        }, 300);
+    }
+// --- FIN MOTOR DE MARQUESINA ---
 (function() {
     var itunesCache = window.itunesCache || new Map();
     // OPTIMIZACIÓN: CACHÉ EN SESSIONSTORAGE
@@ -1288,12 +1472,12 @@
         totalTime: document.getElementById('totalTime'),
         progressFill: document.getElementById('progressFill'),
         modal: {
-            overlay: document.getElementById('modalOverlay'),
-            artist: document.getElementById('modalArtist'),
-            title: document.getElementById('modalTitle'),
-            bio: document.getElementById('modalBio'),
-            album: document.getElementById('modalAlbum'),
-            genre: document.getElementById('modalGenre')
+            overlay: document.getElementById('infoModalOverlay'),
+            artist: document.getElementById('infoModalArtist'),
+            title: document.getElementById('infoModalTitle'),
+            bio: document.getElementById('infoModalBio'),
+            album: document.getElementById('infoModalAlbum'),
+            genre: document.getElementById('infoModalGenre')
         },
         reqModal: {
             overlay: document.getElementById('reqModalOverlay'),
@@ -1344,7 +1528,10 @@
 
     window.openReqModal = function() { DOM.reqModal.overlay.classList.add('active'); };
     window.closeReqModal = function() { DOM.reqModal.overlay.classList.remove('active'); };
-    window.closeModal = function() { DOM.modal.overlay.classList.remove('active'); };
+    // Modal del DJ (bio) - id="modalOverlay"
+    window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('active'); };
+    // Modal de info de la canción (Wikipedia) - id="infoModalOverlay"
+    window.closeInfoModal = function() { DOM.modal.overlay.classList.remove('active'); };
 
     var Utils = {
         debounce: function(func, wait) {
@@ -1447,9 +1634,9 @@
     }, 500));
 
     DOM.reqModal.overlay.addEventListener('click', function(e) { if (e.target === DOM.reqModal.overlay) closeReqModal(); });
-    DOM.modal.overlay.addEventListener('click', function(e) { if (e.target === DOM.modal.overlay) closeModal(); });
+    DOM.modal.overlay.addEventListener('click', function(e) { if (e.target === DOM.modal.overlay) closeInfoModal(); });
 
-    // === CBOX ENGINE (V26.0 - ZERO-GAP PROTOCOL) ===
+    // === CBOX ENGINE (V27.0 - SINGLE FRAME / FULL BOX) ===
     document.addEventListener('DOMContentLoaded', function() {
         var cboxBtn = document.getElementById('cboxbutton');
         var cboxWrap = document.getElementById('cboxwrap');
@@ -1471,12 +1658,11 @@
                     if (!isCboxLoaded) {
                         cboxWrap.innerHTML = 
                         '<div id="cboxdiv">' +
-                            '<div class="cbox-main-wrapper">' +
-                                '<iframe src="https://www4.cbox.ws/box/?boxid=3774862&boxtag=a7lslt&sec=main" marginheight="0" marginwidth="0" frameborder="0" scrolling="auto" allowtransparency="yes" name="cboxmain4-3774862" id="cboxmain4-3774862" class="cbox-frame-main"></iframe>' +
+                            '<div class="cbox-header">' +
+                                '<span>Chat en vivo</span>' +
+                                '<a href="https://my.cbox.ws/Radiochar" target="_blank" rel="noopener" title="Abrir en pestaña nueva"><i class="fas fa-external-link-alt"></i></a>' +
                             '</div>' +
-                            '<div class="cbox-form-wrapper">' +
-                                '<iframe src="https://www4.cbox.ws/box/?boxid=3774862&boxtag=a7lslt&sec=form" allow="autoplay" marginheight="0" marginwidth="0" frameborder="0" scrolling="no" allowtransparency="yes" name="cboxform4-3774862" id="cboxform4-3774862" class="cbox-frame-form"></iframe>' +
-                            '</div>' +
+                            '<iframe src="https://my.cbox.ws/Radiochar" title="Chat Radiochar" marginheight="0" marginwidth="0" frameborder="0" scrolling="auto" allowtransparency="yes" allow="autoplay" class="cbox-frame-full" name="cboxfull-3774862" id="cboxfull-3774862"></iframe>' +
                         '</div>';
                         isCboxLoaded = true;
                     }
@@ -1499,7 +1685,7 @@
 
     var ScheduleEngine = {
         programs: [
-            { id: 'lover', title: 'LOVER CITY', subtitle: 'BALADAS AMERICANAS', start: 0, end: 6, img: 'https://mickpini.com/wp-content/uploads/2025/07/1.png', displayTime: '00:00 - 05:59 (GMT-5)' },
+            { id: 'lover', title: 'LOVER CITY', subtitle: 'BALADAS AMERICANAS', start: 0, end: 6, img: 'https://cdn.pixabay.com/photo/2024/01/30/22/40/couple-8542914_1280.jpg', displayTime: '00:00 - 05:59 (GMT-5)' },
             { id: 'wonders', title: 'THE WONDERS', subtitle: 'LOS 90S', start: 6, end: 12, img: 'https://wallpapers.com/images/hd/90s-theme-background-fdllcnh7s97z4qio.jpg', displayTime: '06:00 - 11:59 (GMT-5)' },
             { id: 'tirando', title: 'PATEANDO PIEDRAS', subtitle: 'ROCK & POP EN ESPAÑOL', start: 12, end: 15, img: 'https://dojiw2m9tvv09.cloudfront.net/36300/product/los-rodriguez-vinilo-89039.jpg', displayTime: '12:00 - 14:59 (GMT-5)' },
             { id: 'rockstars', title: 'ROCKSTARS', subtitle: 'ROCK DE LOS 80S', start: 15, end: 20, img: 'https://i0.wp.com/lashistoriasdelrock.com/wp-content/uploads/2024/06/Son-10-Canciones-de-Rock-Mas-Emblematicas-de-los-80s.jpg', displayTime: '15:00 - 19:59 (GMT-5)' },
@@ -1692,8 +1878,85 @@
         }
     });
 
+    // Botón de silenciar/activar volumen (independiente del play/stop)
+    var muteBtn = document.getElementById('muteBtn');
+    var muteIcon = muteBtn ? muteBtn.querySelector('i') : null;
+    if (muteBtn) {
+        muteBtn.addEventListener('click', function() {
+            DOM.audio.muted = !DOM.audio.muted;
+            if (DOM.jinglePlayer) DOM.jinglePlayer.muted = DOM.audio.muted;
+
+            if (DOM.audio.muted) {
+                muteBtn.classList.add('muted');
+                muteBtn.title = 'Activar sonido';
+                muteBtn.setAttribute('aria-label', 'Activar sonido');
+                if (muteIcon) { muteIcon.classList.remove('fa-volume-up'); muteIcon.classList.add('fa-volume-mute'); }
+            } else {
+                muteBtn.classList.remove('muted');
+                muteBtn.title = 'Silenciar';
+                muteBtn.setAttribute('aria-label', 'Silenciar reproductor');
+                if (muteIcon) { muteIcon.classList.remove('fa-volume-mute'); muteIcon.classList.add('fa-volume-up'); }
+            }
+        });
+    }
+
+    // Barra flotante "reproduciendo ahora" (aparece cuando el reproductor sale de pantalla)
+    (function() {
+        var playerSection = document.getElementById('radioPlayerSection');
+        var miniBar = document.getElementById('miniPlayerBar');
+        var miniTitle = document.getElementById('miniPlayerTitle');
+        var miniArtist = document.getElementById('miniPlayerArtist');
+        var miniYear = document.getElementById('miniPlayerYear');
+        var miniProgram = document.getElementById('miniPlayerProgram');
+        var miniListeners = document.getElementById('miniPlayerListeners');
+        var mainTitle = document.getElementById('displayTitle');
+        var mainArtist = document.getElementById('displayArtist');
+        var mainYear = document.getElementById('albumYear');
+        var mainProgram = document.getElementById('currentProgramDisplay');
+        var mainListeners = document.getElementById('listenerCount');
+
+        if (!playerSection || !miniBar || !mainTitle || !mainArtist) return;
+
+        function syncMiniPlayer() {
+            if (miniTitle) miniTitle.innerText = mainTitle.innerText;
+            if (miniArtist) miniArtist.innerText = mainArtist.innerText;
+            if (miniYear) miniYear.innerText = mainYear ? mainYear.innerText : '';
+            if (miniProgram && mainProgram) miniProgram.innerText = mainProgram.innerText;
+            if (miniListeners && mainListeners) miniListeners.innerText = mainListeners.innerText;
+        }
+
+        // Mantener la barra sincronizada con la canción actual en todo momento
+        syncMiniPlayer();
+        var syncObserver = new MutationObserver(syncMiniPlayer);
+        syncObserver.observe(mainTitle, { childList: true, characterData: true, subtree: true });
+        syncObserver.observe(mainArtist, { childList: true, characterData: true, subtree: true });
+        if (mainYear) syncObserver.observe(mainYear, { childList: true, characterData: true, subtree: true });
+        if (mainProgram) syncObserver.observe(mainProgram, { childList: true, characterData: true, subtree: true });
+        if (mainListeners) syncObserver.observe(mainListeners, { childList: true, characterData: true, subtree: true });
+
+        // Mostrar/ocultar según visibilidad del reproductor principal
+        var visibilityObserver = new IntersectionObserver(function(entries) {
+            var entry = entries[0];
+            if (entry.isIntersecting) {
+                miniBar.classList.remove('visible');
+                document.body.classList.remove('mini-player-active');
+            } else {
+                syncMiniPlayer();
+                miniBar.classList.add('visible');
+                document.body.classList.add('mini-player-active');
+            }
+        }, { threshold: 0 });
+        visibilityObserver.observe(playerSection);
+
+        // Al hacer clic en la barra, volver al reproductor principal
+        miniBar.addEventListener('click', function() {
+            playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    })();
+
     window.openInfoModal = async function() {
         DOM.modal.overlay.classList.add('active');
+
         var displayArtist = DOM.displayArtist.innerText;
         var displaySong = DOM.displayTitle.innerText;
         var artist = (currentMetadata.artist && currentMetadata.artist !== "Radiochar") ? currentMetadata.artist : displayArtist;
@@ -1875,6 +2138,7 @@
             setTimeout(function() {
                 DOM.displayTitle.innerText = title;
                 DOM.displayArtist.innerText = formattedArtist;
+		actualizarMarquesina(formattedArtist, title);
                 
                 var imgLoader = new Image();
                 var showNewContent = function() {
@@ -2289,6 +2553,161 @@
     }
 
 })(); // END IIFE
+
+// === "UN DÍA COMO HOY EN LA MÚSICA" (Efemérides.md alojado en GitHub) ===
+(function() {
+    var MD_URL = 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Efemerides.md';
+    var OTD_FALLBACK_IMG = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgLNh9EesljZjOf9Wd4kxbj_a-I04zgQmfpM1gcDbEF6PXkq7CtZ-71Kgc8TwALbpRGi3EDbTIjTEI1N5QRDDXqD6QhV3UHE79leufBWqZoAxys7KiIcviuxnB-ozdP15EVtEGONWR_ZeHPabjdfUd_X8FkdcoDCtVrNvolF3fQyA8N7eLEoozmI895tiEf/s16000/radiochar-vice.png';
+
+    var MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    var CATEGORY_LABELS = { cumpleanos: 'Cumpleaños', evento: 'Evento musical', chart: 'Éxito en listas' };
+
+    var grid = document.getElementById('otdList');
+    if (!grid) return;
+
+    function escapeHtmlOtd(str) {
+        return String(str)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function stripMd(str) {
+        return str.replace(/\*\*(.*?)\*\*/g, '$1');
+    }
+
+    // Quita el guión, el emoji (si existen) y la etiqueta en negrilla ("**Cumpleaños**: ")
+    // del inicio de la línea. Funciona con o sin guión/emoji, para no depender del formato exacto.
+    function stripPrefix(line) {
+        return line.replace(/^(?:-\s*)?(?:\S+\s+)?\*\*[^*]+\*\*:\s*/, '').trim();
+    }
+
+    function detectCategory(line) {
+        var lower = line.toLowerCase();
+        if (lower.indexOf('cumpleaños') !== -1 || lower.indexOf('cumpleanos') !== -1) return 'cumpleanos';
+        if (lower.indexOf('evento') !== -1) return 'evento';
+        if (lower.indexOf('listas') !== -1 || lower.indexOf('chart') !== -1) return 'chart';
+        return null;
+    }
+
+    function todayHeading() {
+        var today = new Date();
+        return today.getDate() + ' de ' + MESES_ES[today.getMonth()];
+    }
+
+    async function fetchTodaySection() {
+        var res = await fetch(MD_URL + '?nocache=' + Date.now());
+        var text = await res.text();
+        var heading = todayHeading();
+        var re = new RegExp('##\\s*' + heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n##\\s|\\r?\\n---|$)');
+        var match = text.match(re);
+        return match ? match[1] : null;
+    }
+
+    // Extrae el "sujeto" (artista/banda) de cada tipo de frase para poder buscar su imagen.
+    // Se intentan varios patrones porque algunas fechas tienen la frase redactada distinto.
+    function extractArtist(text, category) {
+        if (category === 'cumpleanos') {
+            var m1 = text.match(/^Nace(?:\/Celebra)?\s+(.+?)\s*\((\d{4})\)/);
+            if (m1) return m1[1].trim();
+        } else if (category === 'evento') {
+            var m2 = text.match(/^En \d{4},\s*(.+?)\s+(?:estrena|inicia|encabeza|se presenta|recibe|lanza|graba|firma|ofrece)\b/);
+            if (m2) return m2[1].trim();
+        } else if (category === 'chart') {
+            var m3 = text.match(/^En \d{4},\s*el éxito de\s+(.+?)\s+(?:logra|desplaza|se ubica|obtiene|ingresa|alcanza|se corona|establece)\b/);
+            if (m3) return m3[1].trim();
+            // Variante sin "el éxito de" (algunas fechas especiales usan otra redacción)
+            var m4 = text.match(/^En \d{4},\s*(.+?)\s+(?:logra|desplaza|se ubica|obtiene|ingresa|alcanza|se corona|establece|llega)\b/);
+            if (m4) return m4[1].trim();
+        }
+        return null;
+    }
+
+    function extractItem(rawLine, category) {
+        var text = stripMd(stripPrefix(rawLine));
+        var artist = extractArtist(text, category);
+        return { category: category, text: text, artist: artist };
+    }
+
+    function parseTodaySection(sectionText) {
+        // Cualquier línea con una etiqueta en negrilla ("**Algo**:") es uno de los 3 hechos,
+        // sin importar si tiene guión o emoji al inicio.
+        var lines = sectionText.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(function(l) { return /\*\*[^*]+\*\*:/.test(l); });
+        var picks = [];
+        lines.forEach(function(line) {
+            var category = detectCategory(line);
+            if (category) picks.push(extractItem(line, category));
+        });
+        return picks;
+    }
+
+    // Imagen del sujeto (artista/banda) de la frase, obtenida en vivo desde la API pública de iTunes.
+    // Esto es solo para la FOTO; el texto siempre viene del documento de GitHub, nunca de internet.
+    async function fetchItunesArtwork(artist) {
+        try {
+            var url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(artist) + '&media=music&limit=1';
+            var res = await fetch(url);
+            var data = await res.json();
+            if (data.results && data.results[0] && data.results[0].artworkUrl100) {
+                return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
+            }
+        } catch (e) {
+            console.warn('No se pudo obtener la carátula de iTunes para', artist, e);
+        }
+        return null;
+    }
+
+    async function enrichItem(item) {
+        var result = {
+            categoryLabel: CATEGORY_LABELS[item.category],
+            title: item.artist || null,
+            text: item.text, // Texto tal cual viene del documento de GitHub, sin buscar en internet
+            imageUrl: null
+        };
+        if (item.artist) {
+            result.imageUrl = await fetchItunesArtwork(item.artist);
+        }
+        return result;
+    }
+
+    function buildCardHtml(ev) {
+        var img = ev.imageUrl || OTD_FALLBACK_IMG;
+        return '' +
+            '<div class="otd-card">' +
+                '<div class="otd-card-img-wrap">' +
+                    '<span class="otd-card-category">' + escapeHtmlOtd(ev.categoryLabel) + '</span>' +
+                    '<img class="otd-card-img" src="' + img + '" alt="" loading="lazy" onerror="this.src=\'' + OTD_FALLBACK_IMG + '\'">' +
+                '</div>' +
+                '<div class="otd-card-body">' +
+                    (ev.title ? '<div class="otd-card-title">' + escapeHtmlOtd(ev.title) + '</div>' : '') +
+                    '<div class="otd-card-text">' + escapeHtmlOtd(ev.text) + '</div>' +
+                '</div>' +
+            '</div>';
+    }
+
+    async function loadOnThisDay() {
+        try {
+            var sectionText = await fetchTodaySection();
+            if (!sectionText) {
+                grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No encontramos el registro de hoy en el documento de efemérides.</div>';
+                return;
+            }
+
+            var items = parseTodaySection(sectionText);
+            if (items.length === 0) {
+                grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No pudimos leer los hechos de hoy.</div>';
+                return;
+            }
+
+            var enriched = await Promise.all(items.map(enrichItem));
+            grid.innerHTML = enriched.map(buildCardHtml).join('');
+        } catch (e) {
+            console.warn('No se pudo cargar "Un día como hoy en la música":', e);
+            grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No pudimos cargar la información en este momento.</div>';
+        }
+    }
+
+    loadOnThisDay();
+})();
 </script>
 <script src="https://cast2.my-control-panel.com/system/streaminfo.js"></script>
 <script src="https://cast2.my-control-panel.com/system/recenttracks.js"></script>
@@ -2399,414 +2818,328 @@
 
 <!-- INICIO SCRIPT DJ -->
  <script>
-   /**
-     * RADIOCHAR VIRTUAL DJ ENGINE v6.0 (Voces de IA + Ducking Integrado)
-     * Puntería Láser en DOM + Jerarquía Inviolable + Fix de Identidades y Horarios
-     */
+    /**
+ * RADIOCHAR VIRTUAL DJ ENGINE v5.2 (Ultra-Blindado)
+ * - Match 100% ESTRICTO e independiente.
+ * - Rescate de JSON (Salvage) mejorado para soportar saltos de línea y comillas internas.
+ * - Selectores de DOM sincronizados y Anti-Radiochar Loop.
+ */
 
-    const DJ_APP = {
-        config: {
-            FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
-            INTERVAL: 10000, 
-            TIMEOUT: 6000,
-            PLAYER_SELECTORS: {
-                TITLE: '#cc_strinfo_tracktitle_robinson, .cc_strinfo_tracktitle_robinson, .track-title, .song-title, #displayTitle',
-                ARTIST: '#cc_strinfo_trackartist_robinson, .cc_strinfo_trackartist_robinson, .track-artist, .song-artist, #displayArtist'
-            },
-            // Repositorio base donde están las carpetas de voces en tu GitHub
-            AUDIO_BASE_URL: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/', 
-            PROGRAMS: [
-                // Se agregó la propiedad 'audioFolder'
-                { id: 'lover', name: 'Karol Morales', audioFolder: 'voces_lover', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://robinsonchar.github.io/radiochar/frases-lover-city.JSON', start: 0, end: 6 },
-                { id: 'wonders', name: 'Tito González', audioFolder: 'voces_wonders', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://robinsonchar.github.io/radiochar/frases-the-wonders.json', start: 6, end: 12 },
-                { id: 'piedras', name: 'Salma Cifuentes', audioFolder: 'voces_piedras', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://robinsonchar.github.io/radiochar/frases-pateando-piedras.JSON', start: 12, end: 15 },
-                { id: 'rockstars', name: 'Jhon Martin', audioFolder: 'voces_rockstars', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://robinsonchar.github.io/radiochar/frases-rockstars.JSON', start: 15, end: 20 },
-                { id: 'hits', name: 'Miranda Fuentes', audioFolder: 'voces_hits', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://robinsonchar.github.io/radiochar/frases-hits-dont-lie.JSON', start: 20, end: 24 }
-            ],
-            FALLBACKS: [
-                "¡Disfruta de la mejor música en Radiochar!",
-                "Conectados con tu ritmo las 24 horas.",
-                "Siente la energía de nuestra programación virtual.",
-                "Transmitiendo éxitos sin fronteras."
-            ]
+const DJ_APP = {
+    config: {
+        FEED_URL: 'https://cast2.my-control-panel.com/recentfeed/robinson/json/',
+        INTERVAL: 10000, 
+        TIMEOUT: 6000,
+        PLAYER_SELECTORS: {
+            TITLE: '#displayTitle, #trackTitleSource, .song-title, .track-title',
+            ARTIST: '#displayArtist, #trackArtistSource, .artist-name, .track-artist'
         },
-        state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false, mainAudioVol: 1.0, isDjSpeaking: false }
-    };
+        PROGRAMS: [
+            { id: 'lover', name: 'Karol Morales', show: 'LOVER CITY', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Karol%20Morales%20-%20Lover.png', json: 'https://radiochar.com/frases-lover-city.json', start: 0, end: 6 },
+            { id: 'wonders', name: 'Tito González', show: 'THE WONDERS', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Tito%20Gonz%C3%A1lez%20-%20Wonders.png', json: 'https://radiochar.com/frases-the-wonders.json', start: 6, end: 12 },
+            { id: 'piedras', name: 'Salma Cifuentes', show: 'PATEANDO PIEDRAS', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Salma%20Cifuentes%20-%20Piedras.png', json: 'https://radiochar.com/frases-pateando-piedras.json', start: 12, end: 15 },
+            { id: 'rockstars', name: 'Jhon Martin', show: 'ROCKSTARS', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Jhon%20Martin%20-%20Rockstars.png', json: 'https://radiochar.com/frases-rockstars.json', start: 15, end: 20 },
+            { id: 'hits', name: 'Miranda Fuentes', show: 'HITS DON´T LIE', img: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Miranda%20Fuentes%20-%20Hits.png', json: 'https://radiochar.com/frases-hits-dont-lie.json', start: 20, end: 24 }
+        ],
+        FALLBACKS: [
+            "¡Disfruta de la mejor música en Radiochar!",
+            "Siente la energía de nuestra programación virtual."
+        ]
+    },
+    state: { cache: {}, lastTrackId: null, isFirstRun: true, isLoaded: false }
+};
 
-    // Crear reproductor de audio oculto para el DJ
-    const djAudioPlayer = new Audio();
-    djAudioPlayer.id = "djVoicePlayer";
-    document.body.appendChild(djAudioPlayer);
+/**
+ * NORMALIZACIÓN NIVEL 5:
+ * Quita acentos, tildes, caracteres especiales, comillas y espacios.
+ */
+function normalize(str) {
+    if (!str) return '';
+    return String(str)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") 
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');      
+}
 
-    // Sistema de Ducking (Bajar volumen de la música principal)
-    function fadeMainAudio(targetVol, duration = 1000) {
-        const mainAudio = document.getElementById('radio');
-        if (!mainAudio || mainAudio.paused) return;
+function getActiveDJ() {
+    const hour = new Date().getHours();
+    return DJ_APP.config.PROGRAMS.find(p => hour >= p.start && hour < p.end) || DJ_APP.config.PROGRAMS[0];
+}
 
-        const startVol = mainAudio.volume;
-        const change = targetVol - startVol;
-        const steps = 20;
-        const stepTime = duration / steps;
-        const volStep = change / steps;
-        let currentStep = 0;
-
-        clearInterval(DJ_APP.state.fadeInterval);
-        DJ_APP.state.fadeInterval = setInterval(() => {
-            currentStep++;
-            let newVol = startVol + (volStep * currentStep);
-            // Evitar errores de rango
-            if (newVol > 1) newVol = 1;
-            if (newVol < 0) newVol = 0;
-            
-            mainAudio.volume = newVol;
-
-            if (currentStep >= steps) {
-                clearInterval(DJ_APP.state.fadeInterval);
-                mainAudio.volume = targetVol;
-            }
-        }, stepTime);
+/**
+ * SALVAGE JSON v2: Escáner Regex Avanzado.
+ * Supera saltos de línea irregulares y detecta comillas internas escapadas.
+ */
+function salvageJSON(rawText) {
+    try {
+        const parsed = JSON.parse(rawText);
+        let data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
+        if (Array.isArray(data)) return data;
+    } catch (e) {
+        console.warn("⚠️ [JSON ENGINE] Error de sintaxis en el archivo JSON. Activando Extractor Regex de Emergencia...");
     }
 
-    // Eventos del reproductor del DJ
-    djAudioPlayer.addEventListener('play', () => {
-        DJ_APP.state.isDjSpeaking = true;
-        fadeMainAudio(0.2, 500); // Baja al 20% en medio segundo
-        console.log("🎙️ [DJ AL AIRE] Volumen musical atenuado.");
-    });
+    let results = [];
+    // Captura bloques enteros entre llaves {} incluso con saltos de línea
+    const blocks = rawText.match(/\{[\s\S]*?\}/g);
+    if (blocks) {
+        blocks.forEach(b => {
+            // (?:\\.|[^"\\])* captura strings aunque tengan comillas adentro como \"
+            const artM = b.match(/"artista"\s*:\s*"((?:\\.|[^"\\])*)"/i);
+            const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"((?:\\.|[^"\\])*)"/i);
+            const phrM = b.match(/"frase"\s*:\s*"((?:\\.|[^"\\])*)"/i);
+            
+            if (artM && titM && phrM) {
+                results.push({
+                    artista: artM[1].replace(/\\"/g, '"'),
+                    cancion: titM[1].replace(/\\"/g, '"'),
+                    frase: phrM[1].replace(/\\"/g, '"')
+                });
+            }
+        });
+    }
+    return results.length > 0 ? results : null;
+}
 
-    djAudioPlayer.addEventListener('ended', () => {
-        DJ_APP.state.isDjSpeaking = false;
-        fadeMainAudio(1.0, 1500); // Sube al 100% en 1.5 segundos
-        console.log("🤫 [DJ FUERA DEL AIRE] Volumen musical restaurado.");
+async function preloadLibrary() {
+    console.log("🛠️ [VIRTUAL DJ] Descargando Bases de Datos de Frases...");
+    const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
+        try {
+            const response = await fetch(`${prog.json}?v=${Date.now()}`); 
+            if (!response.ok) throw new Error("HTTP Status " + response.status);
+            
+            const rawText = await response.text();
+            const cleanText = rawText.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
+            
+            const data = salvageJSON(cleanText);
+            DJ_APP.state.cache[prog.id] = data || []; 
+            console.log(`✅ [LIBRERÍA OK] ${prog.id} cargada con ${DJ_APP.state.cache[prog.id].length} frases.`);
+        } catch (err) {
+            console.error(`🚨 [ERROR] No se pudo cargar: ${prog.id}`, err);
+            DJ_APP.state.cache[prog.id] = []; 
+        }
     });
     
-    djAudioPlayer.addEventListener('error', (e) => {
-         console.warn("⚠️ [DJ AUDIO] No se encontró el archivo de voz para esta canción.", e);
-         // Si falla, asegurarse de que el volumen siga arriba
-         if(DJ_APP.state.isDjSpeaking) {
-             DJ_APP.state.isDjSpeaking = false;
-             fadeMainAudio(1.0, 500);
-         }
+    await Promise.allSettled(tasks);
+    DJ_APP.state.isLoaded = true;
+}
+
+/**
+ * EL BUSCADOR QUIRÚRGICO (Match Estricto 100%)
+ */
+function getPhrase(progId, currentArtist, currentTitle) {
+    const library = DJ_APP.state.cache[progId];
+    
+    if (!library || library.length === 0) {
+        console.log(`[🛑 VIRTUAL DJ] La librería del DJ está vacía. Mostrando fallback.`);
+        return DJ_APP.config.FALLBACKS[0];
+    }
+
+    const nTargetTitle = normalize(currentTitle);
+    const nTargetArtist = normalize(currentArtist);
+
+    console.log(`[🔍 MOTOR DE BÚSQUEDA] Buscando EXACTO -> Artista: "${nTargetArtist}" | Canción: "${nTargetTitle}"`);
+
+    // 1. CONDICIÓN ESTRICTA: Artista == Artista Y Canción == Canción
+    let perfectMatch = library.find(item => {
+        const jsonTitle = normalize(item.titulo || item.cancion || "");
+        const jsonArtist = normalize(item.artista || "");
+
+        if (!jsonTitle || !jsonArtist) return false;
+        
+        return (jsonTitle === nTargetTitle) && (jsonArtist === nTargetArtist);
     });
 
-    /**
-     * NORMALIZACIÓN ESTRICTA (Debe ser idéntica a la de Python)
-     */
-    function normalize(str) {
-        if (!str) return '';
-        return String(str)
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Quitar tildes
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '');      // Solo letras y números
+    if (perfectMatch && perfectMatch.frase) {
+        console.log(`[🎯 MATCH ESTRICTO LOGRADO] Frase encontrada.`);
+        return perfectMatch.frase;
     }
 
-    function getActiveDJ() {
-        const hour = new Date().getHours();
-        return DJ_APP.config.PROGRAMS.find(p => hour >= p.start && hour < p.end) || DJ_APP.config.PROGRAMS[0];
+    // 2. CONDICIÓN SEMI-FLEXIBLE 
+    let flexibleMatch = library.find(item => {
+        const jsonTitle = normalize(item.titulo || item.cancion || "");
+        const jsonArtist = normalize(item.artista || "");
+
+        if (!jsonTitle || !jsonArtist) return false;
+
+        const isTitleMatch = nTargetTitle.includes(jsonTitle) || jsonTitle.includes(nTargetTitle);
+        const isArtistMatch = nTargetArtist.includes(jsonArtist) || jsonArtist.includes(nTargetArtist);
+
+        return isTitleMatch && isArtistMatch;
+    });
+
+    if (flexibleMatch && flexibleMatch.frase) {
+        console.log(`[⚠️ MATCH FLEXIBLE LOGRADO] Frase recuperada.`);
+        return flexibleMatch.frase;
     }
 
-    /**
-     * EXTRACTOR INDESTRUCTIBLE v3
-     */
-    function salvageJSON(text) {
-        let cleanText = text
-            .replace(/[\u201C\u201D\u201F\u2033\u2036]/g, '"') 
-            .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, "") 
-            .replace(/^\uFEFF/, "");
+    console.log(`[❌ SIN MATCH] La canción no existe en la base de datos de este DJ.`);
+    return DJ_APP.config.FALLBACKS[0];
+}
 
-        let results = [];
-        try { 
-            const parsed = JSON.parse(cleanText);
-            const data = parsed.frases_por_cancion || (parsed.programa && parsed.programa.frases_por_cancion) || parsed;
-            if (Array.isArray(data)) return data;
-        } catch (e) {
-            console.warn("⚠️ [JSON ENGINE] Error de sintaxis detectado. Activando Extractor Manual Regex...");
-        }
-
-        const blocks = cleanText.match(/\{[^}]*?"frase"[^}]*\}/gi);
-        if (blocks) {
-            blocks.forEach(b => {
-                try {
-                    let fixed = b.replace(/,\s*\}/g, '}'); 
-                    let pFrag = JSON.parse(fixed);
-                    if (pFrag.frase) results.push(pFrag);
-                } catch(err) {
-                    const artM = b.match(/"artista"\s*:\s*"((?:\\"|[^"])*)"/i);
-                    const titM = b.match(/"(?:cancion|titulo)"\s*:\s*"((?:\\"|[^"])*)"/i);
-                    const phrM = b.match(/"frase"\s*:\s*"((?:\\"|[^"])*)"/i);
-                    
-                    if (phrM) {
-                        results.push({
-                            artista: artM ? artM[1].replace(/\\"/g, '"') : "",
-                            cancion: titM ? titM[1].replace(/\\"/g, '"') : "",
-                            frase: phrM[1].replace(/\\"/g, '"')
-                        });
-                    }
-                }
-            });
-        }
-        return results.length > 0 ? results : null;
-    }
-
-    async function preloadLibrary() {
-        console.log("🛠️ [VIRTUAL DJ] Reconstruyendo Caché de Conocimiento...");
-        const tasks = DJ_APP.config.PROGRAMS.map(async (prog) => {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), DJ_APP.config.TIMEOUT);
-                const response = await fetch(`${prog.json}?v=${Date.now()}`, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!response.ok) throw new Error("HTTP Status " + response.status);
-                const text = await response.text();
-                const data = salvageJSON(text);
-                
-                DJ_APP.state.cache[prog.id] = data || []; 
-            } catch (err) {
-                console.error(`[ERROR] Conexión fallida con el archivo: ${prog.id}`);
-                DJ_APP.state.cache[prog.id] = []; 
-            }
-        });
+/**
+ * LECTOR DE DOM
+ */
+function getTrackFromDOM() {
+    try {
+        const titleEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.TITLE);
+        const artistEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
         
-        await Promise.allSettled(tasks);
-        DJ_APP.state.isLoaded = true;
-        console.log("✅ [VIRTUAL DJ] Motores de texto listos.");
-    }
+        let title = "";
+        let artist = "";
 
-    /**
-     * ALGORITMO DETERMINISTA (Cero Caos)
-     */
-    function getPhrase(progId, currentArtist, currentTitle) {
-        const library = DJ_APP.state.cache[progId];
+        const invalidWords = [
+            'ESTAMOS PRESENTANDO', 'CARGANDO', 'RADIOCHAR', 'AL AIRE', 
+            'PIDE TU CANCIÓN', 'ROCKSTARS', 'HITS DON', 'ARTISTA', 
+            'SINTONIZANDO', 'TITULO', 'CANCION', 'CONECTANDO'
+        ];
         
-        if (!library || !Array.isArray(library) || library.length === 0) {
-            return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
+        const isCleanText = (txt) => {
+            if (!txt) return false;
+            const upper = txt.toUpperCase().trim();
+            if (upper.length < 2) return false;
+            return !invalidWords.some(word => upper.includes(word) || upper === word);
+        };
+
+        for (let el of titleEls) {
+            let text = (el.innerText || el.textContent).trim();
+            if (isCleanText(text)) { title = text; break; }
         }
 
-        const nTitle = normalize(currentTitle);
-        const nArtist = normalize(currentArtist);
-
-        const songMatches = library.filter(item => {
-            const jsonTitle = normalize(item.titulo || item.cancion || "");
-            if (!jsonTitle || jsonTitle.length < 3) return false;
-            return jsonTitle === nTitle || nTitle.includes(jsonTitle) || jsonTitle.includes(nTitle);
-        });
-
-        if (songMatches.length > 0) {
-            const perfectMatch = songMatches.find(item => {
-                const jsonArtist = normalize(item.artista || "");
-                return jsonArtist === nArtist || nArtist.includes(jsonArtist) || jsonArtist.includes(nArtist);
-            });
-
-            if (perfectMatch && perfectMatch.frase) return perfectMatch.frase;
-            if (songMatches[0].frase) return songMatches[0].frase;
+        for (let el of artistEls) {
+            let text = (el.innerText || el.textContent).trim();
+            if (isCleanText(text) && text !== title) { artist = text; break; }
         }
+
+        if (title) {
+            // Si no detectó al artista, intentamos separarlo del título
+            if (!artist && title.includes(' - ')) {
+                const parts = title.split(' - ');
+                artist = parts[0].trim();
+                title = parts.slice(1).join(' - ').trim();
+            }
+
+            // Si el artista es Radiochar, forzamos lectura por API
+            if (!artist || artist.toLowerCase() === 'radiochar') {
+                return null; 
+            }
+
+            return { artist: artist, title: title, source: 'DOM' };
+        }
+    } catch (e) {}
+    return null; 
+}
+
+/**
+ * LECTOR DE API (FEED CENTOVA)
+ */
+async function getTrackFromFeed() {
+    try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`, { signal: controller.signal });
+        clearTimeout(id);
+        if (!response.ok) return null;
+        const data = await response.json();
         
-        const genericLibraryPhrases = library.filter(item => {
-            const jsonTitle = normalize(item.titulo || item.cancion || "");
-            return jsonTitle === "" || jsonTitle === "generico";
-        });
-
-        if (genericLibraryPhrases.length > 0) {
-            return genericLibraryPhrases[Math.floor(Math.random() * genericLibraryPhrases.length)].frase;
+        if (data && data.length > 0 && data[0].title) {
+            let trackArtist = data[0].artist || "";
+            let trackTitle = data[0].title || "";
+            
+            if ((!trackArtist || trackArtist.toLowerCase() === 'radiochar') && trackTitle.includes(' - ')) {
+                const parts = trackTitle.split(' - ');
+                trackArtist = parts[0].trim();
+                trackTitle = parts.slice(1).join(' - ').trim();
+            }
+            
+            return { artist: trackArtist || "Radiochar", title: trackTitle, source: 'FEED' };
         }
+    } catch (e) {}
+    return null;
+}
 
-        return DJ_APP.config.FALLBACKS[Math.floor(Math.random() * DJ_APP.config.FALLBACKS.length)];
-    }
+function updateUI(dj, trackInfo, phrase) {
+    const container = document.getElementById('dj-content');
+    const skeleton = document.getElementById('dj-skeleton');
 
-    function getTrackFromDOM() {
-        try {
-            const titleEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.TITLE);
-            const artistEls = document.querySelectorAll(DJ_APP.config.PLAYER_SELECTORS.ARTIST);
-            
-            let title = "";
-            let artist = "";
+    if (skeleton) skeleton.classList.add('hidden');
+    if (container) container.classList.remove('hidden');
 
-            const invalidWords = [
-                'ESTAMOS PRESENTANDO', 'CARGANDO', 'RADIOCHAR', 'AL AIRE', 
-                'PIDE TU CANCIÓN', 'ROCKSTARS', 'HITS DON', 'ARTISTA', 
-                'SINTONIZANDO', 'TITULO', 'CANCION', 'CONECTANDO'
-            ];
-            
-            const isCleanText = (txt) => {
-                if (!txt) return false;
-                const upper = txt.toUpperCase().trim();
-                if (upper.length < 2) return false;
-                
-                for (let word of invalidWords) {
-                    if (upper.includes(word) || upper === word) return false;
-                }
-                return true;
-            };
+    container.style.opacity = '0';
+    container.style.transform = 'translateY(5px)';
 
-            for (let el of titleEls) {
-                let text = (el.innerText || el.textContent).trim();
-                if (isCleanText(text)) { title = text; break; }
-            }
-
-            for (let el of artistEls) {
-                let text = (el.innerText || el.textContent).trim();
-                if (isCleanText(text) && text !== title) { artist = text; break; }
-            }
-
-            if (title) {
-                if (!artist && title.includes(' - ')) {
-                    const parts = title.split(' - ');
-                    artist = parts[0].trim();
-                    title = parts.slice(1).join(' - ').trim();
-                }
-                
-                if (!artist || artist.toLowerCase() === 'radiochar') return null;
-
-                return { artist: artist, title: title, source: 'DOM' };
-            }
-        } catch (e) {}
-        return null; 
-    }
-
-    async function getTrackFromFeed() {
-        try {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 5000);
-            const response = await fetch(`${DJ_APP.config.FEED_URL}?t=${Date.now()}`, { signal: controller.signal });
-            clearTimeout(id);
-            if (!response.ok) return null;
-            const data = await response.json();
-            
-            if (data && data.length > 0 && data[0].title) {
-                let trackArtist = data[0].artist || "";
-                let trackTitle = data[0].title || "";
-                
-                if ((!trackArtist || trackArtist.toLowerCase() === 'radiochar') && trackTitle.includes(' - ')) {
-                    const parts = trackTitle.split(' - ');
-                    trackArtist = parts[0].trim();
-                    trackTitle = parts.slice(1).join(' - ').trim();
-                }
-                
-                return { artist: trackArtist || "Radiochar", title: trackTitle, source: 'FEED' };
-            }
-        } catch (e) {}
-        return null;
-    }
-
-    function updateUI(dj, trackInfo, phrase) {
-        const container = document.getElementById('dj-content');
-        const skeleton = document.getElementById('dj-skeleton');
-
-        if (skeleton) skeleton.classList.add('hidden');
-        if (container) container.classList.remove('hidden');
-
-        container.style.opacity = '0';
-        container.style.transform = 'translateY(5px)';
-
-        setTimeout(() => {
-            document.getElementById('dj-avatar').src = dj.img;
-            document.getElementById('dj-name').textContent = dj.name;
-            document.getElementById('current-track').textContent = trackInfo;
-            
-            const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
-            
-            const now = new Date();
-            const hh = String(now.getHours()).padStart(2, '0');
-            const mm = String(now.getMinutes()).padStart(2, '0');
-            
-            document.getElementById('dj-phrase').innerHTML = `<span style="color: var(--dj-accent); font-style: normal; font-weight: 600; font-size: 11pt;">A las ${hh}:${mm}:</span> "${phraseClean}"`;
-            
-            container.style.opacity = '1';
-            container.style.transform = 'translateY(0)';
-        }, 200);
-    }
-
-    async function syncStation() {
-        const trackData = getTrackFromDOM() || await getTrackFromFeed();
+    setTimeout(() => {
+        document.getElementById('dj-avatar').src = dj.img;
+        document.getElementById('dj-name').textContent = dj.name;
+        document.getElementById('current-track').textContent = trackInfo;
         
-        if (!trackData) {
-            if (DJ_APP.state.isFirstRun) {
-                const dj = getActiveDJ();
-                updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
-                DJ_APP.state.isFirstRun = false;
-            }
-            return;
-        }
-
-        const { artist, title, source } = trackData;
-        const currentTrackId = normalize(`${artist}${title}`);
-
-        // Solo procesa si la canción cambió
-        if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
-
-        console.log(`[📡 LECTURA ${source}] Sonando: ${artist} - ${title}`);
-
-        const activeDJ = getActiveDJ();
-        const phrase = getPhrase(activeDJ.id, artist, title);
+        const phraseClean = phrase.replace(/^["']+|["']+$/g, '').trim();
         
-        updateUI(activeDJ, `${artist} - ${title}`, phrase);
-        DJ_APP.state.lastTrackId = currentTrackId;
-        DJ_APP.state.isFirstRun = false;
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        
+        document.getElementById('dj-phrase').innerHTML = `<span style="color: var(--dj-accent); font-style: normal; font-weight: 600; font-size: 11pt;">Ahora: ${hh}:${mm}:</span> "${phraseClean}"`;
+        
+        container.style.opacity = '1';
+        container.style.transform = 'translateY(0)';
+    }, 200);
+}
 
-        // --- SISTEMA DE REPRODUCCIÓN DE VOZ DE IA ---
-        // Detener la voz anterior si estaba hablando
-        djAudioPlayer.pause();
-        djAudioPlayer.currentTime = 0;
-
-        // Comprobar si el usuario tiene el reproductor principal "Play" encendido
-        // Si no está escuchando la radio, no disparamos al DJ
-        const mainRadio = document.getElementById('radio');
-        if (mainRadio && !mainRadio.paused) {
-            
-            // Construir la URL exacta del MP3 basada en la normalización
-            const normArtist = normalize(artist);
-            const normSong = normalize(title);
-            const audioFileName = `${activeDJ.id}_${normArtist}_${normSong}.mp3`;
-            
-            // URL a tu repositorio en GitHub
-            // Ejemplo: https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/voces_lover/lover_airsupply_makingloveoutofnothingatall.mp3
-            const audioUrl = `${DJ_APP.config.AUDIO_BASE_URL}${activeDJ.audioFolder}/${audioFileName}`;
-            
-            console.log(`[▶️ CARGANDO VOZ IA] Buscando: ${audioUrl}`);
-            
-            djAudioPlayer.src = audioUrl;
-            
-            // Un pequeño retraso para darle "naturalidad" (como si el DJ respirara antes de hablar)
-            setTimeout(() => {
-                 // Intentar reproducir (el .catch ataja el error silenciosamente si el MP3 no existe en GitHub 404)
-                 djAudioPlayer.play().catch(e => {
-                     console.log(`[INFO] No hay audio de voz grabado para: ${artist} - ${title}`);
-                 });
-            }, 1000); 
-        }
-    }
-
-    window.addEventListener('load', async () => {
-        const safetyTimeout = setTimeout(() => {
-            if (DJ_APP.state.isFirstRun) {
-                console.warn("[VIRTUAL DJ] Timeout. Forzando UI de emergencia...");
-                const dj = getActiveDJ();
-                updateUI(dj, "Radiochar - Conectado", DJ_APP.config.FALLBACKS[0]);
-                DJ_APP.state.isFirstRun = false;
-            }
-        }, 7000);
-
-        try {
-            await preloadLibrary();
-            await syncStation();
-            clearTimeout(safetyTimeout);
-            
-            // Aceleramos el radar de 10s a 3s para que gane la carrera del "Buffer" contra el streaming de audio
-            const observer = new MutationObserver(() => syncStation());
-            observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-            
-            setInterval(syncStation, 3000); // 3 segundos
-        } catch (e) {
-            console.error("[CRÍTICO] Fallo general de motor:", e);
-            clearTimeout(safetyTimeout);
+async function syncStation() {
+    const trackData = getTrackFromDOM() || await getTrackFromFeed();
+    
+    if (!trackData) {
+        if (DJ_APP.state.isFirstRun) {
             const dj = getActiveDJ();
-            updateUI(dj, "Radiochar - Sistema Activo", DJ_APP.config.FALLBACKS[0]);
+            updateUI(dj, "Radiochar - Música en vivo", DJ_APP.config.FALLBACKS[0]);
             DJ_APP.state.isFirstRun = false;
         }
-    });
+        return;
+    }
+
+    const { artist, title, source } = trackData;
+    const currentTrackId = normalize(`${artist}${title}`);
+
+    if (currentTrackId === DJ_APP.state.lastTrackId && !DJ_APP.state.isFirstRun) return;
+
+    console.log(`[📡 LECTURA ${source}] Sonando: ${artist} - ${title}`);
+
+    const activeDJ = getActiveDJ();
+    const phrase = getPhrase(activeDJ.id, artist, title);
+    
+    updateUI(activeDJ, `${artist} - ${title}`, phrase);
+    DJ_APP.state.lastTrackId = currentTrackId;
+    DJ_APP.state.isFirstRun = false;
+}
+
+window.addEventListener('load', async () => {
+    const safetyTimeout = setTimeout(() => {
+        if (DJ_APP.state.isFirstRun) {
+            const dj = getActiveDJ();
+            updateUI(dj, "Radiochar - Conectado", DJ_APP.config.FALLBACKS[0]);
+            DJ_APP.state.isFirstRun = false;
+        }
+    }, 7000);
+
+    try {
+        await preloadLibrary();
+        await syncStation();
+        clearTimeout(safetyTimeout);
+        
+        const observer = new MutationObserver(() => syncStation());
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+        
+        setInterval(syncStation, DJ_APP.config.INTERVAL);
+    } catch (e) {
+        console.error("[CRÍTICO] Fallo general de motor:", e);
+        clearTimeout(safetyTimeout);
+        const dj = getActiveDJ();
+        updateUI(dj, "Radiochar - Sistema Activo", DJ_APP.config.FALLBACKS[0]);
+        DJ_APP.state.isFirstRun = false;
+    }
+});
  </script>
 <!-- FIN SCRIPT DJ -->
 
@@ -2826,53 +3159,31 @@
 
         // Construir el texto premium
         const shareText = `${phrase}\n\n📻 ${djName} presentando "${trackText}" en RADIOCHAR. Escúchalo en vivo aquí:`;
-        const shareUrl = "https://radiochar.online"; 
+        const shareUrl = "https://radiochar.com"; 
 
-        // Verificamos si es móvil y soporta la Web Share API
-        if (navigator.share) {
-            try {
-                let fileToShare = null;
-                // Intentar descargar la portada si el navegador lo permite y no es la foto por defecto
-                if (coverImgUrl && !coverImgUrl.includes('radiochar-vice.png') && navigator.canShare) {
-                    try {
-                        const response = await fetch(coverImgUrl);
-                        const blob = await response.blob();
-                        fileToShare = new File([blob], 'radiochar-cover.jpg', { type: blob.type });
-                    } catch(e) {
-                        console.warn("No se pudo adjuntar la imagen", e);
-                    }
-                }
-
-                const shareData = {
-                    title: 'Radiochar en Vivo',
-                    text: shareText,
-                    url: shareUrl
-                };
-
-                // Agregamos el archivo solo si existe y el navegador permite compartir archivos
-                if (fileToShare && navigator.canShare({ files: [fileToShare] })) {
-                    shareData.files = [fileToShare];
-                }
-
-                await navigator.share(shareData);
-            } catch (err) {
-                // Si el usuario simplemente canceló no hacemos nada, de lo contrario mostramos el Modal de PC
-                if (err.name !== 'AbortError') {
-                    openShareModal(shareText, shareUrl);
-                }
-            }
-        } else {
-            // Si el navegador no soporta Web Share API (Navegadores de PC), abrir Modal de botones
-            openShareModal(shareText, shareUrl);
-        }
+        // Siempre mostramos nuestro modal de "Compartir" personalizado,
+        // para una experiencia visual consistente en todos los dispositivos
+        // y navegadores (en vez de depender del share nativo del sistema).
+        openShareModal(shareText, shareUrl, coverImgUrl);
     };
 
     window.currentShareText = "";
     window.currentShareUrl = "";
+    window.currentShareImage = "";
 
-    window.openShareModal = function(text, url) {
+    window.openShareModal = function(text, url, imageUrl) {
         window.currentShareText = text;
         window.currentShareUrl = url;
+        window.currentShareImage = imageUrl || "";
+
+        const copyBtn = document.getElementById('copyImgBtn');
+        if (copyBtn) {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = '<i class="fas fa-image"></i> Copiar portada';
+            // Ocultar el botón si no hay portada válida para copiar
+            copyBtn.style.display = (window.currentShareImage && !window.currentShareImage.includes('radiochar-vice.png')) ? 'flex' : 'none';
+        }
+
         const overlay = document.getElementById('shareFallbackModal');
         if(overlay) overlay.classList.add('active');
     };
@@ -2880,6 +3191,56 @@
     window.closeShareModal = function() {
         const overlay = document.getElementById('shareFallbackModal');
         if(overlay) overlay.classList.remove('active');
+    };
+
+    window.copyShareImage = async function() {
+        const copyBtn = document.getElementById('copyImgBtn');
+        if (!window.currentShareImage) return;
+
+        try {
+            const response = await fetch(window.currentShareImage);
+            const blob = await response.blob();
+
+            // El Clipboard API solo acepta PNG en la mayoría de navegadores; convertimos si hace falta.
+            let pngBlob = blob;
+            if (blob.type !== 'image/png') {
+                pngBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        canvas.toBlob((b) => b ? resolve(b) : reject(new Error('No se pudo convertir la imagen')), 'image/png');
+                    };
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(blob);
+                });
+            }
+
+            await navigator.clipboard.write([ new ClipboardItem({ 'image/png': pngBlob }) ]);
+
+            if (copyBtn) {
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> ¡Portada copiada!';
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = '<i class="fas fa-image"></i> Copiar portada';
+                }, 2500);
+            }
+        } catch (e) {
+            console.warn('No se pudo copiar la imagen al portapapeles, se descargará en su lugar', e);
+            // Respaldo: si el navegador no soporta copiar imágenes, la descargamos
+            try {
+                const a = document.createElement('a');
+                a.href = window.currentShareImage;
+                a.download = 'radiochar-portada.jpg';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch(e2) { console.warn('No se pudo descargar la portada', e2); }
+        }
     };
 
     window.shareToPlatform = function(platform) {
@@ -2893,10 +3254,12 @@
             shareLink = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
         } else if (platform === 'x') {
             shareLink = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        } else if (platform === 'tg') {
+            shareLink = `https://t.me/share/url?url=${url}&text=${text}`;
         }
 
         if (shareLink) {
-            window.open(shareLink, '_blank', 'width=600,height=600');
+            window.open(shareLink, '_blank', 'noopener,noreferrer');
             closeShareModal();
         }
     };
@@ -2910,8 +3273,73 @@
             });
         }
     });
+
+    //  Modal único de DJ (carga de datos y apertura/cierre)  //
+    let djsData = [];
+
+    async function loadDJData() {
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/PERSONALIDAD_DJS.json?nocache=' + Date.now());
+            djsData = await response.json();
+            console.log("Librería de DJs cargada:", djsData.length, "DJs");
+        } catch (e) {
+            console.error("Error cargando DJs", e);
+        }
+    }
+
+    function openDJBio(djName, djImageSrc) {
+        const targetName = djName.trim().toLowerCase().replace("dj ", "").trim();
+        const dj = djsData.find(d => {
+            if (!d.Nombre) return false;
+            return String(d.Nombre).trim().toLowerCase().replace("dj ", "").trim() === targetName;
+        });
+
+        if (!dj) {
+            console.warn("DJ no encontrado:", targetName);
+            return;
+        }
+
+        const modal = document.getElementById('modalOverlay');
+        if (!modal) return;
+
+        const nameEl = document.getElementById('modalName');
+        const photoEl = document.getElementById('modalPhoto');
+        const progEl = document.getElementById('modalProgram');
+        const horaEl = document.getElementById('modalHorario');
+        const bioEl = document.getElementById('modalBio');
+
+        if (nameEl) nameEl.innerText = dj.Nombre || "";
+        if (photoEl) photoEl.src = djImageSrc || "";
+        if (progEl) progEl.innerText = dj["Programa radial"] ? `Presenta: ${dj["Programa radial"]}` : "";
+        if (horaEl) horaEl.innerText = dj.Horario ? `${dj.Horario} (Col/Per/Ecu)` : "";
+        if (bioEl) {
+            const escapeHtml = (str) => String(str)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            let html = "";
+            if (dj.Contenido) html += `<p style="margin:0 0 15px 0;">${escapeHtml(dj.Contenido)}</p>`;
+            if (dj["Relación emocional"]) html += `<p style="margin:0; font-style:italic;">"${escapeHtml(dj["Relación emocional"])}"</p>`;
+            bioEl.innerHTML = html;
+        }
+
+        modal.classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDJData();
+        document.body.addEventListener('click', (e) => {
+            const card = e.target.closest('.dj-roster-card');
+            if (card) {
+                const nameEl = card.querySelector('.dj-roster-name');
+                const imgEl = card.querySelector('img');
+                if (nameEl && imgEl) openDJBio(nameEl.innerText, imgEl.src);
+            }
+        });
+    });
+    //  Fin modal de DJ  //
+
+
 </script>
 <!-- FIN SCRIPT COMPARTIR -->
 </body>
 </html>
-
