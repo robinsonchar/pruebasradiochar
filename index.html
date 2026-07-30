@@ -223,6 +223,18 @@
         .otd-grid { grid-template-columns: 1fr; }
         .otd-card-img-wrap { height: 240px; }
     }
+
+    /* === "VIDEOCLIP DESTACADO" === */
+    .vc-title-custom { color: var(--color-accent-pink, #ff2d78); border-left: 3px solid var(--color-accent-pink, #ff2d78); }
+    .vc-card {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px; overflow: hidden; max-width: 700px; margin: 0 auto;
+    }
+    .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+    .vc-frame-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .vc-info { padding: 18px 22px 22px; text-align: center; }
+    .vc-info-title { font-size: 17px; font-weight: 800; color: #fff; }
+    .vc-info-artist { font-size: 14px; color: #ccc; margin-top: 4px; }
     
     .carousel-card-common { flex: 0 0 200px; background: rgba(30, 30, 30, 0.4); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease, background 0.3s ease; position: relative; cursor: pointer; }
     .carousel-card-common:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); }
@@ -1268,6 +1280,19 @@
         <div class="section-header-common"><h2 class="section-title-common otd-title-custom">UN DÍA COMO HOY EN LA MÚSICA</h2></div>
         <div class="otd-grid" id="otdList">
             <div style="color: #aaa; padding: 20px; text-align: center; width:100%;">Buscando qué pasó hoy en la música...</div>
+        </div>
+    </section>
+
+    <section class="content-section vc-section">
+        <div class="section-header-common"><h2 class="section-title-common vc-title-custom">VIDEOCLIP DESTACADO</h2></div>
+        <div class="vc-card" id="vcCard">
+            <div class="vc-frame-wrap" id="vcFrameWrap">
+                <div style="color:#aaa; padding: 20px; text-align:center; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">Cargando videoclip del día...</div>
+            </div>
+            <div class="vc-info">
+                <div class="vc-info-title" id="vcTitle"></div>
+                <div class="vc-info-artist" id="vcArtist"></div>
+            </div>
         </div>
     </section>
 
@@ -2554,13 +2579,18 @@ let marqueeIntervalId = null;
 
 })(); // END IIFE
 
-// === "UN DÍA COMO HOY EN LA MÚSICA" (Efemérides.md alojado en GitHub) ===
+// === "UN DÍA COMO HOY EN LA MÚSICA" (3 archivos separados en GitHub) ===
 (function() {
-    var MD_URL = 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Efemerides.md';
+    var MD_URLS = {
+        cumpleanos: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Listado_Cumplea%C3%B1os.md',
+        evento: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Listado_Eventos.md',
+        chart: 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Listado_Exitos.md'
+    };
     var OTD_FALLBACK_IMG = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgLNh9EesljZjOf9Wd4kxbj_a-I04zgQmfpM1gcDbEF6PXkq7CtZ-71Kgc8TwALbpRGi3EDbTIjTEI1N5QRDDXqD6QhV3UHE79leufBWqZoAxys7KiIcviuxnB-ozdP15EVtEGONWR_ZeHPabjdfUd_X8FkdcoDCtVrNvolF3fQyA8N7eLEoozmI895tiEf/s16000/radiochar-vice.png';
 
     var MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     var CATEGORY_LABELS = { cumpleanos: 'Cumpleaños', evento: 'Evento musical', chart: 'Éxito en listas' };
+    var CATEGORY_ORDER = ['cumpleanos', 'evento', 'chart'];
 
     var grid = document.getElementById('otdList');
     if (!grid) return;
@@ -2571,77 +2601,74 @@ let marqueeIntervalId = null;
             .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    function stripMd(str) {
-        return str.replace(/\*\*(.*?)\*\*/g, '$1');
-    }
-
-    // Quita el guión, el emoji (si existen) y la etiqueta en negrilla ("**Cumpleaños**: ")
-    // del inicio de la línea. Funciona con o sin guión/emoji, para no depender del formato exacto.
-    function stripPrefix(line) {
-        return line.replace(/^(?:-\s*)?(?:\S+\s+)?\*\*[^*]+\*\*:\s*/, '').trim();
-    }
-
-    function detectCategory(line) {
-        var lower = line.toLowerCase();
-        if (lower.indexOf('cumpleaños') !== -1 || lower.indexOf('cumpleanos') !== -1) return 'cumpleanos';
-        if (lower.indexOf('evento') !== -1) return 'evento';
-        if (lower.indexOf('listas') !== -1 || lower.indexOf('chart') !== -1) return 'chart';
-        return null;
-    }
-
     function todayHeading() {
         var today = new Date();
         return today.getDate() + ' de ' + MESES_ES[today.getMonth()];
     }
 
-    async function fetchTodaySection() {
-        var res = await fetch(MD_URL + '?nocache=' + Date.now());
-        var text = await res.text();
-        var heading = todayHeading();
-        var re = new RegExp('##\\s*' + heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n##\\s|\\r?\\n---|$)');
-        var match = text.match(re);
-        return match ? match[1] : null;
+    // Extrae el texto de un día específico dentro de un documento con formato "## D de Mes"
+    function extractDaySection(fullText, heading) {
+        var re = new RegExp('##\\s*' + heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\r?\\n(.*?)(?=\\r?\\n##\\s|\\r?\\n---|$)', 's');
+        var match = fullText.match(re);
+        return match ? match[1].trim() : null;
     }
 
-    // Extrae el "sujeto" (artista/banda) de cada tipo de frase para poder buscar su imagen.
-    // Se intentan varios patrones porque algunas fechas tienen la frase redactada distinto.
-    function extractArtist(text, category) {
-        if (category === 'cumpleanos') {
-            var m1 = text.match(/^Nace(?:\/Celebra)?\s+(.+?)\s*\((\d{4})\)/);
-            if (m1) return m1[1].trim();
-        } else if (category === 'evento') {
-            var m2 = text.match(/^En \d{4},\s*(.+?)\s+(?:estrena|inicia|encabeza|se presenta|recibe|lanza|graba|firma|ofrece)\b/);
-            if (m2) return m2[1].trim();
-        } else if (category === 'chart') {
-            var m3 = text.match(/^En \d{4},\s*el éxito de\s+(.+?)\s+(?:logra|desplaza|se ubica|obtiene|ingresa|alcanza|se corona|establece)\b/);
-            if (m3) return m3[1].trim();
-            // Variante sin "el éxito de" (algunas fechas especiales usan otra redacción)
-            var m4 = text.match(/^En \d{4},\s*(.+?)\s+(?:logra|desplaza|se ubica|obtiene|ingresa|alcanza|se corona|establece|llega)\b/);
-            if (m4) return m4[1].trim();
+    async function fetchMdFile(url) {
+        var res = await fetch(url + '?nocache=' + Date.now());
+        return await res.text();
+    }
+
+    // === Extracción del "sujeto" (artista/banda) según cada tipo de archivo ===
+
+    function extractArtistCumpleanos(text) {
+        var m = text.match(/^Nace(?:\/Celebra)?\s+(.+?)\s*\((\d{4})\)/);
+        return m ? m[1].trim() : null;
+    }
+
+    function extractArtistEvento(text) {
+        // Varios patrones porque los eventos reales tienen redacciones muy variadas
+        var patterns = [
+            /^En \d{4},\s*([A-ZÁÉÍÓÚÑ][^,]+?),\s*(?:(?:el|la|los|las)\s+)?(?:\w+\s+)?(?:líder|vocalista|cantante|cantautor|guitarrista|bajista|baterista|tecladista|productor|compositor|rapero|pianista|solista|músico|música|DJ)/,
+            /(?:el|la|los|las)\s+(?:\w+\s+y\s+)?(?:\w+\s+)?(?:cantante|músico|música|guitarrista|bajista|baterista|tecladista|cantautor|productor|compositor|rapero|pianista|solista|vocalista|artista)\s+([A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+(?:\s+[A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+){0,3})/,
+            /([A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+(?:\s+[A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+){0,3})\s+(?:fallece|muere|anuncia|recibe|lanza|publica|alcanza|gana|estrena|contrae|se convierte|protagoniza|inicia|encabeza|se presenta|firma|graba|ofrece|es arrestad|es hospitalizad|es deportad|cumple|muerde|rompe|sufre|celebra|realiza|edita|es hallad|es nombrad|es incluid|es investid)\b/
+        ];
+        for (var i = 0; i < patterns.length; i++) {
+            var m = text.match(patterns[i]);
+            if (m) return m[1].trim();
         }
         return null;
     }
 
-    function extractItem(rawLine, category) {
-        var text = stripMd(stripPrefix(rawLine));
-        var artist = extractArtist(text, category);
-        return { category: category, text: text, artist: artist };
+    function extractArtistChart(text) {
+        // 10 plantillas conocidas del archivo de Éxitos
+        var patterns = [
+            /^En \d{4},\s*(.+?)\s+se ubica en el Top 10/,
+            /de\s+(.+?)\s+conquista el primer lugar/,
+            /llevando a\s+(.+?)\s+al número uno/,
+            /posiciona a\s+(.+?)\s+en la cima/,
+            /el sencillo de\s+(.+?)\s+titulado/,
+            /^En \d{4},\s*(.+?)\s+arrasa en las carteleras/,
+            /otorga a\s+(.+?)\s+el preciado/,
+            /asegura a\s+(.+?)\s+la cima/,
+            /impulsando a\s+(.+?)\s+a lo más alto/,
+            /^En \d{4},\s*(.+?)\s+establece un récord/
+        ];
+        for (var i = 0; i < patterns.length; i++) {
+            var m = text.match(patterns[i]);
+            if (m) return m[1].trim();
+        }
+        return null;
     }
 
-    function parseTodaySection(sectionText) {
-        // Cualquier línea con una etiqueta en negrilla ("**Algo**:") es uno de los 3 hechos,
-        // sin importar si tiene guión o emoji al inicio.
-        var lines = sectionText.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(function(l) { return /\*\*[^*]+\*\*:/.test(l); });
-        var picks = [];
-        lines.forEach(function(line) {
-            var category = detectCategory(line);
-            if (category) picks.push(extractItem(line, category));
-        });
-        return picks;
+    function extractArtist(text, category) {
+        if (category === 'cumpleanos') return extractArtistCumpleanos(text);
+        if (category === 'evento') return extractArtistEvento(text);
+        if (category === 'chart') return extractArtistChart(text);
+        return null;
     }
 
-    // Imagen del sujeto (artista/banda) de la frase, obtenida en vivo desde la API pública de iTunes.
-    // Esto es solo para la FOTO; el texto siempre viene del documento de GitHub, nunca de internet.
+    // Imagen del sujeto (artista/banda), obtenida en vivo desde la API pública de iTunes.
+    // El texto SIEMPRE viene del documento de GitHub correspondiente, nunca de internet.
     async function fetchItunesArtwork(artist) {
         try {
             var url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(artist) + '&media=music&limit=1';
@@ -2656,17 +2683,22 @@ let marqueeIntervalId = null;
         return null;
     }
 
-    async function enrichItem(item) {
-        var result = {
-            categoryLabel: CATEGORY_LABELS[item.category],
-            title: item.artist || null,
-            text: item.text, // Texto tal cual viene del documento de GitHub, sin buscar en internet
-            imageUrl: null
+    async function buildCategoryItem(category) {
+        var url = MD_URLS[category];
+        var fullText = await fetchMdFile(url);
+        var heading = todayHeading();
+        var dayText = extractDaySection(fullText, heading);
+        if (!dayText) return null;
+
+        var artist = extractArtist(dayText, category);
+        var imageUrl = artist ? await fetchItunesArtwork(artist) : null;
+
+        return {
+            categoryLabel: CATEGORY_LABELS[category],
+            title: artist || null,
+            text: dayText,
+            imageUrl: imageUrl
         };
-        if (item.artist) {
-            result.imageUrl = await fetchItunesArtwork(item.artist);
-        }
-        return result;
     }
 
     function buildCardHtml(ev) {
@@ -2686,20 +2718,21 @@ let marqueeIntervalId = null;
 
     async function loadOnThisDay() {
         try {
-            var sectionText = await fetchTodaySection();
-            if (!sectionText) {
-                grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No encontramos el registro de hoy en el documento de efemérides.</div>';
-                return;
-            }
+            var results = await Promise.all(CATEGORY_ORDER.map(function(cat) {
+                return buildCategoryItem(cat).catch(function(e) {
+                    console.warn('No se pudo cargar la categoría', cat, e);
+                    return null;
+                });
+            }));
 
-            var items = parseTodaySection(sectionText);
+            var items = results.filter(function(r) { return r !== null; });
+
             if (items.length === 0) {
-                grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No pudimos leer los hechos de hoy.</div>';
+                grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No encontramos el registro de hoy en los documentos de efemérides.</div>';
                 return;
             }
 
-            var enriched = await Promise.all(items.map(enrichItem));
-            grid.innerHTML = enriched.map(buildCardHtml).join('');
+            grid.innerHTML = items.map(buildCardHtml).join('');
         } catch (e) {
             console.warn('No se pudo cargar "Un día como hoy en la música":', e);
             grid.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; width:100%;">No pudimos cargar la información en este momento.</div>';
@@ -2707,6 +2740,149 @@ let marqueeIntervalId = null;
     }
 
     loadOnThisDay();
+})();
+
+// === "VIDEOCLIP DESTACADO" (lista curada en GitHub, 1 video por fecha) ===
+(function() {
+    var MD_URL = 'https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/Videoclips.md';
+    var MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    var frameWrap = document.getElementById('vcFrameWrap');
+    var titleEl = document.getElementById('vcTitle');
+    var artistEl = document.getElementById('vcArtist');
+    if (!frameWrap) return;
+
+    var pendingVideo = null; // { videoId, artist, song } listo para reproducir en cuanto la API esté cargada
+    var apiReady = false;
+
+    function todayHeading() {
+        var today = new Date();
+        return today.getDate() + ' de ' + MESES_ES[today.getMonth()];
+    }
+
+    function escapeHtmlVc(str) {
+        return String(str)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function showMessage(msg) {
+        frameWrap.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">' + msg + '</div>';
+    }
+
+    // Imagen del artista, obtenida en vivo desde la API pública de iTunes (mismo patrón que las otras secciones)
+    async function fetchItunesArtworkVc(artist) {
+        try {
+            var url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(artist) + '&media=music&limit=1';
+            var res = await fetch(url);
+            var data = await res.json();
+            if (data.results && data.results[0] && data.results[0].artworkUrl100) {
+                return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
+            }
+        } catch (e) {
+            console.warn('No se pudo obtener la carátula de iTunes para', artist, e);
+        }
+        return null;
+    }
+
+    // Mensaje propio (con la estética del sitio) para cuando YouTube reporta un error real,
+    // por ejemplo cuando el dueño del video deshabilitó la posibilidad de insertarlo (embed).
+    async function showEmbedErrorFallback(videoId, artist, song) {
+        var watchUrl = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
+        var artworkUrl = artist ? await fetchItunesArtworkVc(artist) : null;
+        var bgStyle = artworkUrl
+            ? 'background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.75)), url(' + artworkUrl + '); background-size: cover; background-position: center;'
+            : 'background: #111;';
+
+        frameWrap.innerHTML =
+            '<div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:14px; padding:28px 20px; text-align:center; ' + bgStyle + '">' +
+                '<a href="' + watchUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:8px; background:#ff0000; color:#fff; text-decoration:none; font-weight:700; padding:10px 20px; border-radius:30px; font-size:13px; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">' +
+                    '<i class="fab fa-youtube"></i> Ver ' + escapeHtmlVc(artist ? artist + ' - ' + song : 'video') + ' en YouTube' +
+                '</a>' +
+            '</div>';
+    }
+
+    function renderPlayer() {
+        if (!pendingVideo || !apiReady) return;
+        var v = pendingVideo;
+
+        frameWrap.innerHTML = '<div id="vcPlayerTarget" style="position:absolute; inset:0;"></div>';
+
+        new YT.Player('vcPlayerTarget', {
+            videoId: v.videoId,
+            playerVars: {
+                autoplay: 0,      // Sin reproducción automática, como se pidió
+                rel: 0,
+                modestbranding: 1
+            },
+            events: {
+                onError: function(e) {
+                    // 2: ID inválido | 5: error de HTML5 | 100: no encontrado/privado | 101/150: embed deshabilitado por el dueño
+                    console.warn('YouTube Player Error', e.data, '- videoId:', v.videoId);
+                    showEmbedErrorFallback(v.videoId, v.artist, v.song);
+                }
+            }
+        });
+    }
+
+    // Callback global requerido por la API oficial de YouTube (window.onYouTubeIframeAPIReady)
+    window.onYouTubeIframeAPIReady = function() {
+        apiReady = true;
+        renderPlayer();
+    };
+
+    function loadYouTubeApiScript() {
+        if (document.getElementById('youtube-iframe-api')) return;
+        var tag = document.createElement('script');
+        tag.id = 'youtube-iframe-api';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+    }
+
+    async function loadFeaturedVideo() {
+        try {
+            var res = await fetch(MD_URL + '?nocache=' + Date.now());
+            if (!res.ok) {
+                showMessage('Error al cargar el videoclip.');
+                return;
+            }
+            var text = await res.text();
+            var heading = todayHeading();
+
+            // Formato esperado por cada fecha:
+            // ## D de Mes
+            // Artista - Canción
+            // VIDEO_ID
+            var escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var re = new RegExp('##\\s*' + escapedHeading + '\\s*\\r?\\n(.*?)\\r?\\n(\\S+)\\s*(?=\\r?\\n##\\s|\\r?\\n---|$)', 's');
+            var match = text.match(re);
+
+            if (!match) {
+                console.error('No se encontró entrada para:', heading);
+                showMessage('No hay videoclip asignado para hoy todavía.');
+                return;
+            }
+
+            var songLine = match[1].trim();
+            var videoId = match[2].trim();
+            var parts = songLine.split(' - ');
+            var artist = parts[0] ? parts[0].trim() : '';
+            var song = parts[1] ? parts[1].trim() : songLine;
+
+            if (titleEl) titleEl.innerText = song;
+            if (artistEl) artistEl.innerText = artist;
+            console.log('Videoclip a cargar:', artist, '-', song, '(' + videoId + ')');
+
+            pendingVideo = { videoId: videoId, artist: artist, song: song };
+            loadYouTubeApiScript();
+            renderPlayer(); // No hace nada todavía si la API no ha cargado (apiReady=false)
+        } catch (e) {
+            console.error('Error al cargar videoclip:', e);
+            showMessage('No pudimos cargar el videoclip en este momento.');
+        }
+    }
+
+    loadFeaturedVideo();
 })();
 </script>
 <script src="https://cast2.my-control-panel.com/system/streaminfo.js"></script>
@@ -3341,5 +3517,6 @@ window.addEventListener('load', async () => {
 
 </script>
 <!-- FIN SCRIPT COMPARTIR -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
 </body>
 </html>
