@@ -231,7 +231,7 @@
         border-radius: 16px; overflow: hidden; max-width: 700px; margin: 0 auto;
     }
     .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
-    .vc-frame-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .vc-frame-wrap iframe { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; }
     .vc-info { padding: 18px 22px 22px; text-align: center; }
     .vc-info-title { font-size: 17px; font-weight: 800; color: #fff; }
     .vc-info-artist { font-size: 14px; color: #ccc; margin-top: 4px; }
@@ -2809,6 +2809,8 @@ let marqueeIntervalId = null;
         frameWrap.innerHTML = '<div id="vcPlayerTarget" style="position:absolute; inset:0;"></div>';
 
         new YT.Player('vcPlayerTarget', {
+            width: '100%',
+            height: '100%',
             videoId: v.videoId,
             playerVars: {
                 autoplay: 0,      // Sin reproducción automática, como se pidió
