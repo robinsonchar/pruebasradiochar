@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype 
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -231,7 +231,7 @@
         border-radius: 16px; overflow: hidden; max-width: 700px; margin: 0 auto;
     }
     .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
-    .vc-frame-wrap iframe { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; }
+    .vc-frame-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .vc-info { padding: 18px 22px 22px; text-align: center; }
     .vc-info-title { font-size: 17px; font-weight: 800; color: #fff; }
     .vc-info-artist { font-size: 14px; color: #ccc; margin-top: 4px; }
@@ -1025,7 +1025,254 @@
 }
 /* FIN AJUSTES DE ANCHO ADAPTATIVO */
 
-</style>
+
+
+    /* TRIVIA STYLES */
+    .trivia-section { text-align: center; padding: 0; width: 100%; }
+    .trivia-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        position: relative;
+        background-image: url('https://img3.wallspic.com/crops/8/8/0/5/6/165088/165088-vaporwave-retro-estilo_retro-retrofuturismo-synthwave-3840x2160.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-radius: 0;
+        padding: 40px 0;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
+    .trivia-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 1;
+        transition: transform 0.3s ease;
+        border-radius: 0;
+    }
+    .trivia-container:hover::before {
+        transform: scale(1.05);
+    }
+    .trivia-container:hover {
+        background-size: cover;
+    }
+    .trivia-container > * {
+        position: relative;
+        z-index: 2;
+    }
+    .trivia-main-btn {
+        background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-blue));
+        border: none;
+        padding: 20px 40px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        border-radius: 50px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 30px rgba(255,0,222,0.4);
+        font-family: 'Russo One', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .trivia-main-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 40px rgba(255,0,222,0.6);
+    }
+    .trivia-main-btn i { font-size: 28px; }
+    .trivia-subtitle {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        line-height: 1.4;
+    }
+    .trivia-stats { margin-top: 20px; color: var(--color-text-muted); font-size: 14px; }
+    .section-subtitle {
+        color: var(--color-accent-gold);
+        font-size: 16px;
+        margin-top: 10px;
+        font-weight: 500;
+    }
+    
+    .trivia-modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .trivia-modal {
+        background: linear-gradient(145deg, #1a1a2e, #16213e);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        position: relative;
+        border: 2px solid var(--color-accent-pink);
+        box-shadow: 0 0 50px rgba(255,0,222,0.3);
+    }
+    .trivia-modal-close {
+        position: absolute;
+        top: 15px; right: 15px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+    .trivia-modal-close:hover { opacity: 1; }
+    .trivia-header { text-align: center; margin-bottom: 20px; }
+    .trivia-title {
+        font-family: 'Russo One', sans-serif;
+        font-size: 28px;
+        color: var(--color-accent-pink);
+        margin-bottom: 10px;
+        text-shadow: 0 0 20px rgba(255,0,222,0.5);
+    }
+    .trivia-score { color: var(--color-accent-gold); font-size: 18px; font-weight: 600; }
+    
+    .trivia-timer { text-align: center; margin-bottom: 20px; }
+    .trivia-timer i { color: var(--color-accent-green); font-size: 20px; }
+    #timerDisplay {
+        font-family: 'Russo One', sans-serif;
+        font-size: 36px;
+        color: var(--color-accent-green);
+        margin-left: 10px;
+    }
+    .timer-warning #timerDisplay {
+        color: var(--color-accent-red);
+        animation: timerBlink 0.5s infinite;
+    }
+    @keyframes timerBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .trivia-question-area { margin-bottom: 25px; }
+    .trivia-question-number {
+        color: var(--color-accent-gold);
+        font-size: 14px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .trivia-question-text { font-size: 20px; font-weight: 600; color: #fff; line-height: 1.4; }
+    
+    .trivia-options { display: flex; flex-direction: column; gap: 12px; }
+    .trivia-option {
+        background: rgba(255,255,255,0.05);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        padding: 15px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+        text-align: left;
+    }
+    .trivia-option:hover:not(.disabled) {
+        background: rgba(255,255,255,0.1);
+        border-color: var(--color-accent-blue);
+        transform: translateX(5px);
+    }
+    .trivia-option.correct {
+        background: rgba(57, 255, 20, 0.2);
+        border-color: var(--color-accent-green);
+    }
+    .trivia-option.incorrect {
+        background: rgba(255, 0, 0, 0.2);
+        border-color: var(--color-accent-red);
+    }
+    .trivia-option.disabled { cursor: default; pointer-events: none; }
+    .option-letter {
+        background: var(--color-accent-blue);
+        color: #000;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-family: 'Russo One', sans-serif;
+        flex-shrink: 0;
+    }
+    .option-text { color: #fff; font-size: 16px; font-weight: 500; }
+    
+    .trivia-feedback {
+        text-align: center;
+        padding: 20px;
+        margin-top: 15px;
+        border-radius: 12px;
+    }
+    .trivia-feedback.correct {
+        background: rgba(57, 255, 20, 0.1);
+        border: 1px solid var(--color-accent-green);
+    }
+    .trivia-feedback.incorrect {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid var(--color-accent-red);
+    }
+    .trivia-feedback.timeout {
+        background: rgba(255, 153, 0, 0.1);
+        border: 1px solid var(--color-accent-orange);
+    }
+    .feedback-icon { font-size: 40px; margin-bottom: 10px; }
+    .feedback-text { font-size: 18px; font-weight: 600; }
+    .trivia-feedback.correct .feedback-icon { color: var(--color-accent-green); }
+    .trivia-feedback.incorrect .feedback-icon { color: var(--color-accent-red); }
+    .trivia-feedback.timeout .feedback-icon { color: var(--color-accent-orange); }
+    
+    .trivia-result { text-align: center; padding: 30px 20px; }
+    .result-score {
+        font-family: 'Russo One', sans-serif;
+        font-size: 72px;
+        color: var(--color-accent-gold);
+        margin-bottom: 20px;
+        text-shadow: 0 0 30px rgba(255,215,0,0.5);
+    }
+    .result-message { font-size: 20px; color: #fff; margin-bottom: 25px; }
+    .trivia-restart-btn {
+        background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-pink));
+        border: none;
+        padding: 15px 35px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 30px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+    .trivia-restart-btn:hover { transform: scale(1.05); }
+    
+    @media (max-width: 600px) {
+        .trivia-modal { padding: 20px; }
+        .trivia-title { font-size: 22px; }
+        .trivia-question-text { font-size: 18px; }
+        .trivia-main-btn { font-size: 16px; padding: 15px 25px; }
+        .trivia-main-btn i { font-size: 22px; }
+    }
+
+    </style>
 </head>
 <body>
 
@@ -1308,6 +1555,81 @@
             <div class="top10-list-container" id="top10List"><div style="color: #aaa; padding: 20px;">Cargando lista...</div></div>
         </div>
     </section>
+
+<!-- INICIO SECCIÓN TRIVIA DE AYER -->
+<div class="trivia-section" id="triviaSection">
+    <div class="section-header-common">
+        <h2 class="section-title-common">LA TRIVIA DE AYER</h2>
+    </div>
+    
+    <div class="trivia-container">
+        <p class="trivia-subtitle">¿Cuánto recuerdas de los 80s y 90s?</p>
+        <button class="trivia-main-btn" id="triviaMainBtn" onclick="openTriviaModal()">
+            <i class="fas fa-gamepad"></i>
+            <span>JUGAR A LA TRIVIA DE AYER</span>
+        </button>
+        
+        <div class="trivia-stats" id="triviaStats">
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TRIVIA -->
+<div class="trivia-modal-overlay" id="triviaModal" style="display:none;">
+    <div class="trivia-modal">
+        <button class="trivia-modal-close" onclick="closeTriviaModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="trivia-header">
+            <h3 class="trivia-title">LA TRIVIA DE AYER</h3>
+            <div class="trivia-score">
+                Preguntas acertadas: <span id="triviaCorrect">0</span>
+            </div>
+        </div>
+        
+        <div class="trivia-timer" id="triviaTimer">
+            <i class="fas fa-clock"></i>
+            <span id="timerDisplay">15</span>
+        </div>
+        
+        <div class="trivia-question-area">
+            <div class="trivia-question-number" id="questionNumber">Pregunta 1</div>
+            <div class="trivia-question-text" id="questionText">Cargando pregunta...</div>
+        </div>
+        
+        <div class="trivia-options" id="triviaOptions">
+            <button class="trivia-option" data-answer="a">
+                <span class="option-letter">A</span>
+                <span class="option-text">Opción A</span>
+            </button>
+            <button class="trivia-option" data-answer="b">
+                <span class="option-letter">B</span>
+                <span class="option-text">Opción B</span>
+            </button>
+            <button class="trivia-option" data-answer="c">
+                <span class="option-letter">C</span>
+                <span class="option-text">Opción C</span>
+            </button>
+        </div>
+        
+        <div class="trivia-feedback" id="triviaFeedback" style="display:none;">
+            <div class="feedback-icon"></div>
+            <div class="feedback-text"></div>
+        </div>
+        
+        <div class="trivia-result" id="triviaResult" style="display:none;">
+            <div class="result-score" id="finalScore">0</div>
+            <div class="result-message" id="resultMessage"></div>
+            <button class="trivia-restart-btn" onclick="restartTrivia()">
+                <i class="fas fa-redo"></i> Jugar de nuevo
+            </button>
+        </div>
+    </div>
+</div>
+<!-- FIN SECCIÓN TRIVIA DE AYER -->
+
+
 
     <section class="content-section did-you-know-container" id="didYouKnowContainer" style="display: none;">
         <div class="section-header-common"><h2 class="section-title-common dyk-title-custom">SABÍAS QUE...</h2></div>
@@ -2752,102 +3074,18 @@ let marqueeIntervalId = null;
     var artistEl = document.getElementById('vcArtist');
     if (!frameWrap) return;
 
-    var pendingVideo = null; // { videoId, artist, song } listo para reproducir en cuanto la API esté cargada
-    var apiReady = false;
-
     function todayHeading() {
         var today = new Date();
         return today.getDate() + ' de ' + MESES_ES[today.getMonth()];
-    }
-
-    function escapeHtmlVc(str) {
-        return String(str)
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
     function showMessage(msg) {
         frameWrap.innerHTML = '<div style="color:#aaa; padding:20px; text-align:center; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">' + msg + '</div>';
     }
 
-    // Imagen del artista, obtenida en vivo desde la API pública de iTunes (mismo patrón que las otras secciones)
-    async function fetchItunesArtworkVc(artist) {
-        try {
-            var url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(artist) + '&media=music&limit=1';
-            var res = await fetch(url);
-            var data = await res.json();
-            if (data.results && data.results[0] && data.results[0].artworkUrl100) {
-                return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
-            }
-        } catch (e) {
-            console.warn('No se pudo obtener la carátula de iTunes para', artist, e);
-        }
-        return null;
-    }
-
-    // Mensaje propio (con la estética del sitio) para cuando YouTube reporta un error real,
-    // por ejemplo cuando el dueño del video deshabilitó la posibilidad de insertarlo (embed).
-    async function showEmbedErrorFallback(videoId, artist, song) {
-        var watchUrl = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
-        var artworkUrl = artist ? await fetchItunesArtworkVc(artist) : null;
-        var bgStyle = artworkUrl
-            ? 'background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.75)), url(' + artworkUrl + '); background-size: cover; background-position: center;'
-            : 'background: #111;';
-
-        frameWrap.innerHTML =
-            '<div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:14px; padding:28px 20px; text-align:center; ' + bgStyle + '">' +
-                '<a href="' + watchUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:8px; background:#ff0000; color:#fff; text-decoration:none; font-weight:700; padding:10px 20px; border-radius:30px; font-size:13px; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">' +
-                    '<i class="fab fa-youtube"></i> Ver ' + escapeHtmlVc(artist ? artist + ' - ' + song : 'video') + ' en YouTube' +
-                '</a>' +
-            '</div>';
-    }
-
-    function renderPlayer() {
-        if (!pendingVideo || !apiReady) return;
-        var v = pendingVideo;
-
-        frameWrap.innerHTML = '<div id="vcPlayerTarget" style="position:absolute; inset:0;"></div>';
-
-        new YT.Player('vcPlayerTarget', {
-            width: '100%',
-            height: '100%',
-            videoId: v.videoId,
-            playerVars: {
-                autoplay: 0,      // Sin reproducción automática, como se pidió
-                rel: 0,
-                modestbranding: 1
-            },
-            events: {
-                onError: function(e) {
-                    // 2: ID inválido | 5: error de HTML5 | 100: no encontrado/privado | 101/150: embed deshabilitado por el dueño
-                    console.warn('YouTube Player Error', e.data, '- videoId:', v.videoId);
-                    showEmbedErrorFallback(v.videoId, v.artist, v.song);
-                }
-            }
-        });
-    }
-
-    // Callback global requerido por la API oficial de YouTube (window.onYouTubeIframeAPIReady)
-    window.onYouTubeIframeAPIReady = function() {
-        apiReady = true;
-        renderPlayer();
-    };
-
-    function loadYouTubeApiScript() {
-        if (document.getElementById('youtube-iframe-api')) return;
-        var tag = document.createElement('script');
-        tag.id = 'youtube-iframe-api';
-        tag.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(tag);
-    }
-
     async function loadFeaturedVideo() {
         try {
             var res = await fetch(MD_URL + '?nocache=' + Date.now());
-            if (!res.ok) {
-                showMessage('Error al cargar el videoclip.');
-                return;
-            }
             var text = await res.text();
             var heading = todayHeading();
 
@@ -2855,12 +3093,10 @@ let marqueeIntervalId = null;
             // ## D de Mes
             // Artista - Canción
             // VIDEO_ID
-            var escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            var re = new RegExp('##\\s*' + escapedHeading + '\\s*\\r?\\n(.*?)\\r?\\n(\\S+)\\s*(?=\\r?\\n##\\s|\\r?\\n---|$)', 's');
+            var re = new RegExp('##\\s*' + heading + '\\s*\\r?\\n(.*?)\\r?\\n(\\S+)\\s*(?=\\r?\\n##\\s|\\r?\\n---|$)', 's');
             var match = text.match(re);
 
             if (!match) {
-                console.error('No se encontró entrada para:', heading);
                 showMessage('No hay videoclip asignado para hoy todavía.');
                 return;
             }
@@ -2871,15 +3107,11 @@ let marqueeIntervalId = null;
             var artist = parts[0] ? parts[0].trim() : '';
             var song = parts[1] ? parts[1].trim() : songLine;
 
+            frameWrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '" title="Videoclip destacado" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
             if (titleEl) titleEl.innerText = song;
             if (artistEl) artistEl.innerText = artist;
-            console.log('Videoclip a cargar:', artist, '-', song, '(' + videoId + ')');
-
-            pendingVideo = { videoId: videoId, artist: artist, song: song };
-            loadYouTubeApiScript();
-            renderPlayer(); // No hace nada todavía si la API no ha cargado (apiReady=false)
         } catch (e) {
-            console.error('Error al cargar videoclip:', e);
+            console.warn('No se pudo cargar el videoclip destacado:', e);
             showMessage('No pudimos cargar el videoclip en este momento.');
         }
     }
@@ -3517,8 +3749,1992 @@ window.addEventListener('load', async () => {
     //  Fin modal de DJ  //
 
 
-</script>
-<!-- FIN SCRIPT COMPARTIR -->
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
-</body>
-</html>
+
+
+// TRIVIA DE AYER - GAME LOGIC
+const TRIVIA_DATA = [
+  {
+    "question": "¿Qué país organizó el Mundial de Fútbol de 1986?",
+    "options": [
+      "Argentina",
+      "México",
+      "España"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el primer gran éxito internacional de Ricky Martin como artista en solitario?",
+    "options": [
+      "\"She's All I Ever Had\"",
+      "\"Vuelve\"",
+      "\"Livin' la Vida Loca\""
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué serie animada sobre una familia estadounidense se emitió por primera vez en 1989?",
+    "options": [
+      "Los Supersónicos",
+      "Los Simpson",
+      "Los Fruilinis"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué canción interpretó Céline Dion en los Premios Grammy de 1998 que se convirtió en un clásico?",
+    "options": [
+      "\"Because You Loved Me\"",
+      "\"The Power of Love\"",
+      "\"My Heart Will Go On\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál fue la consecuencia directa de la caída del Muro de Berlín?",
+    "options": [
+      "La disolución de la Unión Soviética",
+      "La reunificación de Alemania",
+      "El inicio de la Primavera Árabe"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Cuál de las siguientes canciones fue número uno en el mundo durante los años 80?",
+    "options": [
+      "\"La Cucaracha\"",
+      "\"El Hambo\"",
+      "\"La Bamba\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién es conocida como la \"Reina del Soul\"?",
+    "options": [
+      "Diana Ross",
+      "Aretha Franklin",
+      "Gladys Knight"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué grupo femenino británico cantó \"Wannabe\"?",
+    "options": [
+      "TLC",
+      "Spice Girls",
+      "Destiny's Child"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año terminó formalmente la Guerra Fría?",
+    "options": [
+      "1985",
+      "1991",
+      "1999"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién interpretó a \"Freddy Krueger\" en \"Pesadilla en la Calle del Infierno\"?",
+    "options": [
+      "Jason Voorhees",
+      "Robert Englund",
+      "Anthony Hopkins"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor interpretó al Terminator en las dos primeras películas de la saga (1984 y 1991)?",
+    "options": [
+      "Sylvester Stallone",
+      "Mel Gibson",
+      "Arnold Schwarzenegger"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué familia de personajes clásicos de sitcom creadas por Norman Lear vivía en un edificio de Chicago?",
+    "options": [
+      "Los familia Bundy",
+      "Los familia Huxtable",
+      "Los familia Donaldson"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué empresa de tecnología espacial fue fundada por Jeff Bezos en 1994?",
+    "options": [
+      "Blue Origin",
+      "SpaceX",
+      "Virgin Galactic"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Cómo se llamaba el superhéroe creado por Chespirito, con un chipote chillón como arma?",
+    "options": [
+      "El Chavo",
+      "El Chapulín Colorado",
+      "Kalimán"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué personaje de pesadilla interpretado por Robert Englund fréquenta las escenas oníricas?",
+    "options": [
+      "Jason Voorhees",
+      "Pinhead",
+      "Freddy Krueger"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál fue el primer éxito número uno de las Spice Girls en Reino Unido y EE.UU.?",
+    "options": [
+      "\"Say You'll Be There\"",
+      "\"Mama\"",
+      "\"Wannabe\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué comediante protagonizó \"Ace Ventura: Detective de Mascotas\"?",
+    "options": [
+      "Robin Williams",
+      "Jim Carrey",
+      "Eddie Murphy"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué presidente de Estados Unidos estaba en el cargo cuando colapsó la Unión Soviética en 1991?",
+    "options": [
+      "Ronald Reagan",
+      "George H. W. Bush",
+      "Bill Clinton"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién interpretó a \"Marty McFly\" en \"Volver al Futuro\"?",
+    "options": [
+      "Tom Cruise",
+      "Michael J. Fox",
+      "Tom Hanks"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién cantó \"Like a Virgin\"?",
+    "options": [
+      "Cyndi Lauper",
+      "Madonna",
+      "Whitney Houston"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué película de 1999 popularizó la frase \"¿Cuál es tu destino?\"?",
+    "options": [
+      "El diario de una princesa",
+      "Matrix",
+      "La hermanda del anillo"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién cantaba \"Every Breath You Take\"?",
+    "options": [
+      "Genesis",
+      "The Police",
+      "Dire Straits"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor interpretó a \"Indiana Jones\"?",
+    "options": [
+      "Sean Connery",
+      "Harrison Ford",
+      "Kevin Costner"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué canción Stevie Wonder de 1984 habla sobre el amor en una llamada telefónica?",
+    "options": [
+      "\"We Are the World\"",
+      "\"Just Call Me\"",
+      "\"I Just Called to Say I Love You\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién de las siguientes NO fue miembro de las Spice Girls en su formación original?",
+    "options": [
+      "Emma Bunton",
+      "Mel B",
+      "Jesy Nelson"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué frase recurring aparece en la película * Scream* (1996) cuando suena el teléfono?",
+    "options": [
+      "\"¿Quién es?\" — \"Tu vecino\"",
+      "\"¿Qué haces?\" — \"Llamarte\"",
+      "\"¿Quién está ahí?\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actor protagonizó \"Ghost: La Sombra del Amor\" junto a Demi Moore?",
+    "options": [
+      "Kevin Costner",
+      "Patrick Swayze",
+      "Tom Cruise"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué grupo musical britanico popularizó la moda del \"pose\" y los videos MTV en los 80?",
+    "options": [
+      "Duran Duran",
+      "Tears for Fears",
+      "Depeche Mode"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Quién cantó \"I Will Always Love You\" en la película \"El Guardaespaldas\"?",
+    "options": [
+      "Mariah Carey",
+      "Whitney Houston",
+      "Celine Dion"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año el banco Long-Term Capital Management colapsó y casi provocó una crisis financiera global?",
+    "options": [
+      "1995",
+      "1996",
+      "1998"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué criatura extraterrestre \"solo quería volver a casa\" en la película de Spielberg de 1982?",
+    "options": [
+      "Alf",
+      "E.T.",
+      "Gizmo"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué moda se popularizó en el mundo gracias a la serie *Miami Vice*?",
+    "options": [
+      "Los vaqueros ajustados",
+      "Los trajes de colores pastel y los mocasines",
+      "Las camisas de franela a cuadros"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué dúo interpretaba \"Don't Go Breaking My Heart\"?",
+    "options": [
+      "Wham!",
+      "Elton John y Kiki Dee",
+      "Hall & Oates"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál es la película navideña de 1990 sobre un niño que defiende su casa de dos ladrones?",
+    "options": [
+      "Pesadilla antes de Navidad",
+      "Mi Pobre Angelito",
+      "El Grinch"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué presidente estadounidense fue reelegido en 1996?",
+    "options": [
+      "Ronald Reagan",
+      "George H. W. Bush",
+      "Bill Clinton"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué jugador de baloncesto era conocido como \"Air Jordan\"?",
+    "options": [
+      "Magic Johnson",
+      "Michael Jordan",
+      "Larry Bird"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamó la primera oveja clonada, presentada en 1996?",
+    "options": [
+      "Molly",
+      "Dolly",
+      "Dorothy"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué jugador colombiano de fútbol, conocido por su cabello llamativo, fue figura de la selección en los 90?",
+    "options": [
+      "Freddy Rincón",
+      "Carlos Valderrama",
+      "Iván Córdoba"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llama la película de Steven Spielberg de 1975?",
+    "options": [
+      "Moby",
+      "Jaws",
+      "Nemo"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué canción del grupo italiano Eiffel 65 se convirtió en un éxito global en 1999?",
+    "options": [
+      "\"I Gotta Feeling\"",
+      "\"Let Me Love You\"",
+      "\"Blue (Da Ba Dee)\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué equipo de la NBA perdió el campeonato en 1998?",
+    "options": [
+      "Houston Rockets",
+      "Chicago Bulls",
+      "Los Angeles Lakers"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué evento deportivo y musical masivo se celebró en 1985 para recaudar fondos contra el hambre en África?",
+    "options": [
+      "Woodstock",
+      "Live Aid",
+      "Farm Aid"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda de grunge lideraba Kurt Cobain?",
+    "options": [
+      "Pearl Jam",
+      "Nirvana",
+      "Soundgarden"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actriz protagonizó la película *Atracción mortal* (1992)?",
+    "options": [
+      "Sarah Michelle Gellar",
+      "Demi Moore",
+      "Nicole Kidman"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actriz protagónica de *Buffy, la cazavampiros* (1997) se convirtió en ícono de la cultura pop?",
+    "options": [
+      "Jennifer Love Hewitt",
+      "Sarah Michelle Gellar",
+      "Reese Witherspoon"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién fue liberado de prisión en Sudáfrica en 1990 tras 27 años?",
+    "options": [
+      "Desmond Tutu",
+      "Nelson Mandela",
+      "Kofi Annan"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién fue la compañera sentimental de Han Solo en las películas originales de *Star Wars*?",
+    "options": [
+      "Padmé Amidala",
+      "Leia Organa",
+      "Mara Jade"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué empresa tecnológica se fundó en 1994 y se convirtió en uno de los primeros buscadores web?",
+    "options": [
+      "Google",
+      "Yahoo!",
+      "Amazon"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamó el equipo de baloncesto de EE.UU., formado por estrellas de la NBA, que ganó el oro olímpico en 1992?",
+    "options": [
+      "El Equipo de Oro",
+      "El Dream Team",
+      "Los Ángeles All-Stars"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué instrumento musical se convirtió en símbolo sonoro de la música de los años 80?",
+    "options": [
+      "La guitarra eléctrica",
+      "El sintetizador",
+      "La batería"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién intentó asesinar al presidente Ronald Reagan en 1981?",
+    "options": [
+      "Mark David Chapman",
+      "John Hinckley Jr.",
+      "Lee Harvey Oswald"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué videojuego de la compañía Nintendo, protagonizado por un plomero, se popularizó en los 80?",
+    "options": [
+      "Sonic",
+      "Super Mario Bros.",
+      "Pac-Man"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el primer éxito comercial de Madonna?",
+    "options": [
+      "\"Like a Virgin\"",
+      "\"Holiday\"",
+      "\"Material Girl\""
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año se fundó MTV, el canal de música por televisión?",
+    "options": [
+      "1983",
+      "1984",
+      "1981"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué película de 1980 popularizó la frase \"Que la fuerza te acompañe\"?",
+    "options": [
+      "Star Trek",
+      "Star Wars",
+      "Encuentros Cercanos"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién es conocido como el \"Rey del Pop\"?",
+    "options": [
+      "Prince",
+      "Michael Jackson",
+      "George Michael"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué juego electrónico de puzzle de origen ruso se popularizó en los años 90?",
+    "options": [
+      "Pong",
+      "Tetris",
+      "Space Invaders"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el sencillo más exitoso del grupo danés Backstreet Boys en 1998?",
+    "options": [
+      "\"All I Want\"",
+      "\"Quit Playing Games\"",
+      "\"I Want It That Way\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué cantante colombiano popularizó la canción \"Fruta Fresca\"?",
+    "options": [
+      "Juan Luis Guerra",
+      "Carlos Vives",
+      "Diomedes Díaz"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué comediante mexicano creó personajes como \"El Chapulín Colorado\" y \"El Chavo del 8\"?",
+    "options": [
+      "Cantinflas",
+      "Roberto Gómez Bolaños",
+      "Mario Moreno"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda estadounidense interpretó \"Livin' on a Prayer\"?",
+    "options": [
+      "The Police",
+      "Queen",
+      "Bon Jovi"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actriz protagonizó \"Pretty Woman\" junto a Richard Gere?",
+    "options": [
+      "Demi Moore",
+      "Julia Roberts",
+      "Sandra Bullock"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién fue el presentador más famoso de *Jeopardy!* durante los años 80 y 90?",
+    "options": [
+      "Pat Sajak",
+      "Bob Barker",
+      "Alex Trebek"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál fue el primer sencillo de Britney Spears como artista?",
+    "options": [
+      "\"Sometimes\"",
+      "\"(You Drive)\"",
+      "\"...Baby One More Time\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué músico y compositor de la banda Nirvana murió en 1994?",
+    "options": [
+      "Krist Novoselic",
+      "Dave Grohl",
+      "Kurt Cobain"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué telenovela venezolana de 1992, ambientada entre gitanos, fue protagonizada por Coraima Torres y se volvió un éxito en toda Latinoamérica?",
+    "options": [
+      "Topacio",
+      "Kassandra",
+      "Cristal"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué grupo musical estadounidense cantó \"I Want to Know What Love Is\"?",
+    "options": [
+      "Journey",
+      "Boston",
+      "Foreigner"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué artista cantaba \"Purple Rain\"?",
+    "options": [
+      "Lionel Richie",
+      "Prince",
+      "Stevie Wonder"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda argentina de rock lideraba Gustavo Cerati?",
+    "options": [
+      "Los Enanitos Verdes",
+      "Soda Stereo",
+      "Virus"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué miembro de los Backstreet Boys tiene experiencia como Travis Barker?",
+    "options": [
+      "Nick Carter",
+      "Brian Littrell",
+      "A.J. McLean"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué líder recibió el Prêmio Nóbel de la Paz en 1993 tras salir de prisión?",
+    "options": [
+      "Fidel Castro",
+      "Lech Walesa",
+      "Nelson Mandela"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué servicio de intercambio de archivos musicales peer-to-peer se fundó en 1999 y se hizo famoso?",
+    "options": [
+      "Kazaa",
+      "eMule",
+      "Napster"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué futbolista argentino anotó el famoso gol conocido como \"La Mano de Dios\" en 1986?",
+    "options": [
+      "Gabriel Batistuta",
+      "Diego Maradona",
+      "Mario Kempes"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué telenovela mexicana de 1979-1980 con Verónica Castro se considera un clásico de la televisión latina?",
+    "options": [
+      "Rosa Salvaje",
+      "Los Ricos También Lloran",
+      "Cuna de Lobos"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué grupo musical preparó el camino e inspiró a las famosas bandas juveniles como NSYNC y los Backstreet Boys?",
+    "options": [
+      "2 Unlimited",
+      "New Kids on the Block",
+      "TLC"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue la primera película animada por computadora de Pixar, estrenada en 1995?",
+    "options": [
+      "Shrek",
+      "Toy Story",
+      "Antz"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué programa de reforma económica y política lanzó Mijaíl Gorbachov en 1985?",
+    "options": [
+      "La Glasnost",
+      "La Perestroika",
+      "La Saturación"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué telenovela venezolana de los años 80, sobre una joven humilde que trabaja en una fábrica de vidrio, dio origen a varias versiones en otros países?",
+    "options": [
+      "Kassandra",
+      "Cristal",
+      "Rubí"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién fue elegido Papa en 1978 y lideró la Iglesia Católica hasta 2005?",
+    "options": [
+      "Benedicto XVI",
+      "Juan Pablo II",
+      "Francisco"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué equipo de la Premier League de Inglaterra ganó la Triple Corona en 1999?",
+    "options": [
+      "Arsenal",
+      "Chelsea",
+      "Manchester United"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién es conocida como la \"Princesa del Pueblo\" tras su boda real en 1981?",
+    "options": [
+      "Reina Isabel II",
+      "Diana de Gales",
+      "Camila Parker"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año se estrenó la primera película de la saga *Volver al Futuro*?",
+    "options": [
+      "1986",
+      "1987",
+      "1985"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué evento deportivo se celebró en Los Ángeles en 1984?",
+    "options": [
+      "Juegos Panamericanos",
+      "Juegos Olímpicos de Verano",
+      "Copa Mundial de Fútbol"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué canción de 1990, cantada por Vanilla Ice, dominó las listas musicales de todo el mundo?",
+    "options": [
+      "\"Vogue\"",
+      "\"Freedom! '90\"",
+      "\"Ice Ice Baby\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actor ganó el Óscar al Mejor Actor de Reparto por *Seven* (1995)?",
+    "options": [
+      "Kevin Spacey",
+      "Brad Pitt",
+      "Morgan Freeman"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué película de 1997 protagonizaron Leonardo DiCaprio y Kate Winslet?",
+    "options": [
+      "El Guardaespaldas",
+      "Titanic",
+      "Grease"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué grupo pop cantaba \"Wake Me Up Before You Go-Go\"?",
+    "options": [
+      "Culture Club",
+      "Wham!",
+      "Duran Duran"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué programa concurso dominical presentaciones de sketches, música y concursos fue icónico en la TV latina?",
+    "options": [
+      "*La hora del lunch*",
+      "Sábado Gigante",
+      "*El show de la tarde*"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué elemento de la cultura juvenil de los años 80 incluía pulseras de cuero y estética militar?",
+    "options": [
+      "El movimiento mod",
+      "El movimiento punk",
+      "El movimiento hippie"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál programa conducía y producía Adal Ramones en los años 90s?",
+    "options": [
+      "Otro rollo",
+      "¡Qué sketch!",
+      "98 grados"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Qué príncipe británico se casó con Diana Spencer en 1981?",
+    "options": [
+      "Príncipe Andrés",
+      "Príncipe Carlos",
+      "Príncipe Eduardo"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba la conductora infantil brasileña conocida por su programa \"Xou da Xuxa\" en los 80 y 90?",
+    "options": [
+      "Angélica",
+      "Xuxa",
+      "Eva Longoria"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál de estas series de televisión sitúan a seis amigos en Nueva York?",
+    "options": [
+      "*Beverly Hills, 90210*",
+      "*Buffy, la cazavampiros*",
+      "Friends"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál fue la canción más exitosa de Michael Jackson en los años 80?",
+    "options": [
+      "Beat It",
+      "Thriller",
+      "Bad"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda británica rivalizó con Oasis en la llamada \"Batalla de Britania\" de 1995?",
+    "options": [
+      "Suede",
+      "Blur",
+      "Radiohead"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué ciudad se celebraron los Juegos Olímpicos de 1992?",
+    "options": [
+      "Atlanta",
+      "Barcelona",
+      "Seúl"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué cantante interpretaba \"Total Eclipse of the Heart\"?",
+    "options": [
+      "Pat Benatar",
+      "Bonnie Tyler",
+      "Cyndi Lauper"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué cantante de la banda Nirvana se suicidó en 1994 dejando un legado musical imborrable?",
+    "options": [
+      "Krist Novoselic",
+      "Dave Grohl",
+      "Kurt Cobain"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué ocurrió con la bolsa de valores de Nueva York en octubre de 1987?",
+    "options": [
+      "El Martes Verde",
+      "El Miércoles Azul",
+      "El Lunes Negro"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué país se dividió en varias repúblicas independientes en 1991?",
+    "options": [
+      "Yugoslavia",
+      "Unión Soviética",
+      "Checoslovaquia"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué cantante canadiense interpretó *My Heart Will Go On* para la película *Titanic* (1997)?",
+    "options": [
+      "Whitney Houston",
+      "Mariah Carey",
+      "Celine Dion"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cómo se llama la banda de Freddie Mercury?",
+    "options": [
+      "The Police",
+      "Queen",
+      "Genesis"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué cantante interpretaba \"What's Love Got to Do with It\"?",
+    "options": [
+      "Diana Ross",
+      "Tina Turner",
+      "Donna Summer"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué comedia romántica de 1995 protagonizó Jim Carrey junto a Courteney Cox?",
+    "options": [
+      "*Ace Ventura*",
+      "Sí, acepto",
+      "*El número 23*"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué canal de televisión, lanzado en 1981, revolucionó la forma de promocionar la música con videoclips?",
+    "options": [
+      "HBO",
+      "MTV",
+      "VH1"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba el videojuego de bloques que caen, creado en 1984 y popular en todo el mundo?",
+    "options": [
+      "Snake",
+      "Tetris",
+      "Pac-Man"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué disco lanzado en 1984 superó los 40 millones de copias vendidas en todo el mundo?",
+    "options": [
+      "*Back in Black*",
+      "*Nevermind*",
+      "Thriller"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actor protagonizó *E.T. el extraterrestre* (1982) dirigida por Steven Spielberg?",
+    "options": [
+      "Henry Thomas",
+      "Henry Thomas",
+      "Michael J. Fox"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué programa nocturno de la NBC presentó Jimmy Fallon como presentador titular a partir de 2014?",
+    "options": [
+      "*Late Night*",
+      "*Saturday Night Live*",
+      "The Tonight Show"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál de las siguientes telenovelas venezolanas fue un éxito mundial en los años 90?",
+    "options": [
+      "Teresa",
+      "Yo soy Betty, la fea",
+      "Pasiones"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Qué director adaptó la novela *Misery* de Stephen King al cine en 1990?",
+    "options": [
+      "Chris Columbus",
+      "Rob Reiner",
+      "Frank Darabont"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién fue elegída presidenta de Filipinas en 1986 tras una revolución pacífica?",
+    "options": [
+      "Imelda Marcos",
+      "Gloria Macapagal Arroyo",
+      "Corazón Aquino"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién interpretó a \"Rocky Balboa\"?",
+    "options": [
+      "Arnold Schwarzenegger",
+      "Sylvester Stallone",
+      "Bruce Willis"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor interpretó al \"Joker\" en \"Batman\" (1989)?",
+    "options": [
+      "Heath Ledger",
+      "Jack Nicholson",
+      "Joaquin Phoenix"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año el fentanilo se convirtiera en la droga sintética más peligrosa de EE.UU.?",
+    "options": [
+      "1992",
+      "1993",
+      "1996"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué quarterback de los Miami Dolphins fue figura emblemática de los años 80?",
+    "options": [
+      "Dan Marino",
+      "Joe Montana",
+      "Tom Brady"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Qué estudio cinematográfico fundado en 1994 produjo *Amélie* (2001)?",
+    "options": [
+      "Pixar",
+      "Miramax Films",
+      "DreamWorks SKG"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué jugador de los Chicago Bulls fue fundamental en el primer campeonato del equipo en 1991?",
+    "options": [
+      "Scottie Pippen",
+      "Dennis Rodman",
+      "Kobe Bryant"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Qué tipo de manifestación tuvo lugar en la Plaza de Tiananmen en 1989?",
+    "options": [
+      "Una manifestación por la libertad de prensa",
+      "Una manifestación por los derechos laborales",
+      "Una manifestación por la democracia"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién cantaba \"Eye of the Tiger\", tema de la película \"Rocky\"?",
+    "options": [
+      "Toto",
+      "Survivor",
+      "Journey"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba la telenovela colombiana de 1999 sobre una mujer poco agraciada que trabaja en una empresa de moda, protagonizada por Ana María Orozco?",
+    "options": [
+      "Café con Aroma de Mujer",
+      "Yo Soy Betty, la Fea",
+      "La Reina del Sur"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué personaje de \"El Chavo del 8\" vivía en un barril?",
+    "options": [
+      "Quico",
+      "El Chavo",
+      "Don Ramón"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el álbum más vendido de la historia, lanzado por Michael Jackson?",
+    "options": [
+      "Bad",
+      "Thriller",
+      "Dangerous"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llama el famoso personaje de historieta y dibujos animados argentino creado por Manuel García Ferré?",
+    "options": [
+      "Topo Gigio",
+      "Hijitus",
+      "Condorito"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba la nave de Morfeo en la trilogía de Matrix?",
+    "options": [
+      "Caduceo",
+      "Ícarus",
+      "Nabucodonosor"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué director utilizó por primera vez efectos digitales masivos en *Jurassic Park* (1993)?",
+    "options": [
+      "James Cameron",
+      "George Lucas",
+      "Steven Spielberg"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué presentador y comediante estadounidense conducía \"The Tonight Show\" en los años 90?",
+    "options": [
+      "David Letterman",
+      "Jay Leno",
+      "Conan O'Brien"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué atleta estadounidense ganó 4 medallas de oro en atletismo en los Juegos Olímpicos de 1984?",
+    "options": [
+      "Michael Johnson",
+      "Carl Lewis",
+      "Jesse Owens"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué desastre nuclear ocurrió en 1986 en la actual Ucrania?",
+    "options": [
+      "Fukushima",
+      "Chernóbil",
+      "Three Mile Island"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué presentador estadounidense era conocido por su programa de entrevistas \"The Oprah Winfrey Show\"?",
+    "options": [
+      "Jay Leno",
+      "Oprah Winfrey",
+      "David Letterman"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué astronauta estadounidense fue la primera mujer en ir al espacio, en 1983?",
+    "options": [
+      "Valentina Tereshkova",
+      "Sally Ride",
+      "Mae Jemison"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál es el nombre del león protagonista de \"El Rey León\" (1994)?",
+    "options": [
+      "Mufasa",
+      "Simba",
+      "Timón"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda sueca de pop cantaba \"Chiquitita\" y \"Dancing Queen\"?",
+    "options": [
+      "Roxette",
+      "ABBA",
+      "Ace of Base"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué política sobre condición sexual se aplicó en el ejército de Estados Unidos desde 1993 hasta 2011?",
+    "options": [
+      "\"Stop Loss\"",
+      "\"Zero Tolerance\"",
+      "\"Don't Ask, Don't Tell\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué videojuego de Nintendo de 1990 presentaba a un fontanero italiano que rescataba a una princesa en el Reino de los Hongos?",
+    "options": [
+      "Super Mario Bros. 2",
+      "Super Mario World",
+      "Super Mario Bros. 3"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿En qué año se emitió el primer capítulo de la serie *The X-Files*?",
+    "options": [
+      "1993",
+      "1994",
+      "1993"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué banda británica cantaba \"Karma Chameleon\"?",
+    "options": [
+      "Duran Duran",
+      "Culture Club",
+      "Spandau Ballet"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué serie de televisión presentaba a un joven que se muda con sus tíos ricos en Bel-Air?",
+    "options": [
+      "*Family Matters*",
+      "*Hangin' with Mr. Cooper*",
+      "The Fresh Prince of Bel-Air"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actor estadounidense de la franquicia *Rápido y Furioso* falleció trágicamente en 2013?",
+    "options": [
+      "Vin Diesel",
+      "Paul Walker",
+      "Dwayne Johnson"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué país ganó el Mundial de Fútbol de 1994?",
+    "options": [
+      "Italia",
+      "Brasil",
+      "Argentina"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué tecnología de música portátil popularizó Sony en 1979 y dominó los 80?",
+    "options": [
+      "El CD",
+      "El Walkman",
+      "El MP3"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué instrumento musical dominó la producción musical de los años 80 por sobre la guitarra?",
+    "options": [
+      "La guitarra",
+      "El saxo",
+      "El teclado electrónico"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué banda mexicana canta \"Rayando el Sol\"?",
+    "options": [
+      "Timbiriche",
+      "Maná",
+      "Café Tacvba"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué ciudad se ambienta la serie de películas \"Karate Kid\"?",
+    "options": [
+      "Nueva York",
+      "California",
+      "Chicago"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué boxeador se convirtió en un ícono cultural por su carisma y frase \"float like a butterfly, sting like a bee\"?",
+    "options": [
+      "Mike Tyson",
+      "Muhammad Ali",
+      "George Foreman"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba la primera telenovela de la trilogía de Thalía en los años 90 (1992)?",
+    "options": [
+      "Rosalinda",
+      "María Mercedes",
+      "Marimar"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año se fundó la empresa Google?",
+    "options": [
+      "1994",
+      "1996",
+      "1998"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Cuál fue el grupo juvenil mexicano liderado por Thalía en los 80?",
+    "options": [
+      "Flans",
+      "Timbiriche",
+      "Garibaldi"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué muñeca fabricada por Mattel, lanzada en 1959, siguió siendo un ícono de moda en los 80 y 90?",
+    "options": [
+      "Cabbage Patch Kids",
+      "Barbie",
+      "My Little Pony"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor interpretó a \"Forrest Gump\"?",
+    "options": [
+      "Robin Williams",
+      "Tom Hanks",
+      "Kevin Costner"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cómo se llamaba la marioneta de madera que se convierte en niño real en la película de Disney?",
+    "options": [
+      "Pepito",
+      "Pinocchio",
+      "Tarzan"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién o quiénes crearon la serie *Twin Peaks*?",
+    "options": [
+      "Stephen King",
+      "David Lynch y Mark Frost",
+      "J.J. Abrams y Damon Lindelof"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién cantó \"My Heart Will Go On\", de la película \"Titanic\"?",
+    "options": [
+      "Whitney Houston",
+      "Celine Dion",
+      "Mariah Carey"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué boxeador era conocido como \"Iron Mike\"?",
+    "options": [
+      "Muhammad Ali",
+      "Mike Tyson",
+      "Evander Holyfield"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué símbolo de la moda y el \"poder femenino\" de los 80 llevaba hombreras y colores llamativos?",
+    "options": [
+      "El estilo \"grunge\"",
+      "El estilo \"power dressing\"",
+      "El estilo \"hippie\""
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué modelo y actriz fue una de las primeras \"supermodelos\" de los 90?",
+    "options": [
+      "Kate Moss",
+      "Cindy Crawford",
+      "Naomi Watts"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién cantaba \"Waterfalls\"?",
+    "options": [
+      "Destiny's Child",
+      "TLC",
+      "En Vogue"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué bebida gaseosa lanzó su famosa \"Nueva Coca-Cola\" en 1985, generando polémica?",
+    "options": [
+      "Pepsi",
+      "Coca-Cola",
+      "Sprite"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué programa del canal Discovery Channel se estreno en 1998 y mostraba la fabricación de motos personalizadas?",
+    "options": [
+      "*MythBusters*",
+      "American Chopper",
+      "*Top Gear*"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor estadounidense de Hollywood murió por una sobredosis de drogas en 1993?",
+    "options": [
+      "Brad Renfro",
+      "Corey Haim",
+      "River Phoenix"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué diseñador de moda francesa relanzó la marca icónica Channel en los años 80?",
+    "options": [
+      "Calvin Klein",
+      "Karl Lagerfeld",
+      "Christian Dior"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué escándalo político involucró al presidente Bill Clinton y una empleada de la Casa Blanca en 1998?",
+    "options": [
+      "El caso Watergate",
+      "El caso Iran-Contra",
+      "El caso Lewinsky"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué película de dinosaurios dirigió Steven Spielberg en 1993?",
+    "options": [
+      "Godzilla",
+      "Jurassic Park",
+      "King Kong"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año Sony lanzó la primera consola PlayStation?",
+    "options": [
+      "1993",
+      "1994",
+      "1996"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué diseñador italiano fundó la marca de moda \"Versace\"?",
+    "options": [
+      "Giorgio Armani",
+      "Gianni Versace",
+      "Valentino Garavani"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el mayor éxito de Christina Aguilera en 1999?",
+    "options": [
+      "\"What a Girl Wants\"",
+      "\"Come On Over\"",
+      "\"Genie in a Bottle\""
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Quién interpretó al \"Terminator\" en la saga de películas?",
+    "options": [
+      "Sylvester Stallone",
+      "Arnold Schwarzenegger",
+      "Jean-Claude Van Damme"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda noruega cantaba \"Take On Me\"?",
+    "options": [
+      "Duran Duran",
+      "a-ha",
+      "Wham!"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué tenista alemana dominó el tenis femenino en los 80 y 90?",
+    "options": [
+      "Martina Navratilova",
+      "Steffi Graf",
+      "Monica Seles"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué personaje villano de *Star Wars Episode I - The Phantom Menace* (1999) portaba un sable láser de dos hojas?",
+    "options": [
+      "Conde Dooku",
+      "Darth Maul",
+      "Jango Fett"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué evento internacional de gran magnitud se realizó en Barcelona en 1992?",
+    "options": [
+      "La Exposición Universal",
+      "Una conmemación de la ONU",
+      "Los Juegos Olímpicos de Verano"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué presidente de Estados Unidos gobernó durante la mayor parte de la década de 1980?",
+    "options": [
+      "Jimmy Carter",
+      "Ronald Reagan",
+      "George H. W. Bush"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué video musical de 1982 introdujo por primera vez el moonwalk de Michael Jackson?",
+    "options": [
+      "\"Thriller\"",
+      "\"Billie Jean\"",
+      "\"Beat It\""
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué programa del canal Discovery Channel mezcla curiosidad científica y experimentos educativas?",
+    "options": [
+      "MythBusters",
+      "*American Chopper*",
+      "*Pawn Stars*"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Qué rapero estadounidense lanzado en 1999 con su álbum *The Slim Shady LP*?",
+    "options": [
+      "50 Cent",
+      "Eminem",
+      "Snoop Dogg"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿En qué año cayó el Muro de Berlín?",
+    "options": [
+      "1985",
+      "1989",
+      "1991"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué compositor produjo el éxito *How Will I Know* de Whitney Houston en 1985?",
+    "options": [
+      "Kenneth \"Babyface\"",
+      "Dolly Parton",
+      "Narada Michael Walden"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué empresario texano participó como candidato independiente en las elecciones presidenciales de EE.UU. en 1992 y 1996?",
+    "options": [
+      "Pat Buchanan",
+      "John Anderson",
+      "Ross Perot"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué banda estadounidense liderada por Kurt Cobain popularizó el movimiento grunge en los 90?",
+    "options": [
+      "Pearl Jam",
+      "Soundgarden",
+      "Nirvana"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué programa de televisión presentó por primera vez la frase \"Yo no fui, Brinkley\"?",
+    "options": [
+      "*Magnum, P.I.*",
+      "*Dallas*",
+      "Miami Vice"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿En qué año se lanzó la World Wide Web al público general?",
+    "options": [
+      "1985",
+      "1991",
+      "1995"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué revista/medio popularizó el término \"Generación X\"?",
+    "options": [
+      "Time",
+      "Cultura popular de los 90",
+      "Rolling Stone"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué artista puertorriqueño cantaba \"Livin' la Vida Loca\"?",
+    "options": [
+      "Marc Anthony",
+      "Ricky Martin",
+      "Chayanne"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién es el cantante principal de U2?",
+    "options": [
+      "Sting",
+      "Bono",
+      "Bryan Adams"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda cantó \"Livin' on a Prayer\"?",
+    "options": [
+      "Journey",
+      "Bon Jovi",
+      "Def Leppard"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién gobernó la Unión Soviética desde 1985 hasta 1991?",
+    "options": [
+      "Mijaíl Gorbachov",
+      "Borís Yeltsin",
+      "Leóntif Brézhnev"
+    ],
+    "correct": "a"
+  },
+  {
+    "question": "¿Quién era el líder del grupo llamado Los Magnificos (Equipo A) en la serie de TV de los años 80s?",
+    "options": [
+      "Teniente Templeton \"Faz\" Peck",
+      "Capitán H.M. \"Loco\" Murdock",
+      "Coronel John \"Hannibal\" Smith"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué cantante interpretó \"Girls Just Want to Have Fun\"?",
+    "options": [
+      "Madonna",
+      "Cyndi Lauper",
+      "Pat Benatar"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor protagonizó *Ace Ventura: Un detective del detalle* (1994)?",
+    "options": [
+      "Jim Carrey",
+      "Jim Carrey",
+      "Mike Myers"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Que selecciones de fútbol jugaron la final del mundial FIFA 1994?",
+    "options": [
+      "Argentina - Brasil",
+      "Brasil - Italia",
+      "Italia - Argentina"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué banda británica cantaba \"Another Brick in the Wall\"?",
+    "options": [
+      "Queen",
+      "Pink Floyd",
+      "Genesis"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué baterista ha sido miembro constante de la banda U2 desde su fundación en 1976?",
+    "options": [
+      "Bono",
+      "The Edge",
+      "Larry Mullen Jr."
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué actor interpretó a \"Batman\" en la película de 1989?",
+    "options": [
+      "George Clooney",
+      "Michael Keaton",
+      "Val Kilmer"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Cuál fue el primer país en tener una mujer como jefa de gobierno en Europa en los 80?",
+    "options": [
+      "Francia",
+      "Reino Unido",
+      "Alemania"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué compañía lanzó la primera computadora personal Macintosh en 1984?",
+    "options": [
+      "Microsoft",
+      "Apple",
+      "IBM"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué país ganó el Mundial de Fútbol de 1990?",
+    "options": [
+      "Argentina",
+      "Alemania Occidental",
+      "Italia"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué actor de la saga *Star Wars* retomó su papel original en las películas de la nueva trilogía en 2015?",
+    "options": [
+      "James Earl Jones",
+      "Peter Falk",
+      "Mark Hamill"
+    ],
+    "correct": "c"
+  },
+  {
+    "question": "¿Qué banda de rock cantaba \"Sweet Child O' Mine\"?",
+    "options": [
+      "Metallica",
+      "Guns N' Roses",
+      "Aerosmith"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Quién cantaba \"Physical\"?",
+    "options": [
+      "Kim Wilde",
+      "Olivia Newton-John",
+      "Debbie Gibson"
+    ],
+    "correct": "b"
+  },
+  {
+    "question": "¿Qué artista conocido como \"El Rey del Pop\" murió en 2009?",
+    "options": [
+      "Elvis Presley",
+      "Michael Jackson",
+      "Prince"
+    ],
+    "correct": "b"
+  }
+];
+
+let triviaState = {
+    questions: [],
+    currentIndex: 0,
+    correct: 0,
+    total: 0,
+    timerInterval: null,
+    timeLeft: 15,
+    answered: false
+};
+
+function initTrivia() {
+    const shuffled = [...TRIVIA_DATA].sort(() => Math.random() - 0.5);
+    triviaState.questions = shuffled;
+    triviaState.currentIndex = 0;
+    triviaState.correct = 0;
+    triviaState.answered = false;
+}
+
+function openTriviaModal() {
+    initTrivia();
+    const modal = document.getElementById('triviaModal');
+    const result = document.getElementById('triviaResult');
+    const options = document.getElementById('triviaOptions');
+    const feedback = document.getElementById('triviaFeedback');
+    if (modal) {
+        modal.style.display = 'flex';
+        result.style.display = 'none';
+        options.style.display = 'flex';
+        feedback.style.display = 'none';
+        updateScore();
+        showQuestion();
+    }
+}
+
+function closeTriviaModal() {
+    const modal = document.getElementById('triviaModal');
+    if (modal) { modal.style.display = 'none'; stopTimer(); }
+}
+
+function showQuestion() {
+    if (triviaState.currentIndex >= triviaState.questions.length) {
+        showResult();
+        return;
+    }
+    triviaState.answered = false;
+    const q = triviaState.questions[triviaState.currentIndex];
+    document.getElementById('questionNumber').textContent = 'Pregunta ' + (triviaState.currentIndex + 1);
+    document.getElementById('questionText').textContent = q.question;
+    const optBtns = document.querySelectorAll('.trivia-option');
+    optBtns.forEach((btn, i) => {
+        btn.classList.remove('correct', 'incorrect', 'disabled');
+        btn.querySelector('.option-text').textContent = (q.options[i] || '').replace(/^\*\*\s*/, '').trim();
+        btn.querySelector('.option-letter').textContent = ['A', 'B', 'C'][i];
+        btn.style.display = 'flex';
+    });
+    document.getElementById('triviaFeedback').style.display = 'none';
+    document.getElementById('triviaFeedback').className = 'trivia-feedback';
+    startTimer();
+}
+
+function startTimer() {
+    stopTimer();
+    triviaState.timeLeft = 15;
+    const timerEl = document.getElementById('triviaTimer');
+    const displayEl = document.getElementById('timerDisplay');
+    if (timerEl) timerEl.classList.remove('timer-warning');
+    if (displayEl) displayEl.textContent = triviaState.timeLeft;
+    triviaState.timerInterval = setInterval(() => {
+        triviaState.timeLeft--;
+        if (displayEl) displayEl.textContent = triviaState.timeLeft;
+        if (triviaState.timeLeft <= 5 && timerEl) timerEl.classList.add('timer-warning');
+        if (triviaState.timeLeft <= 0) {
+            stopTimer();
+            if (!triviaState.answered) handleTimeout();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (triviaState.timerInterval) { clearInterval(triviaState.timerInterval); triviaState.timerInterval = null; }
+}
+
+function handleAnswer(selected) {
+    if (triviaState.answered) return;
+    triviaState.answered = true;
+    stopTimer();
+    const q = triviaState.questions[triviaState.currentIndex];
+    const correctAns = q.correct;
+    const optBtns = document.querySelectorAll('.trivia-option');
+    optBtns.forEach(btn => btn.classList.add('disabled'));
+    if (selected === correctAns) {
+        triviaState.correct++;
+        optBtns[selected === 'a' ? 0 : selected === 'b' ? 1 : 2].classList.add('correct');
+        showFeedback(true, correctAns);
+    } else {
+        optBtns[selected === 'a' ? 0 : selected === 'b' ? 1 : 2].classList.add('incorrect');
+        optBtns[correctAns === 'a' ? 0 : correctAns === 'b' ? 1 : 2].classList.add('correct');
+        showFeedback(false, correctAns);
+    }
+    updateScore();
+    setTimeout(() => { triviaState.currentIndex++; showQuestion(); }, 2000);
+}
+
+function handleTimeout() {
+    triviaState.answered = true;
+    const q = triviaState.questions[triviaState.currentIndex];
+    const correctAns = q.correct;
+    const optBtns = document.querySelectorAll('.trivia-option');
+    optBtns.forEach(btn => btn.classList.add('disabled'));
+    optBtns[correctAns === 'a' ? 0 : correctAns === 'b' ? 1 : 2].classList.add('correct');
+    showFeedback(false, correctAns, true);
+    updateScore();
+    setTimeout(() => { triviaState.currentIndex++; showQuestion(); }, 2000);
+}
+
+function showFeedback(isCorrect, correctAns, isTimeout = false) {
+    const feedbackEl = document.getElementById('triviaFeedback');
+    const iconEl = feedbackEl.querySelector('.feedback-icon');
+    const textEl = feedbackEl.querySelector('.feedback-text');
+    const correctText = triviaState.questions[triviaState.currentIndex].options[correctAns === 'a' ? 0 : correctAns === 'b' ? 1 : 2];
+    if (isTimeout) {
+        feedbackEl.className = 'trivia-feedback timeout';
+        iconEl.innerHTML = '<i class="fas fa-clock"></i>';
+        textEl.innerHTML = '¡Se acabó el tiempo!<br><small>Respuesta correcta: ' + correctText + '</small>';
+    } else if (isCorrect) {
+        feedbackEl.className = 'trivia-feedback correct';
+        iconEl.innerHTML = '<i class="fas fa-check-circle"></i>';
+        textEl.textContent = '¡Correcto!';
+    } else {
+        feedbackEl.className = 'trivia-feedback incorrect';
+        iconEl.innerHTML = '<i class="fas fa-times-circle"></i>';
+        textEl.innerHTML = 'Incorrecto<br><small>Respuesta correcta: ' + correctText + '</small>';
+    }
+    feedbackEl.style.display = 'block';
+}
+
+function showResult() {
+    stopTimer();
+    const resultEl = document.getElementById('triviaResult');
+    const optionsEl = document.getElementById('triviaOptions');
+    const feedbackEl = document.getElementById('triviaFeedback');
+    const scoreEl = document.getElementById('finalScore');
+    const msgEl = document.getElementById('resultMessage');
+    if (resultEl && scoreEl && msgEl) {
+        scoreEl.textContent = triviaState.correct + '/' + triviaState.total;
+        const pct = (triviaState.correct / triviaState.total) * 100;
+        if (pct >= 80) msgEl.textContent = '🎉 ¡Increíble! ¡Eres un experto de los 80s y 90s!';
+        else if (pct >= 60) msgEl.textContent = '👍 ¡Muy bien! ¡Sabes mucho de esa época!';
+        else if (pct >= 40) msgEl.textContent = '🤔 No está mal, ¡Sigue intentando!';
+        else msgEl.textContent = '📻 ¡Vuelve a escuchar Radiochar para aprender más!';
+        if (optionsEl) optionsEl.style.display = 'none';
+        if (feedbackEl) feedbackEl.style.display = 'none';
+        resultEl.style.display = 'block';
+    }
+}
+
+function restartTrivia() {
+    initTrivia();
+    const result = document.getElementById('triviaResult');
+    const options = document.getElementById('triviaOptions');
+    if (result) result.style.display = 'none';
+    if (options) options.style.display = 'flex';
+    updateScore();
+    showQuestion();
+}
+
+function updateScore() {
+    const correctEl = document.getElementById('triviaCorrect');
+    const totalEl = document.getElementById('triviaTotal');
+    if (correctEl) correctEl.textContent = triviaState.correct;
+    if (totalEl) totalEl.textContent = triviaState.total;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const optBtns = document.querySelectorAll('.trivia-option');
+    optBtns.forEach(btn => {
+        btn.addEventListener('click', () => { handleAnswer(btn.getAttribute('data-answer')); });
+    });
+    const modal = document.getElementById('triviaModal');
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeTriviaModal(); });
+});
+
+</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
