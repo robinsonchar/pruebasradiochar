@@ -227,8 +227,14 @@
     /* === "VIDEOCLIP DESTACADO" === */
     .vc-title-custom { color: var(--color-accent-pink, #ff2d78); border-left: 3px solid var(--color-accent-pink, #ff2d78); }
     .vc-card {
-        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,0,222,0.35);
         border-radius: 16px; overflow: hidden; max-width: 700px; margin: 0 auto;
+        box-shadow: 0 0 16px rgba(255,0,222,0.12), 0 0 2px rgba(255,0,222,0.35), 0 25px 45px rgba(0,0,0,0.5);
+        transition: box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .vc-card:hover {
+        border-color: rgba(255,0,222,0.55);
+        box-shadow: 0 0 22px rgba(255,0,222,0.2), 0 0 4px rgba(255,0,222,0.45), 0 28px 50px rgba(0,0,0,0.55);
     }
     .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; aspect-ratio: 16 / 9; }
     .vc-frame-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100% !important; border: 0; }
@@ -1036,37 +1042,25 @@ iframe { max-width: 100% !important; height: auto !important; }
         max-width: 100%;
         margin: 0;
         position: relative;
-        background-image: url('https://img3.wallspic.com/crops/8/8/0/5/6/165088/165088-vaporwave-retro-estilo_retro-retrofuturismo-synthwave-3840x2160.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border-radius: 0;
-        padding: 40px 0;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 30px 40px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         overflow: hidden;
+        text-align: left;
     }
-    .trivia-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.55);
-        z-index: 1;
-        transition: transform 0.3s ease;
-        border-radius: 0;
+    .trivia-container-img {
+        flex: 0 0 260px;
+        width: 260px;
+        height: 260px;
+        object-fit: contain;
+        border-radius: 16px;
     }
-    .trivia-container:hover::before {
-        transform: scale(1.05);
-    }
-    .trivia-container:hover {
-        background-size: cover;
-    }
-    .trivia-container > * {
-        position: relative;
-        z-index: 2;
-    }
+    .trivia-container-text { flex: 1; min-width: 0; }
     .trivia-main-btn {
         background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-blue));
         border: none;
@@ -1093,10 +1087,16 @@ iframe { max-width: 100% !important; height: auto !important; }
     .trivia-subtitle {
         color: #fff;
         font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 30px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        font-weight: 700;
+        margin-bottom: 14px;
         line-height: 1.4;
+    }
+    .trivia-description {
+        color: #ccc;
+        font-size: 14.5px;
+        line-height: 1.65;
+        margin-bottom: 26px;
+        max-width: 560px;
     }
     .trivia-stats { margin-top: 20px; color: var(--color-text-muted); font-size: 14px; }
     .section-subtitle {
@@ -1104,6 +1104,11 @@ iframe { max-width: 100% !important; height: auto !important; }
         font-size: 16px;
         margin-top: 10px;
         font-weight: 500;
+    }
+    @media (max-width: 780px) {
+        .trivia-container { flex-direction: column; text-align: center; padding: 30px 22px; }
+        .trivia-container-img { flex-basis: auto; width: 180px; height: 180px; }
+        .trivia-description { max-width: 100%; }
     }
     
     .trivia-modal-overlay {
@@ -1357,6 +1362,15 @@ iframe { max-width: 100% !important; height: auto !important; }
     </div>
 </div>
 
+<div class="modal-overlay" id="lyricsModalOverlay">
+    <div class="modal-content" style="text-align: left; color: #fff; background: #1a1a1a; border-radius: 20px; padding: 40px; position: relative; border: 1px solid #333; width: 460px; max-height: 80vh; overflow-y: auto;">
+        <button class="modal-close" onclick="closeLyricsModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-title" id="lyricsModalTitle">--</div>
+        <div class="modal-subtitle" id="lyricsModalArtist">--</div>
+        <div class="modal-body" id="lyricsModalBody" style="white-space: pre-line; line-height: 1.8;">Buscando la letra...</div>
+    </div>
+</div>
+
 <header>
     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHUtTEFGPRbqVpElB4IrEaW0Y4DJb6_wZwOS24Ns35md-ptU1l8644raWJ67ASFkb3c5gtQQR__wCoE3NNDwO76jBHve4H63CCySYCH3E49e_o-ANQHjSxXHD6cTnPeNUTzaomI14wmXOz-_s7-LzpKV8gOKCyRJJm26_h1fIBrAMjoCt-_dbet-7cH-0E/s16000/radiochar%2012.png" alt="Radiochar Logo" class="radio-logo" referrerpolicy="no-referrer">
 </header>
@@ -1376,6 +1390,8 @@ iframe { max-width: 100% !important; height: auto !important; }
               <div class="listener-tag-inline"><i class="fas fa-headphones"></i><span id="listenerCount">--</span></div>
               <div class="meta-separator">|</div>
               <div class="request-link" onclick="openReqModal()">PIDE TU CANCIÓN</div>
+              <div class="meta-separator">|</div>
+              <div class="request-link" onclick="openLyricsModal()">VER LETRA</div>
               <div class="program-tag-inline"><i class="fas fa-broadcast-tower"></i> <span id="currentProgramDisplay">--</span></div>
           </div>
           <div class="song-title-container"><div id="displayTitle" class="song-title visual-transition">Conectando...</div></div>
@@ -1563,15 +1579,19 @@ iframe { max-width: 100% !important; height: auto !important; }
     <div class="section-header-common">
         <h2 class="section-title-common">LA TRIVIA DE AYER</h2>
     </div>
-    
+
     <div class="trivia-container">
-        <p class="trivia-subtitle">¿Cuánto recuerdas de los 80s y 90s?</p>
-        <button class="trivia-main-btn" id="triviaMainBtn" onclick="openTriviaModal()">
-            <i class="fas fa-gamepad"></i>
-            <span>JUGAR A LA TRIVIA DE AYER</span>
-        </button>
-        
-        <div class="trivia-stats" id="triviaStats">
+        <img class="trivia-container-img" src="https://raw.githubusercontent.com/robinsonchar/radiochar/refs/heads/main/trivia_game.png" alt="La Trivia de Ayer">
+        <div class="trivia-container-text">
+            <p class="trivia-subtitle">¿Cuánto recuerdas de los 80s y 90s?</p>
+            <p class="trivia-description">Revive los mejores momentos de los años 80s y 90s con preguntas de música, deportes, farándula, noticias, artistas y grandes acontecimientos. Pon a prueba tu memoria, recuerda datos curiosos y descubre cuánto sabes de estas décadas inolvidables.</p>
+            <button class="trivia-main-btn" id="triviaMainBtn" onclick="openTriviaModal()">
+                <i class="fas fa-gamepad"></i>
+                <span>JUGAR A LA TRIVIA DE AYER</span>
+            </button>
+
+            <div class="trivia-stats" id="triviaStats">
+            </div>
         </div>
     </div>
 </div>
@@ -1881,6 +1901,48 @@ let marqueeIntervalId = null;
     window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('active'); };
     // Modal de info de la canción (Wikipedia) - id="infoModalOverlay"
     window.closeInfoModal = function() { DOM.modal.overlay.classList.remove('active'); };
+
+    var lyricsModalOverlay = document.getElementById('lyricsModalOverlay');
+    var lyricsModalTitle = document.getElementById('lyricsModalTitle');
+    var lyricsModalArtist = document.getElementById('lyricsModalArtist');
+    var lyricsModalBody = document.getElementById('lyricsModalBody');
+
+    window.openLyricsModal = async function() {
+        if (!lyricsModalOverlay) return;
+        lyricsModalOverlay.classList.add('active');
+
+        var displayArtist = DOM.displayArtist.innerText;
+        var displaySong = DOM.displayTitle.innerText;
+        var artist = (currentMetadata.artist && currentMetadata.artist !== "Radiochar") ? currentMetadata.artist : displayArtist;
+        var song = (currentMetadata.song && currentMetadata.song !== "") ? currentMetadata.song : displaySong;
+        var cleanSong = Utils.cleanText(song) || song;
+
+        lyricsModalArtist.innerText = artist;
+        lyricsModalTitle.innerText = song;
+        lyricsModalBody.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando la letra...';
+
+        try {
+            var url = 'https://api.lyrics.ovh/v1/' + encodeURIComponent(artist) + '/' + encodeURIComponent(cleanSong);
+            var data = await Utils.safeFetchJson(url);
+
+            if (data && data.lyrics && data.lyrics.trim()) {
+                lyricsModalBody.innerText = data.lyrics.trim();
+            } else {
+                showLyricsFallback(artist, song);
+            }
+        } catch (e) {
+            showLyricsFallback(artist, song);
+        }
+    };
+
+    function showLyricsFallback(artist, song) {
+        var query = encodeURIComponent(artist + ' ' + song + ' letra');
+        lyricsModalBody.innerHTML =
+            'No encontramos la letra de esta canción por ahora.<br><br>' +
+            '<a href="https://www.google.com/search?q=' + query + '" target="_blank" rel="noopener noreferrer" style="color: var(--color-accent-blue); font-weight: 700;">Buscarla en Google <i class="fas fa-external-link-alt" style="font-size: 11px;"></i></a>';
+    }
+
+    window.closeLyricsModal = function() { if (lyricsModalOverlay) lyricsModalOverlay.classList.remove('active'); };
 
     var Utils = {
         debounce: function(func, wait) {
@@ -2950,10 +3012,23 @@ let marqueeIntervalId = null;
     }
 
     function extractArtistEvento(text) {
-        // Varios patrones porque los eventos reales tienen redacciones muy variadas
+        // Varios patrones porque los eventos reales tienen redacciones muy variadas.
+        // Algunas reseñas de "Evento" usan la misma redacción que las de "Éxitos en listas"
+        // (ej. "el espectacular éxito de la canción 'X' posiciona a Y en la cima..."),
+        // así que también probamos esos patrones como respaldo.
         var patterns = [
             /^En \d{4},\s*([A-ZÁÉÍÓÚÑ][^,]+?),\s*(?:(?:el|la|los|las)\s+)?(?:\w+\s+)?(?:líder|vocalista|cantante|cantautor|guitarrista|bajista|baterista|tecladista|productor|compositor|rapero|pianista|solista|músico|música|DJ)/,
             /(?:el|la|los|las)\s+(?:\w+\s+y\s+)?(?:\w+\s+)?(?:cantante|músico|música|guitarrista|bajista|baterista|tecladista|cantautor|productor|compositor|rapero|pianista|solista|vocalista|artista)\s+([A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+(?:\s+[A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+){0,3})/,
+            /posiciona a\s+(.+?)\s+en la cima/,
+            /llevando a\s+(.+?)\s+al número uno/,
+            /otorga a\s+(.+?)\s+el preciado/,
+            /asegura a\s+(.+?)\s+la cima/,
+            /impulsando a\s+(.+?)\s+a lo más alto/,
+            /de\s+(.+?)\s+conquista el primer lugar/,
+            /el sencillo de\s+(.+?)\s+titulado/,
+            /^En \d{4},\s*(.+?)\s+se ubica en el Top 10/,
+            /^En \d{4},\s*(.+?)\s+arrasa en las carteleras/,
+            /^En \d{4},\s*(.+?)\s+establece un récord/,
             /([A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+(?:\s+[A-ZÁÉÍÓÚÑ][\wÀ-ÿ'.-]+){0,3})\s+(?:fallece|muere|anuncia|recibe|lanza|publica|alcanza|gana|estrena|contrae|se convierte|protagoniza|inicia|encabeza|se presenta|firma|graba|ofrece|es arrestad|es hospitalizad|es deportad|cumple|muerde|rompe|sufre|celebra|realiza|edita|es hallad|es nombrad|es incluid|es investid)\b/
         ];
         for (var i = 0; i < patterns.length; i++) {
