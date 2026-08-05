@@ -236,9 +236,13 @@
         border-color: rgba(255,0,222,0.55);
         box-shadow: 0 0 22px rgba(255,0,222,0.2), 0 0 4px rgba(255,0,222,0.45), 0 28px 50px rgba(0,0,0,0.55);
     }
-    .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; aspect-ratio: 16 / 9; }
-    .vc-frame-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100% !important; border: 0; }
-    #vcFrameWrap iframe { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; border: 0; display: block; }
+    .vc-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; background: linear-gradient(135deg, #170b1c 0%, #090909 58%, #260018 100%); aspect-ratio: 16 / 9; overflow: hidden; }
+    .vc-cover-link { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background-color: #111; background-position: center; background-size: cover; color: #fff; text-decoration: none; isolation: isolate; }
+    .vc-cover-link::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.72)); z-index: 0; transition: background 0.25s ease; }
+    .vc-cover-link:hover::before, .vc-cover-link:focus-visible::before { background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.58)); }
+    .vc-youtube-button { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 11px; padding: 15px 22px; border-radius: 999px; background: #ff0033; color: #fff; font-size: 16px; font-weight: 800; box-shadow: 0 10px 28px rgba(0,0,0,0.46), 0 0 0 1px rgba(255,255,255,0.22) inset; transform: translateZ(0); transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease; }
+    .vc-cover-link:hover .vc-youtube-button, .vc-cover-link:focus-visible .vc-youtube-button { background: #ff1744; transform: scale(1.06); box-shadow: 0 13px 32px rgba(0,0,0,0.52), 0 0 24px rgba(255,0,51,0.4); }
+    .vc-youtube-button i { font-size: 25px; }
     .vc-info { padding: 18px 22px 22px; text-align: center; }
     .vc-info-title { font-size: 17px; font-weight: 800; color: #fff; }
     .vc-info-artist { font-size: 14px; color: #ccc; margin-top: 4px; }
@@ -3184,7 +3188,26 @@ let marqueeIntervalId = null;
             var artist = parts[0] ? parts[0].trim() : '';
             var song = parts[1] ? parts[1].trim() : songLine;
 
-            frameWrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '" title="Videoclip destacado" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+            // YouTube no permite reproducir en iframe ciertos vídeos con restricción de edad.
+            // Mostramos la portada de iTunes y enlazamos al reproductor normal de YouTube.
+            frameWrap.innerHTML = '<a class="vc-cover-link" id="vcWatchLink" target="_blank" rel="noopener noreferrer" aria-label="Ver ' + song.replace(/"/g, '&quot;') + ' en YouTube" href="https://www.youtube.com/watch?v=' + encodeURIComponent(videoId) + '">' +
+                '<span class="vc-youtube-button"><i class="fab fa-youtube" aria-hidden="true"></i><span>Ver en YouTube</span></span></a>';
+            var watchLink = document.getElementById('vcWatchLink');
+            var fallbackCover = 'linear-gradient(135deg, #170b1c 0%, #090909 58%, #260018 100%)';
+            var coverQuery = encodeURIComponent(artist + ' ' + song);
+            if (watchLink) {
+                watchLink.style.backgroundImage = fallbackCover;
+                try {
+                    var artworkRes = await fetch('https://itunes.apple.com/search?term=' + coverQuery + '&media=music&entity=song&limit=1');
+                    var artworkData = await artworkRes.json();
+                    if (artworkData.results && artworkData.results.length && artworkData.results[0].artworkUrl100) {
+                        var artworkUrl = artworkData.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
+                        watchLink.style.backgroundImage = 'url("' + artworkUrl + '")';
+                    }
+                } catch (artworkError) {
+                    console.warn('No se pudo cargar la portada de iTunes para el videoclip destacado:', artworkError);
+                }
+            }
             if (titleEl) titleEl.innerText = song;
             if (artistEl) artistEl.innerText = artist;
         } catch (e) {
@@ -5815,4 +5838,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
