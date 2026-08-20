@@ -1892,6 +1892,43 @@ let marqueeIntervalId = null;
         }, 300);
     }
 // --- FIN MOTOR DE MARQUESINA ---
+
+// --- ITUNES JSONP: itunes.apple.com/search no envía Access-Control-Allow-Origin de forma
+// confiable, así que fetch() es bloqueado por CORS y las carátulas nunca cargan. Apple
+// recomienda en su propia documentación usar "dynamic script tags" (JSONP) para este
+// endpoint. Este helper se reutiliza en todos los puntos donde se consulta iTunes. ---
+window.fetchItunesJSONP = function (url) {
+    return new Promise(function (resolve, reject) {
+        var callbackName = '__itunesJsonp_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+        var script = document.createElement('script');
+        var timeoutId;
+
+        function cleanup() {
+            clearTimeout(timeoutId);
+            delete window[callbackName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[callbackName] = function (data) {
+            cleanup();
+            resolve(data);
+        };
+
+        script.onerror = function () {
+            cleanup();
+            reject(new Error('Fallo la solicitud JSONP a iTunes'));
+        };
+
+        timeoutId = setTimeout(function () {
+            cleanup();
+            reject(new Error('Tiempo de espera agotado en la solicitud a iTunes'));
+        }, 8000);
+
+        script.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=' + callbackName;
+        document.head.appendChild(script);
+    });
+};
+
 (function() {
     var itunesCache = window.itunesCache || new Map();
     // OPTIMIZACIÓN: CACHÉ EN SESSIONSTORAGE
@@ -2108,9 +2145,15 @@ let marqueeIntervalId = null;
             if(cached) return cached;
             
             try {
-                var res = await fetch(url);
-                if (!res.ok) return null;
-                var data = await res.json();
+                var data;
+                if (url.indexOf('itunes.apple.com') !== -1) {
+                    // fetch() falla por CORS contra itunes.apple.com/search; usamos JSONP.
+                    data = await window.fetchItunesJSONP(url);
+                } else {
+                    var res = await fetch(url);
+                    if (!res.ok) return null;
+                    data = await res.json();
+                }
                 saveToCache(url, data); // Guardar en sesión
                 return data;
             } catch (e) { return null; }
@@ -3191,8 +3234,7 @@ let marqueeIntervalId = null;
     async function fetchItunesArtwork(artist) {
         try {
             var url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(artist) + '&media=music&limit=1';
-            var res = await fetch(url);
-            var data = await res.json();
+            var data = await window.fetchItunesJSONP(url);
             if (data.results && data.results[0] && data.results[0].artworkUrl100) {
                 return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
             }
@@ -3314,8 +3356,7 @@ let marqueeIntervalId = null;
             if (watchLink) {
                 watchLink.style.backgroundImage = fallbackCover;
                 try {
-                    var artworkRes = await fetch('https://itunes.apple.com/search?term=' + coverQuery + '&media=music&entity=song&limit=1');
-                    var artworkData = await artworkRes.json();
+                    var artworkData = await window.fetchItunesJSONP('https://itunes.apple.com/search?term=' + coverQuery + '&media=music&entity=song&limit=1');
                     if (artworkData.results && artworkData.results.length && artworkData.results[0].artworkUrl100) {
                         var artworkUrl = artworkData.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
                         watchLink.style.backgroundImage = 'url("' + artworkUrl + '")';
@@ -5959,8 +6000,15 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- RADIOCHAR BLOG FEED: dynamic enhancement with static-card fallback -->
 <script>
 (function () {
-    var feedUrl = 'https://blog.radiochar.com/feeds/posts/default?alt=json&max-results=3';
     var placeholderImage = 'https://via.placeholder.com/1200x630/191919/ffffff?text=Radiochar+Blog';
+
+    // Blogger sirve el feed "alt=json" sin cabecera Access-Control-Allow-Origin,
+    // así que fetch() desde blog.radiochar.com (origen distinto) es bloqueado por CORS
+    // y siempre caía en el catch (por eso solo se veían las tarjetas de fallback).
+    // JSONP (alt=json-in-script) carga el feed vía <script>, que no está sujeto a CORS.
+    function getFeedUrl(callbackName) {
+        return 'https://blog.radiochar.com/feeds/posts/default?alt=json-in-script&max-results=3&callback=' + callbackName;
+    }
 
     function escapeHtml(value) {
         return String(value || '').replace(/[&<>'"]/g, function (character) {
@@ -5977,7 +6025,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function imageFrom(entry) {
         var image = entry.media$thumbnail && entry.media$thumbnail.url || '';
-        if (image) image = image.replace(/\/s\d+(-c)?\//, '/s400/');
+        // Blogger entrega la miniatura como .../s72-w320-h180-c/archivo.jpg (72px, pensada
+        // para listados pequeños). La regex anterior solo buscaba "/sNNN/" o "/sNNN-c/" y
+        // nunca coincidía con ese formato real, así que la miniatura de 72px quedaba estirada
+        // a 340x280px en las tarjetas -> pixelada. Ahora capturamos todo el segmento de tamaño
+        // (sNNN + el recorte -wNNN-hNNN-c si existe) y pedimos una versión grande sin recortar.
+        if (image) image = image.replace(/\/s\d+(-w\d+-h\d+)?(-c)?\//, '/s1200/');
         if (!image && entry.content && entry.content.$t) {
             var match = entry.content.$t.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (match) image = match[1];
@@ -5992,33 +6045,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBlogEntries(entries) {
-        if (!entries || !entries.length) throw new Error('No blog entries returned');
-        var cards = entries.slice(0, 3).map(function (entry) {
-            var title = entry.title && entry.title.$t || 'Radiochar Blog';
+        if (!entries || !entries.length) return;
+        var container = document.querySelector('.blog-grid');
+        if (!container) return;
+
+        var html = '';
+        entries.slice(0, 3).forEach(function (entry) {
+            var title = escapeHtml(entry.title && entry.title.$t);
+            var excerpt = escapeHtml(excerptFrom(entry));
             var image = imageFrom(entry);
-            return '<a class="blog-card" href="' + escapeHtml(linkFrom(entry)) + '" target="_blank" rel="noopener">' +
-                '<div class="blog-card-img" style="background-image: url(\'' + escapeHtml(image) + '\');"></div>' +
-                '<div class="blog-card-body"><h3 class="blog-card-title">' + escapeHtml(title) + '</h3>' +
-                '<p class="blog-card-excerpt">' + escapeHtml(excerptFrom(entry)) + '</p></div></a>';
-        }).join('');
-        var grid = document.querySelector('#blogSection .blog-grid');
-        if (grid) grid.innerHTML = cards;
+            var link = linkFrom(entry);
+
+            html += '<a class="blog-card" href="' + link + '" target="_blank" rel="noopener">' +
+                '<div class="blog-card-img" style="background-image: url(\'' + image + '\');"></div>' +
+                '<div class="blog-card-body">' +
+                    '<h3 class="blog-card-title">' + title + '</h3>' +
+                    '<p class="blog-card-excerpt">' + excerpt + '</p>' +
+                '</div>' +
+            '</a>';
+        });
+
+        container.innerHTML = html;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        fetch(feedUrl)
-            .then(function (response) {
-                if (!response.ok) throw new Error('Blog feed request failed: ' + response.status);
-                return response.json();
-            })
-            .then(function (data) {
-                renderBlogEntries(data.feed && data.feed.entry);
-            })
-            .catch(function (error) {
-                // Keep the three embedded fallback cards (Kurt Cobain, Twin Peaks, Star Wars) intact.
-                console.warn('Radiochar blog feed unavailable; showing fallback cards.', error);
-            });
-    });
+    function loadBlogFeed() {
+        var callbackName = 'radiocharBlogCallback_' + Date.now();
+        var script = document.createElement('script');
+        var timeoutId;
+
+        function cleanup() {
+            clearTimeout(timeoutId);
+            delete window[callbackName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[callbackName] = function (data) {
+            try {
+                renderBlogEntries(data && data.feed && data.feed.entry);
+            } catch (error) {
+                console.warn('Radiochar blog feed: error rendering entries.', error);
+            } finally {
+                cleanup();
+            }
+        };
+
+        script.src = getFeedUrl(callbackName);
+        script.async = true;
+        script.onerror = function () {
+            console.warn('Radiochar blog feed unavailable; showing fallback cards.');
+            cleanup();
+        };
+
+        // Salvaguarda por si Blogger no responde (red lenta, feed caído, etc.)
+        timeoutId = setTimeout(function () {
+            console.warn('Radiochar blog feed timed out; showing fallback cards.');
+            cleanup();
+        }, 8000);
+
+        document.body.appendChild(script);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadBlogFeed);
 }());
 </script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
